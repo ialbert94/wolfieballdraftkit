@@ -2,9 +2,11 @@ package wdk.gui;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import javafx.geometry.Rectangle2D;
 import static wdk.WDK_StartupConstants.*;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
@@ -16,11 +18,14 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.FlowPane;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.stage.Screen;
 import javafx.stage.Stage;
+import properties_manager.PropertiesManager;
 import wdk.WDK_PropertyType;
 import wdk.controller.DraftEditController;
 import wdk.controller.FileController;
@@ -38,7 +43,7 @@ import wdk.file.DraftSiteExporter;
  */
 public class WDK_GUI implements DraftDataView {
 
-    static final String PRIMARY_STYLE_SHEET = PATH_CSS + "csb_style.css";
+    static final String PRIMARY_STYLE_SHEET = PATH_CSS + "wdk_style.css";
     static final String CLASS_BORDERED_PANE = "bordered_pane";
     static final String CLASS_SUBJECT_PANE = "subject_pane";
     static final String CLASS_HEADING_LABEL = "heading_label";
@@ -73,10 +78,10 @@ public class WDK_GUI implements DraftDataView {
     // THIS IS THE STAGE'S SCENE GRAPH
     Scene primaryScene;
 
-    //THIS PAGE ORGANIZES THE BIG PICTURE CONTAINERS FOR THE
-    //APPLICATION GUI, AND WILL STORE THE 5 PAGES
     StackPane screensPane;
     
+    //THIS PAGE ORGANIZES THE BIG PICTURE CONTAINERS FOR THE
+    //APPLICATION GUI, AND WILL STORE THE 5 PAGES
     BorderPane wdkPane;
     
     //THESE WILL BE THE PANES FOR EACH PAGE
@@ -195,7 +200,7 @@ public class WDK_GUI implements DraftDataView {
      *
      * @return The DraftDataManager used by this UI.
      */
-    public DraftDataManager getDataManater() {
+    public DraftDataManager getDataManager() {
         return dataManager;
     }
 
@@ -277,7 +282,7 @@ public class WDK_GUI implements DraftDataView {
 
         // INIT THE CENTER WORKSPACE CONTROLS BUT DON'T ADD THEM
         // TO THE WINDOW YET
-        initWorkspace(subjects);
+        initWorkspace();
 
         // NOW SETUP THE EVENT HANDLERS
         initEventHandlers();
@@ -290,7 +295,6 @@ public class WDK_GUI implements DraftDataView {
      * When called this function puts the workspace into the window, revealing
      * the controls for editing a Course.
      */
-    
     //USE THIS METHOD TO SET WHAT PANE YOU WANT TO SET IN THE CENTER
     public void activateWorkspace(StackPane screenPane) {
         if (!workspaceActivated) {
@@ -299,13 +303,11 @@ public class WDK_GUI implements DraftDataView {
             workspaceActivated = true;
         }
     }
-    
-    
-    
+
     /**
-     * This method is used to activate/deactivate toolbar buttons when
-     * they can and cannot be used so as to provide foolproof design.
-     * 
+     * This method is used to activate/deactivate toolbar buttons when they can
+     * and cannot be used so as to provide foolproof design.
+     *
      * @param saved Describes whether the loaded Course has been saved or not.
      */
     public void updateToolbarControls(boolean saved) {
@@ -322,7 +324,6 @@ public class WDK_GUI implements DraftDataView {
         // ARE NEVER DISABLED SO WE NEVER HAVE TO TOUCH THEM
     }
 
-
     @Override
     public void reloadDraft(Draft draftToReload) {
 
@@ -335,13 +336,12 @@ public class WDK_GUI implements DraftDataView {
     /**
      * *************************************************************************
      */
-
     private void initDialogs() {
         messageDialog = new MessageDialog(primaryStage, CLOSE_BUTTON_LABEL);
         yesNoCancelDialog = new YesNoCancelDialog(primaryStage);
     }
-    
-     /**
+
+    /**
      * This function initializes all the buttons in the toolbar at the top of
      * the application window. These are related to file management.
      */
@@ -356,14 +356,102 @@ public class WDK_GUI implements DraftDataView {
         exportSiteButton = initChildButton(fileToolbarPaneUpper, WDK_PropertyType.EXPORT_PAGE_ICON, WDK_PropertyType.EXPORT_PAGE_TOOLTIP, true);
         exitButton = initChildButton(fileToolbarPaneUpper, WDK_PropertyType.EXIT_ICON, WDK_PropertyType.EXIT_TOOLTIP, false);
     }
+
+    //CREATES AND SETS UP ALLTHE CONTROLS TO GO IN THE APP WORKSPACE
+    private void initWorkspace() throws IOException {
+
+        //CSB HAS A METHOD FOR SELECTING PAGE LINKS TO INCLUDE
+        //WE DONT NEED THAT
+        
+        //THEY HAVE A METHOD TO INITIATE TOP WORKSPACE
+        //I BELIEVE EVERYTING WILL BE IN THE CENTER WORKSPACE
+        //AND IT WONT NEED TO BE SPLIT SO WE WON'T INCLUDE THAT EITHER
+       
+        //THERE IS A METHOD CALLED initScheduleItemsControls() which
+        //sets up all the controls inside the center. 
+        //not sure if i will do it this way or will split per screen
+        
+        //THIS HOLDS ALL OUR WORKSPACE COMPONENTS, SO NOW WE MUST
+        //ADD ALL THE COMPONENTS WE JUST INITIALIZED.
+        
+        //there should probably be a method here to 
+        //initialize the workspace default screen, will
+        //figure that out after
+        
+        workspacePane = new BorderPane();
+        //set the top, this will hold our 5 buttons to load save new etc..
+        workspacePane.setTop(topWorkspacePane);
+        //set the botton, this will hold the 5 screens
+        workspacePane.setBottom(bottomWorkspacePane);
+        //set the center, this will be default, but then we can change it
+        //EITHER wdkPane or screensPane
+        workspacePane.setCenter(wdkPane);
+
+        workspacePane.getStyleClass().add(CLASS_BORDERED_PANE);
+
+        //AND NOW PUT IT IN THE WORKSPACE
+        workspaceScrollPane = new ScrollPane();
+        workspaceScrollPane.setContent(workspacePane);
+        workspaceScrollPane.setFitToWidth(true);
+
+        //NOTE THAT WE HAVE NOT PUT THE WORKSPACE INTO THE WINDOW,
+        //THAT WILL BE DONE WHEN THE USER EITHER CREATES A NEW
+        //DRAFT OR LOADS AN EXISTING ONE FOR EDITING
+        workspaceActivated = false;
+    }
+
+    // INITIALIZE THE WINDOW (i.e. STAGE) PUTTING ALL THE CONTROLS
+    // THERE EXCEPT THE WORKSPACE, WHICH WILL BE ADDED THE FIRST
+    // TIME A NEW Course IS CREATED OR LOADED
+    private void initWindow(String windowTitle) {
+        // SET THE WINDOW TITLE
+        primaryStage.setTitle(windowTitle);
+
+        // GET THE SIZE OF THE SCREEN
+        Screen screen = Screen.getPrimary();
+        Rectangle2D bounds = screen.getVisualBounds();
+
+        // AND USE IT TO SIZE THE WINDOW
+        primaryStage.setX(bounds.getMinX());
+        primaryStage.setY(bounds.getMinY());
+        primaryStage.setWidth(bounds.getWidth());
+        primaryStage.setHeight(bounds.getHeight());
+
+        // ADD THE TOOLBAR ONLY, NOTE THAT THE WORKSPACE
+        // HAS BEEN CONSTRUCTED, BUT WON'T BE ADDED UNTIL
+        // THE USER STARTS EDITING A COURSE
+        wdkPane = new BorderPane();
+        wdkPane.setTop(fileToolbarPaneUpper);
+        wdkPane.setBottom(fileToolbarPaneLower);
+        primaryScene = new Scene(wdkPane);
+
+        // NOW TIE THE SCENE TO THE WINDOW, SELECT THE STYLESHEET
+        // WE'LL USE TO STYLIZE OUR GUI CONTROLS, AND OPEN THE WINDOW
+        primaryScene.getStylesheets().add(PRIMARY_STYLE_SHEET);
+        primaryStage.setScene(primaryScene);
+        primaryStage.show();
+    }
     
-     // REGISTER THE EVENT LISTENER FOR A TEXT FIELD
+    
+    private void initEventHandlers() throws IOException {
+        fileController = new FileController(messageDialog, yesNoCancelDialog, draftFileManager, siteExporter);
+        newDraftButton.setOnAction(e -> {
+            fileController.handleNewDraftRequest(this);
+        });
+        exitButton.setOnAction(e -> {
+            fileController.handleExitRequest(this);
+        });
+    }
+    // REGISTER THE EVENT LISTENER FOR A TEXT FIELD
+    
     private void registerTextFieldController(TextField textField) {
         textField.textProperty().addListener((observable, oldValue, newValue) -> {
             draftController.handleDraftChangeRequest(this);
         });
     }
-        // INIT A BUTTON AND ADD IT TO A CONTAINER IN A TOOLBAR
+
+    // INIT A BUTTON AND ADD IT TO A CONTAINER IN A TOOLBAR
+
     private Button initChildButton(Pane toolbar, WDK_PropertyType icon, WDK_PropertyType tooltip, boolean disabled) {
         PropertiesManager props = PropertiesManager.getPropertiesManager();
         String imagePath = "file:" + PATH_IMAGES + props.getProperty(icon.toString());
@@ -375,5 +463,53 @@ public class WDK_GUI implements DraftDataView {
         button.setTooltip(buttonTooltip);
         toolbar.getChildren().add(button);
         return button;
+    }
+    
+    // INIT A LABEL AND SET IT'S STYLESHEET CLASS
+    private Label initLabel(WDK_PropertyType labelProperty, String styleClass) {
+        PropertiesManager props = PropertiesManager.getPropertiesManager();
+        String labelText = props.getProperty(labelProperty);
+        Label label = new Label(labelText);
+        label.getStyleClass().add(styleClass);
+        return label;
+    }
+    
+     // INIT A LABEL AND PLACE IT IN A GridPane INIT ITS PROPER PLACE
+    private Label initGridLabel(GridPane container, WDK_PropertyType labelProperty, String styleClass, int col, int row, int colSpan, int rowSpan) {
+        Label label = initLabel(labelProperty, styleClass);
+        container.add(label, col, row, colSpan, rowSpan);
+        return label;
+    }
+    
+    // INIT A LABEL AND PUT IT IN A TOOLBAR
+    private Label initChildLabel(Pane container, WDK_PropertyType labelProperty, String styleClass) {
+        Label label = initLabel(labelProperty, styleClass);
+        container.getChildren().add(label);
+        return label;
+    }
+    
+    // INIT A COMBO BOX AND PUT IT IN A GridPane
+    private ComboBox initGridComboBox(GridPane container, int col, int row, int colSpan, int rowSpan) throws IOException {
+        ComboBox comboBox = new ComboBox();
+        container.add(comboBox, col, row, colSpan, rowSpan);
+        return comboBox;
+    }
+    
+    // INIT A TEXT FIELD AND PUT IT IN A GridPane
+    private TextField initGridTextField(GridPane container, int size, String initText, boolean editable, int col, int row, int colSpan, int rowSpan) {
+        TextField tf = new TextField();
+        tf.setPrefColumnCount(size);
+        tf.setText(initText);
+        tf.setEditable(editable);
+        container.add(tf, col, row, colSpan, rowSpan);
+        return tf;
+    }
+    
+     // INIT A CheckBox AND PUT IT IN A TOOLBAR
+    // THIS MIGHT NEED TO BE DONE WITH RADIOBUTTONS, NOT CHECKBOXES
+    private CheckBox initChildCheckBox(Pane container, String text) {
+        CheckBox cB = new CheckBox(text);
+        container.getChildren().add(cB);
+        return cB;
     }
 }
