@@ -25,8 +25,8 @@ public class WDK_StartupConstants {
     public static final String PATH_EMPTY = ".";
 
     // THESE ARE THE DATA FILES WE WILL LOAD AT STARTUP
-    public static final String JSON_FILE_PATH_SUBJECTS = PATH_DATA + "subjects.json";
-    public static final String JSON_FILE_PATH_LAST_INSTRUCTOR = PATH_DATA + "last_instructor.json";
+    public static final String JSON_FILE_PATH_HITTERS = PATH_DATA + "Hitters.json";
+    public static final String JSON_FILE_PATH_PITCHERS = PATH_DATA + "Pitchers.json";
     
     // ERRO MESSAGE ASSOCIATED WITH PROPERTIES FILE LOADING ERRORS
     public static String PROPERTIES_FILE_ERROR_MESSAGE = "Error Loading properties.xml";

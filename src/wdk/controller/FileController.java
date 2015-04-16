@@ -118,8 +118,8 @@ public class FileController {
             // IF THE USER REALLY WANTS TO MAKE A NEW COURSE
             if (continueToMakeNew) {
                 // RESET THE DATA, WHICH SHOULD TRIGGER A RESET OF THE UI
-                //DraftDataManager dataManager = gui.getDataManager();
-                //dataManager.reset();
+                DraftDataManager dataManager = gui.getDataManager();
+                dataManager.reset();
                 saved = false;
 
                 // REFRESH THE GUI, WHICH WILL ENABLE AND DISABLE

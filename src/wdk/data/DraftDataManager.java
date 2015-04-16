@@ -64,7 +64,7 @@ public class DraftDataManager {
 //        course.clearPages();
 //        
 //        // AND THEN FORCE THE UI TO RELOAD THE UPDATED COURSE
-        view.reloadCourse(course);
+        view.reloadDraft(draft);
     }
     
     // PRIVATE HELPER METHODS

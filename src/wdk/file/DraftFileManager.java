@@ -18,6 +18,7 @@ public interface DraftFileManager {
     public void                 loadDraft(Draft draftToLoad, String coursePath) throws IOException;
     public void                 saveTeams(List<Object> Draft, String filePath) throws IOException;
     public ArrayList<String>    loadTeams(String filePath) throws IOException;
-    //either saveTeams load teams
-    //or savePlayers load players
+    //public ArrayList<String>    loadPlayers(String filePath) throws IOException;
+    public ArrayList<String>    loadPitchers(String filePath) throws IOException;
+    public ArrayList<String>    loadHitters(String filePath) throws IOException;
 }

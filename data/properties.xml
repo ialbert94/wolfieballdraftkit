@@ -20,6 +20,15 @@
         <property name="MINUS_ICON"         value="Minus.png"></property>
         <property name="MOVE_UP_ICON"       value="MoveUp.png"></property>
         <property name="MOVE_DOWN_ICON"     value="MoveDown.png"></property>
+        <property name="HOME_ICON"          value="Home.png"></property>        
+        <property name="PLAYERS_ICON"       value="Players.png"></property>
+        <property name="STANDINGS_ICON"     value="Standings.png"></property>
+        <property name="DRAFT_ICON"         value="Draft.png"></property>
+        <property name="MLB_ICON"           value="MLB.png"></property>
+        
+        
+        
+        
         
         <!-- TOOLTIPS FOR BUTTONS -->
         <property name="NEW_DRAFT_TOOLTIP"          value="Create a New Draft"></property>
@@ -33,18 +42,23 @@
         <property name="REMOVE_PLAYER_TOOLTIP"      value="Remove Player Item"></property>
         <property name="ADD_TEAM_TOOLTIP"           value="Add Team"></property>
         <property name="REMOVE_TEAM_TOOLTIP"        value="Remove Team"></property>
+        <property name="HOME_TOOLTIP"               value="Check Fantasy Teams"></property>
+        <property name="PLAYERS_TOOLTIP"            value="Check Available Players"></property>
+        <property name="STANDINGS_TOOLTIP"          value="Check Team Standins"></property>
+        <property name="DRAFT_TOOLTIP"              value="Check Draft Summary"></property>
+        <property name="MLB_TOOLTIP"                value="View MLB Teams"></property>
 
         
         <!-- GUI LABELS -->
-        <property name="DRAFT_HEADING_LABEL"              value="Draft Site Details"></property>
-        <property name="DRAFT_INFO_LABEL"                 value="Draft Information"></property>
-        <property name="PAGES_SELECTION_HEADING_LABEL"    value="Site Pages"></property>
-        <property name="PLAYERS_SCREEN_HEADING_LABEL"     value="Available Players"></property>
-        <property name="FANTASY_TEAMS_HEADING_LABEL"      value="Fantasy Teams"></property>
-        <property name="FANTASY_STANDINGS_HEADING_LABEL"  value="Fantasy Standings"></property>
-        <property name="DRAFT_SUMMARY_HEADING_LABEL"      value="Draft Summary"></property>
-        <property name="MLB_TEAMS_HEADING_LABEL"          value="MLB Teams"></property>
-        
+        <property name="DRAFT_HEADING_LABEL"                      value="Draft Site Details"></property>
+        <property name="DRAFT_INFO_LABEL"                         value="Draft Information"></property>
+        <property name="PAGES_SELECTION_HEADING_LABEL"            value="Site Pages"></property>
+        <property name="PLAYERS_SCREEN_HEADING_LABEL"             value="Available Players"></property>
+        <property name="FANTASY_TEAMS_SCREEN_HEADING_LABEL"       value="Fantasy Teams"></property>
+        <property name="FANTASY_STANDINGS_SCREEN_HEADING_LABEL"   value="Fantasy Standings"></property>
+        <property name="DRAFT_SCREEN_HEADING_LABEL"               value="Draft Summary"></property>
+        <property name="MLB_TEAMS_SCREEN_HEADING_LABEL"           value="MLB Teams"></property>
+        <property name="PLAYER_SEARCH_LABEL"                      value="Search:"></property>
         <!-- ERROR MESSAGES -->
         <property name="CLOSE_BUTTON_TEXT"                          value="Close"></property>
 

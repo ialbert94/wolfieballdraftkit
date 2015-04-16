@@ -6,6 +6,7 @@
 package wdk;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Locale;
 import javafx.application.Application;
 import javafx.event.ActionEvent;
@@ -16,13 +17,17 @@ import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 import properties_manager.PropertiesManager;
 import static wdk.WDK_PropertyType.PROP_APP_TITLE;
+import static wdk.WDK_StartupConstants.JSON_FILE_PATH_HITTERS;
+import static wdk.WDK_StartupConstants.JSON_FILE_PATH_PITCHERS;
 import static wdk.WDK_StartupConstants.PATH_BASE;
 import static wdk.WDK_StartupConstants.PATH_DATA;
 import static wdk.WDK_StartupConstants.PATH_SITES;
 import static wdk.WDK_StartupConstants.PROPERTIES_FILE_NAME;
 import static wdk.WDK_StartupConstants.PROPERTIES_SCHEMA_FILE_NAME;
+import wdk.data.DraftDataManager;
 import wdk.error.ErrorHandler;
 import wdk.file.DraftSiteExporter;
+import wdk.file.JsonDraftFileManager;
 import wdk.gui.WDK_GUI;
 import xml_utilities.InvalidXMLFileFormatException;
 
@@ -56,7 +61,7 @@ public class WolfieballDraftKit extends Application {
                 //WE WILL SAVE OUR DRAFT DATA USING THE JSON FILE
                 //FORMAT SO WE'LL LET THIS OBJECT DO THIS FOR US
                 
-                //JsonCourseFileManager jsonFileManager = new JsonCourseFileManager();
+                JsonDraftFileManager jsonFileManager = new JsonDraftFileManager();
                 
                 //AND THIS ONE WILL DO THE DRAFT WEB PAGE EXPORTING
                 
@@ -65,9 +70,10 @@ public class WolfieballDraftKit extends Application {
                 //THIS SHOULD LOAD THE PITCHERS AND HITTERS
                 //LETS COMMENT THIS OUT FOR NOW
                 
-                //ArrayList<String> hitters = jsonFileManager.loadHitters(JSON_FILE_PATH_HITTERS);
-                //ArrayList<String> pitchers = jsonFileManager.loadPitchers(JSON_FILE_PATH_PITCHERS);
+                ArrayList<String> hitters = jsonFileManager.loadHitters(JSON_FILE_PATH_HITTERS);
+                ArrayList<String> pitchers = jsonFileManager.loadPitchers(JSON_FILE_PATH_PITCHERS);
                 
+                jsonFileManager.loadHitter(JSON_FILE_PATH_HITTERS);
                 //AND NOW GIVE ALL THIS STUFF TO THE UI
                 //INITIALIZE THE USER INTERFACE COMPOINENTS
                 gui = new WDK_GUI(primaryStage);
@@ -76,9 +82,13 @@ public class WolfieballDraftKit extends Application {
                 //gui.setCourseFileManager(jsonFileManager);
                 //gui.setSiteExporter(exporter);
                 
+                // CONSTRUCT THE DATA MANAGER AND GIVE IT TO THE GUI
+                DraftDataManager dataManager = new DraftDataManager(gui); 
+                gui.setDataManager(dataManager);
+                
                 //FINALLY START UP THE ISER INTERFACE WINDOW AFTER ALL
                 //REMAINING INITIALIZATION
-                gui.initGUI(appTitle);
+                gui.initGUI(appTitle, hitters, pitchers);
             } catch (IOException ioe) {
                 eH = ErrorHandler.getErrorHandler();
                 eH.handlePropertiesFileError();
