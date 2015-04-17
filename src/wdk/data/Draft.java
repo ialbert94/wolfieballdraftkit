@@ -24,10 +24,13 @@ public class Draft {
     ArrayList<String> filledPositions;
     ObservableList<Player> hitters;
     ObservableList<Player> pitchers;
-    
+    ObservableList<Player> allPlayers;
+    ObservableList<Player> filteredPlayers;
     public Draft() {
         hitters = FXCollections.observableArrayList();
         pitchers = FXCollections.observableArrayList();
+        allPlayers = FXCollections.observableArrayList();
+        filteredPlayers = FXCollections.observableArrayList();
     }
     
    public void addHitter(Player p) {
@@ -41,4 +44,38 @@ public class Draft {
    public void removeHitter(Player hitterToRemove){
        hitters.remove(hitterToRemove);
    }
+   
+    public void addPitcher(Player p) {
+        pitchers.add(p);
+        
+    }
+
+    public ObservableList<Player> getFilteredPlayers() {
+        return filteredPlayers;
+    }
+
+    public void setFilteredPlayers(ObservableList<Player> filteredPlayers) {
+        this.filteredPlayers = filteredPlayers;
+    }
+    
+    
+    public ObservableList<Player> getAllPlayers(){
+        return allPlayers;
+    }
+   public ObservableList<Player> getPitchers() {
+        return pitchers;
+    }
+   public void addToAllPlayers(Player p) {
+       allPlayers.add(p);
+     
+   }
+   
+   public void addToFilteredPlayers(Player playerToAdd){
+       filteredPlayers.addAll(playerToAdd);
+   }
+   
+   public void removePitcher(Player pitcherToRemove){
+       pitchers.remove(pitcherToRemove);
+   }
+   
 }

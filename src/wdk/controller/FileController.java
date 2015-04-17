@@ -14,12 +14,15 @@ import properties_manager.PropertiesManager;
 import static wdk.WDK_PropertyType.DRAFT_SAVED_MESSAGE;
 import static wdk.WDK_PropertyType.NEW_DRAFT_CREATED_MESSAGE;
 import static wdk.WDK_PropertyType.SAVE_UNSAVED_WORK_MESSAGE;
+import static wdk.WDK_StartupConstants.JSON_FILE_PATH_HITTERS;
+import static wdk.WDK_StartupConstants.JSON_FILE_PATH_PITCHERS;
 import static wdk.WDK_StartupConstants.PATH_DRAFTS;
 import wdk.data.Draft;
 import wdk.data.DraftDataManager;
 import wdk.error.ErrorHandler;
 import wdk.file.DraftFileManager;
 import wdk.file.DraftSiteExporter;
+import wdk.file.JsonDraftFileManager;
 import wdk.gui.MessageDialog;
 import wdk.gui.WDK_GUI;
 import wdk.gui.WebBrowser;
@@ -30,7 +33,7 @@ import wdk.gui.YesNoCancelDialog;
  * @author Albert
  */
 public class FileController {
-    
+
     // WE WANT TO KEEP TRACK OF WHEN SOMETHING HAS NOT BEEN SAVED
     private boolean saved;
 
@@ -42,16 +45,17 @@ public class FileController {
 
     // THIS WILL PROVIDE FEEDBACK TO THE USER WHEN SOMETHING GOES WRONG
     ErrorHandler errorHandler;
-    
+
     // THIS WILL PROVIDE FEEDBACK TO THE USER AFTER
     // WORK BY THIS CLASS HAS COMPLETED
     MessageDialog messageDialog;
-    
+
     // AND WE'LL USE THIS TO ASK YES/NO/CANCEL QUESTIONS
     YesNoCancelDialog yesNoCancelDialog;
-    
+
     // WE'LL USE THIS TO GET OUR VERIFICATION FEEDBACK
     PropertiesManager properties;
+    JsonDraftFileManager jsonFileManager;
 
     /**
      * This default constructor starts the program without a course file being
@@ -71,31 +75,31 @@ public class FileController {
             DraftSiteExporter initExporter) {
         // NOTHING YET
         saved = true;
-        
+
         // KEEP THESE GUYS FOR LATER
         draftIO = initDraftIO;
         exporter = initExporter;
-        
+
         // BE READY FOR ERRORS
         errorHandler = ErrorHandler.getErrorHandler();
-        
+
         // AND GET READY TO PROVIDE FEEDBACK
         messageDialog = initMessageDialog;
         yesNoCancelDialog = initYesNoCancelDialog;
         properties = PropertiesManager.getPropertiesManager();
     }
-    
+
     /**
-     * This method marks the appropriate variable such that we know
-     * that the current Course has been edited since it's been saved.
-     * The UI is then updated to reflect this.
-     * 
+     * This method marks the appropriate variable such that we know that the
+     * current Course has been edited since it's been saved. The UI is then
+     * updated to reflect this.
+     *
      * @param gui The user interface editing the Course.
      */
     public void markAsEdited(WDK_GUI gui) {
         // THE Course OBJECT IS NOW DIRTY
         saved = false;
-        
+
         // LET THE UI KNOW
         gui.updateToolbarControls(saved);
     }
@@ -103,7 +107,7 @@ public class FileController {
     /**
      * This method starts the process of editing a new Course. If a course is
      * already being edited, it will prompt the user to save it first.
-     * 
+     *
      * @param gui The user interface editing the Course.
      */
     public void handleNewDraftRequest(WDK_GUI gui) {
@@ -121,7 +125,10 @@ public class FileController {
                 DraftDataManager dataManager = gui.getDataManager();
                 dataManager.reset();
                 saved = false;
-
+                jsonFileManager = new JsonDraftFileManager();
+                //jsonFileManager.loadHitter(dataManager.getDraft(), JSON_FILE_PATH_HITTERS);
+                //jsonFileManager.loadPitcher(dataManager.getDraft(), JSON_FILE_PATH_PITCHERS);
+                jsonFileManager.loadPlayers(dataManager.getDraft(), JSON_FILE_PATH_HITTERS, JSON_FILE_PATH_PITCHERS);
                 // REFRESH THE GUI, WHICH WILL ENABLE AND DISABLE
                 // THE APPROPRIATE CONTROLS
                 gui.updateToolbarControls(saved);
@@ -138,7 +145,7 @@ public class FileController {
     /**
      * This method lets the user open a Course saved to a file. It will also
      * make sure data for the current Course is not lost.
-     * 
+     *
      * @param gui The user interface editing the course.
      */
     public void handleLoadCourseRequest(WDK_GUI gui) {
@@ -164,10 +171,11 @@ public class FileController {
     /**
      * This method will save the current course to a file. Note that we already
      * know the name of the file, so we won't need to prompt the user.
-     * 
+     *
      * @param gui The user interface editing the Course.
-     * 
-     * @param courseToSave The course being edited that is to be saved to a file.
+     *
+     * @param courseToSave The course being edited that is to be saved to a
+     * file.
      */
     public void handleSaveCourseRequest(WDK_GUI gui, Draft draftToSave) {
         try {
@@ -190,7 +198,7 @@ public class FileController {
 
     /**
      * This method will export the current course.
-     * 
+     *
      * @param gui
      */
 //    public void handleExportCourseRequest(WDK_GUI gui) {
@@ -221,11 +229,10 @@ public class FileController {
 //            errorHandler.handleExportDraftError(draftToExport);
 //        }
 //    }
-
     /**
      * This method will exit the application, making sure the user doesn't lose
      * any data first.
-     * 
+     *
      * @param gui
      */
     public void handleExitRequest(WDK_GUI gui) {
@@ -252,12 +259,12 @@ public class FileController {
      * This helper method verifies that the user really wants to save their
      * unsaved work, which they might not want to do. Note that it could be used
      * in multiple contexts before doing other actions, like creating a new
-     * Course, or opening another Course. Note that the user will be
-     * presented with 3 options: YES, NO, and CANCEL. YES means the user wants
-     * to save their work and continue the other action (we return true to
-     * denote this), NO means don't save the work but continue with the other
-     * action (true is returned), CANCEL means don't save the work and don't
-     * continue with the other action (false is returned).
+     * Course, or opening another Course. Note that the user will be presented
+     * with 3 options: YES, NO, and CANCEL. YES means the user wants to save
+     * their work and continue the other action (we return true to denote this),
+     * NO means don't save the work but continue with the other action (true is
+     * returned), CANCEL means don't save the work and don't continue with the
+     * other action (false is returned).
      *
      * @return true if the user presses the YES option to save, true if the user
      * presses the NO option to not save, false if the user presses the CANCEL
@@ -266,7 +273,7 @@ public class FileController {
     private boolean promptToSave(WDK_GUI gui) throws IOException {
         // PROMPT THE USER TO SAVE UNSAVED WORK
         yesNoCancelDialog.show(properties.getProperty(SAVE_UNSAVED_WORK_MESSAGE));
-        
+
         // AND NOW GET THE USER'S SELECTION
         String selection = yesNoCancelDialog.getSelection();
 
@@ -276,8 +283,7 @@ public class FileController {
             DraftDataManager dataManager = gui.getDataManager();
             draftIO.saveDraft(dataManager.getDraft());
             saved = true;
-            
-           
+
         } // IF THE USER SAID CANCEL, THEN WE'LL TELL WHOEVER
         // CALLED THIS THAT THE USER IS NOT INTERESTED ANYMORE
         else if (selection.equals(YesNoCancelDialog.CANCEL)) {
@@ -310,7 +316,7 @@ public class FileController {
                 gui.reloadDraft(draftToLoad);
                 saved = true;
                 gui.updateToolbarControls(saved);
-                
+
             } catch (Exception e) {
                 ErrorHandler eH = ErrorHandler.getErrorHandler();
                 eH.handleLoadDraftError();

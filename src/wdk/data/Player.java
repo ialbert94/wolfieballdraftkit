@@ -10,13 +10,14 @@ package wdk.data;
 public class Player {
     //THESE WILL BE THE VARIABLES THAT WILL BELONG
     //TO BOTH THE PITCHERS AND THE HITTERS
-    private String lastName;
-    private String firstName;
-    private String previousTeam;
-    private String notes;
-    private String yearOfBirth;
-    private String nationOfBirth;
-    private int H;          //Hits, earned by hitters, given up by pitchers
+    String lastName;
+    String firstName;
+    String previousTeam;
+    String notes;
+    String yearOfBirth;
+    String nationOfBirth;
+    int H;                  //Hits, earned by hitters, given up by pitchers
+    
     
     //THESE WILL BE THE VARIABLES THAT WILL BELONG
     //TO THE PITCHERS
@@ -26,6 +27,9 @@ public class Player {
     private int SV;         //Saves
     private int BB;         //Bases on Balls earned by hitters, given up by pitchers
     private int K;          //Strikeputs
+    double WHIP;            //walks+hits/innings pitched
+    double ERA;             //earned runs x9/innings pitched
+    
     
     //THESE WILL BE THE VARIABELS THAT WIL BELONG
     //TO THE HITTERS
@@ -35,32 +39,37 @@ public class Player {
     private int HR;         //Home Runs
     private int RBI;        //Runs Batted in
     private int SB;         //Stolen Bases
-
+    double BA;              //calculated batting average as hits/at bats
+    
+    //THESE WILL BE THE SHARED STATS FOR TABLECOLUMN PURPOSES ONLY
+    int R_W;
+    int HR_SV;
+    int RBI_K;
+    double SB_ERA;
+    double BA_WHIP;
+    
+    
     public Player() {
     }
 
-    public Player(String lastName, String firstName, String previousTeam, String notes, String yearOfBirth, String nationOfBirth, int H, double IP, int ER, int W, int SV, int BB, int K, String QP, int AB, int R, int HR, int RBI, int SB) {
-        this.lastName = lastName;
-        this.firstName = firstName;
-        this.previousTeam = previousTeam;
-        this.notes = notes;
-        this.yearOfBirth = yearOfBirth;
-        this.nationOfBirth = nationOfBirth;
-        this.H = H;
-        this.IP = IP;
-        this.ER = ER;
-        this.W = W;
-        this.SV = SV;
-        this.BB = BB;
-        this.K = K;
-        this.QP = QP;
-        this.AB = AB;
-        this.R = R;
-        this.HR = HR;
-        this.RBI = RBI;
-        this.SB = SB;
+    public double getERA() {
+        return ERA;
     }
 
+    public double getWHIP() {
+        return WHIP;
+    }
+
+    public void setERA(double ERA) {
+        this.ERA = ERA;
+    }
+
+    public void setWHIP(double WHIP) {
+        this.WHIP = WHIP;
+    }
+
+    
+    
     public int getAB() {
         return AB;
     }
@@ -212,7 +221,57 @@ public class Player {
     public void setYearOfBirth(String yearOfBirth) {
         this.yearOfBirth = yearOfBirth;
     }
+
+    public double getBA() {
+        return BA;
+    }
+
+    public void setBA(double BA) {
+        this.BA = BA;
+    }
+
+    public void setBA_WHIP(double BA_WHIP) {
+        this.BA_WHIP = BA_WHIP;
+    }
+
+    public double getBA_WHIP() {
+        return BA_WHIP;
+    }
+
+    public int getHR_SV() {
+        return HR_SV;
+    }
+
+    public int getRBI_K() {
+        return RBI_K;
+    }
+
+    public int getR_W() {
+        return R_W;
+    }
+
+    public double getSB_ERA() {
+        return SB_ERA;
+    }
+
+    public void setHR_SV(int HR_SV) {
+        this.HR_SV = HR_SV;
+    }
+
+    public void setRBI_K(int RBI_K) {
+        this.RBI_K = RBI_K;
+    }
+
+    public void setR_W(int R_W) {
+        this.R_W = R_W;
+    }
+
+    public void setSB_ERA(double SB_ERA) {
+        this.SB_ERA = SB_ERA;
+    }
     
+    
+   
     
     
     

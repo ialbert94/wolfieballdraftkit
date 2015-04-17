@@ -39,7 +39,7 @@
         <property name="DELETE_TOOLTIP"             value="Delete this Draft"></property>
         <property name="EXIT_TOOLTIP"               value="Exit the Application"></property>
         <property name="ADD_PLAYER_TOOLTIP"         value="Add Player"></property>
-        <property name="REMOVE_PLAYER_TOOLTIP"      value="Remove Player Item"></property>
+        <property name="REMOVE_PLAYER_TOOLTIP"      value="Remove Player"></property>
         <property name="ADD_TEAM_TOOLTIP"           value="Add Team"></property>
         <property name="REMOVE_TEAM_TOOLTIP"        value="Remove Team"></property>
         <property name="HOME_TOOLTIP"               value="Check Fantasy Teams"></property>

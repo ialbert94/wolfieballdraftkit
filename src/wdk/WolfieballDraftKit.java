@@ -70,10 +70,10 @@ public class WolfieballDraftKit extends Application {
                 //THIS SHOULD LOAD THE PITCHERS AND HITTERS
                 //LETS COMMENT THIS OUT FOR NOW
                 
-                ArrayList<String> hitters = jsonFileManager.loadHitters(JSON_FILE_PATH_HITTERS);
-                ArrayList<String> pitchers = jsonFileManager.loadPitchers(JSON_FILE_PATH_PITCHERS);
+            //    ArrayList<String> hitters = jsonFileManager.loadHitters(JSON_FILE_PATH_HITTERS);
+            //    ArrayList<String> pitchers = jsonFileManager.loadPitchers(JSON_FILE_PATH_PITCHERS);
                 
-                jsonFileManager.loadHitter(JSON_FILE_PATH_HITTERS);
+                
                 //AND NOW GIVE ALL THIS STUFF TO THE UI
                 //INITIALIZE THE USER INTERFACE COMPOINENTS
                 gui = new WDK_GUI(primaryStage);
@@ -88,7 +88,8 @@ public class WolfieballDraftKit extends Application {
                 
                 //FINALLY START UP THE ISER INTERFACE WINDOW AFTER ALL
                 //REMAINING INITIALIZATION
-                gui.initGUI(appTitle, hitters, pitchers);
+                //gui.initGUI(appTitle, hitters, pitchers
+                gui.initGUI(appTitle);
             } catch (IOException ioe) {
                 eH = ErrorHandler.getErrorHandler();
                 eH.handlePropertiesFileError();

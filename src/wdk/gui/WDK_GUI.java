@@ -2,6 +2,15 @@ package wdk.gui;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.function.Predicate;
+import static javafx.application.ConditionalFeature.FXML;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.collections.ListChangeListener;
+import javafx.collections.transformation.FilteredList;
+import javafx.collections.transformation.SortedList;
+import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.geometry.Rectangle2D;
 import static wdk.WDK_StartupConstants.*;
@@ -141,6 +150,7 @@ public class WDK_GUI implements DraftDataView {
     HBox playersScreenToolbar;
     Button addPlayerButton;
     Button removePlayerButton;
+    FilteredList<Player> filteredData;
     HBox radioButtons;
     RadioButton All;
     RadioButton C;
@@ -154,7 +164,7 @@ public class WDK_GUI implements DraftDataView {
     RadioButton U;
     RadioButton P;
     ToggleGroup toggle;
-    
+
     //these are the columns
     TableColumn playerFirstName;
     TableColumn playerLastName;
@@ -168,6 +178,16 @@ public class WDK_GUI implements DraftDataView {
     TableColumn playerWHIP;
     TableColumn playerEstimatedValue;
     TableColumn playerNotes;
+    TableColumn playerR;
+    TableColumn playerHR;
+    TableColumn playerRBI;
+    TableColumn playerSB;
+    TableColumn playerBA;
+    TableColumn playerRW;
+    TableColumn playerHRSV;
+    TableColumn playerRBIK;
+    TableColumn playerSBERA;
+    TableColumn playerBAWHIP;
 
     //THESE ARE THE CONTROLS FOR THE FANTASY TEAMS SCREEN
     TableView<Player> rostersTable;
@@ -181,18 +201,13 @@ public class WDK_GUI implements DraftDataView {
     TextField teamOwnerTextField;
     GridPane teamsGridPane;
 
-    
-    
     //THESE ARE THE CONTROLS FOR THE FANTASY STANDINGS SCREEN
     //THERE WILL BE RADIO BUTTONS ALSO
     TableView<Draft> fantasyTeamsStatsTable;
     VBox fantasyStandingsScreenBox;
     GridPane standingsGridPane;
     Label fantasyStandingsScreenHeadingLabel;
-    
-    
-    
-    
+
     //THESE ARE THE CONTROLS FOR THE DRAFT SCREEN
     TableView<Player> playersDraftedTable;
     VBox draftScreenBox;
@@ -200,19 +215,14 @@ public class WDK_GUI implements DraftDataView {
     Button pauseAutomatedDraftButton;
     GridPane draftGridPane;
     Label draftScreenHeadingLabel;
-    
-    
-    
+
     //THESE ARE THE CONTROLS FOR THE MLB TEAMS SCREEN
     TableView<Player> mlbTeamPlayers;
     ComboBox mlbTeamSelectionComboBox;
     VBox mlbTeamsScreenBox;
     GridPane mlbGridPane;
     Label mlbScreenHeadingLabel;
-    
-    
-    
-    
+
     // AND TABLE COLUMNS   
     public static final String COL_TEAM_NAME = "Name";
     public static final String COL_PLAYERS_NEEDED = "Players Needed";
@@ -238,14 +248,15 @@ public class WDK_GUI implements DraftDataView {
     public static final String COL_YOB = "Year of Birth";
     public static final String COL_VALUE = "Estimated Value";
     public static final String COL_NOTES = "Notes";
+    public static final String COL_R_W = "R/W";
+    public static final String COL_HR_SV = "HR/SV";
+    public static final String COL_RBI_K = "RBI/K";
+    public static final String COL_SB_ERA = "SB/ERA";
+    public static final String COL_BA_WHIP = "BA/WHIP";
 
     // HERE ARE OUR DIALOGS
     MessageDialog messageDialog;
     YesNoCancelDialog yesNoCancelDialog;
-    
-    
-    
-    
 
     /**
      * Constructor for making this GUI, note that it does not initialize the UI
@@ -336,7 +347,7 @@ public class WDK_GUI implements DraftDataView {
      * @param subjects The list of subjects to choose from.
      * @throws IOException Thrown if any initialization files fail to load.
      */
-    public void initGUI(String windowTitle, ArrayList<String> hitters, ArrayList<String> pitchers) throws IOException {
+    public void initGUI(String windowTitle) throws IOException {
         // INIT THE DIALOGS
         initDialogs();
 
@@ -449,18 +460,13 @@ public class WDK_GUI implements DraftDataView {
         //THERE IS A METHOD CALLED initScheduleItemsControls() which
         //sets up all the controls inside the center. 
         //not sure if i will do it this way or will split per screen
-        
-        
         initAllScreens();
-        
-        
+
         //THIS HOLDS ALL OUR WORKSPACE COMPONENTS, SO NOW WE MUST
         //ADD ALL THE COMPONENTS WE JUST INITIALIZED.
         //there should probably be a method here to 
         //initialize the workspace default screen, will
         //figure that out after
-        
-
         workspacePane = new BorderPane();
 
         //set the top, this will hold our 5 buttons to load save new etc..
@@ -480,17 +486,17 @@ public class WDK_GUI implements DraftDataView {
         //DRAFT OR LOADS AN EXISTING ONE FOR EDITING
         workspaceActivated = false;
     }
+
     private void initAllScreens() {
         initFantasyTeamsScreen();
         initPlayersScreen();
         initStandingsScreen();
         initDraftScreen();
         initMLBScreen();
-        
+
     }
+
     private void initFantasyTeamsScreen() {
-
-
 
         //FILL THE CONTENT OF THE FANTASY TEAMS SCREEN
         fantasyTeamsScreenBorder = new BorderPane();
@@ -507,11 +513,11 @@ public class WDK_GUI implements DraftDataView {
     private void initPlayersScreen() {//FILL THE CONTENT OF THE PLAYERS SCREEN;
         //INITIALIZE THE BORDERPANE THAT WILL HOLD EVERYTHING
         playersScreenBorder = new BorderPane();
-        
+
         playersScreenBox = new VBox();
         topPanePlayer = new VBox();
         topPanePlayer.getStyleClass().add(CLASS_BORDERED_PANE);
-        
+
         playersScreenToolbar = new HBox();
         addPlayerButton = new Button();
         removePlayerButton = new Button();
@@ -523,7 +529,7 @@ public class WDK_GUI implements DraftDataView {
         addPlayerButton = initChildButton(playersScreenToolbar, WDK_PropertyType.ADD_ICON, WDK_PropertyType.ADD_ICON, false);
         removePlayerButton = initChildButton(playersScreenToolbar, WDK_PropertyType.MINUS_ICON, WDK_PropertyType.MINUS_ICON, false);
         playerSearchLabel = initGridLabel(playersGridPane, WDK_PropertyType.PLAYER_SEARCH_LABEL, CLASS_PROMPT_LABEL, 2, 2, 1, 1);
-        playerSearchTextField = initGridTextField(playersGridPane, LARGE_TEXT_FIELD_LENGTH, EMPTY_TEXT,true, 3,  2, 1, 1);
+        playerSearchTextField = initGridTextField(playersGridPane, LARGE_TEXT_FIELD_LENGTH, EMPTY_TEXT, true, 3, 2, 1, 1);
 
         //initialize the radio buttons
         All = new RadioButton("All");
@@ -551,10 +557,10 @@ public class WDK_GUI implements DraftDataView {
         OF.setToggleGroup(toggle);
         U.setToggleGroup(toggle);
         P.setToggleGroup(toggle);
-        P.setSelected(true);
+        All.setSelected(true);
         radioButtons = new HBox(25, All, C, B1, CI, B3, B2, MI, SS, OF, U, P);
         radioButtons.setPadding(new Insets(20));
-        
+
         //INITIALIZE THE TABLE COLUMNS
         playerFirstName = new TableColumn(COL_FIRST_NAME);
         playerLastName = new TableColumn(COL_LAST_NAME);
@@ -568,47 +574,71 @@ public class WDK_GUI implements DraftDataView {
         playerWHIP = new TableColumn(COL_WHIP);
         playerEstimatedValue = new TableColumn(COL_VALUE);
         playerNotes = new TableColumn(COL_NOTES);
-        
+        playerR = new TableColumn(COL_R);
+        playerHR = new TableColumn(COL_HR);
+        playerRBI = new TableColumn(COL_RBI);
+        playerSB = new TableColumn(COL_SB);
+        playerBA = new TableColumn(COL_BA);
+        playerRW = new TableColumn(COL_R_W);
+        playerHRSV = new TableColumn(COL_HR_SV);
+        playerRBIK = new TableColumn(COL_RBI_K);
+        playerSBERA = new TableColumn(COL_SB_ERA);
+        playerBAWHIP = new TableColumn(COL_BA_WHIP);
+
         //ADD THE LABLES TO THE CELL
-        playerFirstName.setCellValueFactory(new PropertyValueFactory<>("First"));
-        playerLastName.setCellValueFactory(new PropertyValueFactory<>("Last"));
-        playerProTeam.setCellValueFactory(new PropertyValueFactory<>("Pro Team"));
-        playerPositions.setCellValueFactory(new PropertyValueFactory<>("Positions"));
-        playerYearOfBirth.setCellValueFactory(new PropertyValueFactory<>("Year of Birth"));
-        playerW.setCellValueFactory(new PropertyValueFactory<>("W"));
+        playerFirstName.setCellValueFactory(new PropertyValueFactory<>("firstName"));
+        playerLastName.setCellValueFactory(new PropertyValueFactory<>("lastName"));
+        playerProTeam.setCellValueFactory(new PropertyValueFactory<>("previousTeam"));
+        playerPositions.setCellValueFactory(new PropertyValueFactory<>("QP"));
+        playerYearOfBirth.setCellValueFactory(new PropertyValueFactory<>("yearOfBirth"));
+        playerR.setCellValueFactory(new PropertyValueFactory<>("R"));
+        playerHR.setCellValueFactory(new PropertyValueFactory<>("HR"));
+        playerRBI.setCellValueFactory(new PropertyValueFactory<>("RBI"));
+        playerSB.setCellValueFactory(new PropertyValueFactory<>("SB"));
+        playerW.setCellValueFactory(new PropertyValueFactory<>("H"));
         playerSV.setCellValueFactory(new PropertyValueFactory<>("SV"));
+        playerBA.setCellValueFactory(new PropertyValueFactory<>("BA"));
         playerK.setCellValueFactory(new PropertyValueFactory<>("K"));
         playerERA.setCellValueFactory(new PropertyValueFactory<>("ERA"));
         playerWHIP.setCellValueFactory(new PropertyValueFactory<>("WHIP"));
         playerEstimatedValue.setCellValueFactory(new PropertyValueFactory<>("Estimated Values"));
         playerNotes.setCellValueFactory(new PropertyValueFactory<>("Notes"));
-        
+        playerRW.setCellValueFactory(new PropertyValueFactory<>("R_W"));
+        playerHRSV.setCellValueFactory(new PropertyValueFactory<>("HR_SV"));
+        playerRBIK.setCellValueFactory(new PropertyValueFactory<>("RBI_K"));
+        playerSBERA.setCellValueFactory(new PropertyValueFactory<>("SB_ERA"));
+        playerBAWHIP.setCellValueFactory(new PropertyValueFactory<>("BA_WHIP"));
+
         //AND THEN ADD THE COLUMS TO THE TABLE
         playersTable.getColumns().add(playerFirstName);
         playersTable.getColumns().add(playerLastName);
         playersTable.getColumns().add(playerProTeam);
         playersTable.getColumns().add(playerPositions);
         playersTable.getColumns().add(playerYearOfBirth);
-        playersTable.getColumns().add(playerW);
-        playersTable.getColumns().add(playerSV);
-        playersTable.getColumns().add(playerK);
-        playersTable.getColumns().add(playerERA);
-        playersTable.getColumns().add(playerWHIP);
+        playersTable.getColumns().add(playerRW);
+        playersTable.getColumns().add(playerHRSV);
+        playersTable.getColumns().add(playerRBIK);
+        playersTable.getColumns().add(playerSBERA);
+        playersTable.getColumns().add(playerBAWHIP);
         playersTable.getColumns().add(playerEstimatedValue);
         playersTable.getColumns().add(playerNotes);
+        playerNotes.setEditable(true);
         
+        filteredData = new FilteredList<>(dataManager.getDraft().getAllPlayers(), p -> true);
+        
+        playersTable.setItems(dataManager.getDraft().getFilteredPlayers());
         playersScreenToolbar.getChildren().add(playersGridPane);
-        
+
         topPanePlayer.getChildren().add(playersScreenToolbar);
         topPanePlayer.getChildren().add(radioButtons);
         playersScreenBox.getChildren().add(topPanePlayer);
         playersScreenBox.getChildren().add(playersTable);
-        
+
         playersScreenBorder.setTop(playersScreenBox);
         playersScreenBorder.setBottom(fileToolbarPaneLower);
-
-
     }
+
+
     private void initStandingsScreen() {
         fantasyStandingsScreenBox = new VBox();
         fantasyStandingsScreenHeadingLabel = initChildLabel(fantasyStandingsScreenBox, WDK_PropertyType.FANTASY_STANDINGS_SCREEN_HEADING_LABEL, CLASS_HEADING_LABEL);
@@ -616,13 +646,15 @@ public class WDK_GUI implements DraftDataView {
         fantasyStandingsScreenBorder.setTop(fantasyStandingsScreenBox);
         fantasyStandingsScreenBorder.setBottom(fileToolbarPaneLower);
     }
-    private void initDraftScreen(){
+
+    private void initDraftScreen() {
         draftScreenBox = new VBox();
         draftScreenHeadingLabel = initChildLabel(draftScreenBox, WDK_PropertyType.DRAFT_SCREEN_HEADING_LABEL, CLASS_HEADING_LABEL);
         draftScreenBorder = new BorderPane();
         draftScreenBorder.setTop(draftScreenBox);
         draftScreenBorder.setBottom(fileToolbarPaneLower);
     }
+
     private void initMLBScreen() {
         mlbTeamsScreenBox = new VBox();
         mlbScreenHeadingLabel = initChildLabel(mlbTeamsScreenBox, WDK_PropertyType.MLB_TEAMS_SCREEN_HEADING_LABEL, CLASS_HEADING_LABEL);
@@ -675,7 +707,7 @@ public class WDK_GUI implements DraftDataView {
         // THE USER STARTS EDITING A COURSE
         wdkPane = new BorderPane();
         wdkPane.setTop(fileToolbarPaneUpper);
-        
+
         primaryScene = new Scene(wdkPane);
 
         // NOW TIE THE SCENE TO THE WINDOW, SELECT THE STYLESHEET
@@ -713,8 +745,30 @@ public class WDK_GUI implements DraftDataView {
             handleScreenSwitchRequest(5);
 
         });
+        playerSearchTextField.textProperty().addListener((observable, oldValue, newValue) -> {
+            filteredData.setPredicate((Predicate<? super Player>) player -> {
+                //if filter text is empty, display all players
+                if(newValue == null || newValue.isEmpty()){
+                    return true;
+                }
+                String lowerCaseFilter = newValue.toLowerCase();
+                if(player.getFirstName().toLowerCase().startsWith(lowerCaseFilter)){
+                    return true;
+                } else if(player.getLastName().toLowerCase().startsWith(lowerCaseFilter)){
+                    return true;
+                }
+                return false;
+            });
+        });
+        
+        SortedList<Player> sortedData = new SortedList<>(filteredData);
+        sortedData.comparatorProperty().bind(playersTable.comparatorProperty());
+        playersTable.setItems(sortedData);
+        
+        
     }
-    // REGISTER THE EVENT LISTENER FOR A TEXT FIELD
+
+    
 
     private void registerTextFieldController(TextField textField) {
         textField.textProperty().addListener((observable, oldValue, newValue) -> {
