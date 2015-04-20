@@ -114,10 +114,10 @@ public class FileController {
         try {
             // WE MAY HAVE TO SAVE CURRENT WORK
             boolean continueToMakeNew = true;
-            if (!saved) {
-                // THE USER CAN OPT OUT HERE WITH A CANCEL
-                continueToMakeNew = promptToSave(gui);
-            }
+//            if (!saved) {
+//                // THE USER CAN OPT OUT HERE WITH A CANCEL
+//                continueToMakeNew = promptToSave(gui);
+//            }
 
             // IF THE USER REALLY WANTS TO MAKE A NEW COURSE
             if (continueToMakeNew) {
@@ -236,23 +236,23 @@ public class FileController {
      * @param gui
      */
     public void handleExitRequest(WDK_GUI gui) {
-        try {
+       // try {
             // WE MAY HAVE TO SAVE CURRENT WORK
             boolean continueToExit = true;
-            if (!saved) {
-                // THE USER CAN OPT OUT HERE
-                continueToExit = promptToSave(gui);
-            }
+//            if (!saved) {
+//                // THE USER CAN OPT OUT HERE
+//                continueToExit = promptToSave(gui);
+//            }
 
             // IF THE USER REALLY WANTS TO EXIT THE APP
             if (continueToExit) {
                 // EXIT THE APPLICATION
                 System.exit(0);
             }
-        } catch (IOException ioe) {
-            ErrorHandler eH = ErrorHandler.getErrorHandler();
-            eH.handleExitError();
-        }
+//        } catch (IOException ioe) {
+//            ErrorHandler eH = ErrorHandler.getErrorHandler();
+//            eH.handleExitError();
+//        }
     }
 
     /**

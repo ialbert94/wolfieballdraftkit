@@ -10,6 +10,8 @@ import javafx.beans.value.ObservableValue;
 import javafx.collections.ListChangeListener;
 import javafx.collections.transformation.FilteredList;
 import javafx.collections.transformation.SortedList;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.geometry.Rectangle2D;
@@ -23,11 +25,14 @@ import javafx.scene.control.RadioButton;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.SplitPane;
 import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableColumn.CellEditEvent;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.scene.control.Toggle;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.control.Tooltip;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
@@ -151,6 +156,7 @@ public class WDK_GUI implements DraftDataView {
     Button addPlayerButton;
     Button removePlayerButton;
     FilteredList<Player> filteredData;
+    SortedList<Player> sortedData;
     HBox radioButtons;
     RadioButton All;
     RadioButton C;
@@ -595,7 +601,7 @@ public class WDK_GUI implements DraftDataView {
         playerHR.setCellValueFactory(new PropertyValueFactory<>("HR"));
         playerRBI.setCellValueFactory(new PropertyValueFactory<>("RBI"));
         playerSB.setCellValueFactory(new PropertyValueFactory<>("SB"));
-        playerW.setCellValueFactory(new PropertyValueFactory<>("H"));
+        playerW.setCellValueFactory(new PropertyValueFactory<>("W"));
         playerSV.setCellValueFactory(new PropertyValueFactory<>("SV"));
         playerBA.setCellValueFactory(new PropertyValueFactory<>("BA"));
         playerK.setCellValueFactory(new PropertyValueFactory<>("K"));
@@ -622,10 +628,10 @@ public class WDK_GUI implements DraftDataView {
         playersTable.getColumns().add(playerBAWHIP);
         playersTable.getColumns().add(playerEstimatedValue);
         playersTable.getColumns().add(playerNotes);
-        playerNotes.setEditable(true);
-        
+        playersTable.setEditable(true);
+
         filteredData = new FilteredList<>(dataManager.getDraft().getAllPlayers(), p -> true);
-        
+
         playersTable.setItems(dataManager.getDraft().getFilteredPlayers());
         playersScreenToolbar.getChildren().add(playersGridPane);
 
@@ -637,8 +643,8 @@ public class WDK_GUI implements DraftDataView {
         playersScreenBorder.setTop(playersScreenBox);
         playersScreenBorder.setBottom(fileToolbarPaneLower);
     }
-
-
+    
+    
     private void initStandingsScreen() {
         fantasyStandingsScreenBox = new VBox();
         fantasyStandingsScreenHeadingLabel = initChildLabel(fantasyStandingsScreenBox, WDK_PropertyType.FANTASY_STANDINGS_SCREEN_HEADING_LABEL, CLASS_HEADING_LABEL);
@@ -682,7 +688,204 @@ public class WDK_GUI implements DraftDataView {
                 break;
 
         }
+    }
 
+    private void updatePlayersTableColumns(String pos) {
+        //AND THEN ADD THE COLUMS TO THE TABLE
+        playerFirstName = new TableColumn(COL_FIRST_NAME);
+        playerLastName = new TableColumn(COL_LAST_NAME);
+        playerProTeam = new TableColumn(COL_PREV_TEAM);
+        playerPositions = new TableColumn(COL_POSITIONS);
+        playerYearOfBirth = new TableColumn(COL_YOB);
+        playerW = new TableColumn(COL_W);
+        playerSV = new TableColumn(COL_SV);
+        playerK = new TableColumn(COL_K);
+        playerERA = new TableColumn(COL_ERA);
+        playerWHIP = new TableColumn(COL_WHIP);
+        playerEstimatedValue = new TableColumn(COL_VALUE);
+        playerNotes = new TableColumn(COL_NOTES);
+        playerR = new TableColumn(COL_R);
+        playerHR = new TableColumn(COL_HR);
+        playerRBI = new TableColumn(COL_RBI);
+        playerSB = new TableColumn(COL_SB);
+        playerBA = new TableColumn(COL_BA);
+        playerRW = new TableColumn(COL_R_W);
+        playerHRSV = new TableColumn(COL_HR_SV);
+        playerRBIK = new TableColumn(COL_RBI_K);
+        playerSBERA = new TableColumn(COL_SB_ERA);
+        playerBAWHIP = new TableColumn(COL_BA_WHIP);
+
+        //ADD THE LABLES TO THE CELL
+        playerFirstName.setCellValueFactory(new PropertyValueFactory<>("firstName"));
+        playerLastName.setCellValueFactory(new PropertyValueFactory<>("lastName"));
+        playerProTeam.setCellValueFactory(new PropertyValueFactory<>("previousTeam"));
+        playerPositions.setCellValueFactory(new PropertyValueFactory<>("QP"));
+        playerYearOfBirth.setCellValueFactory(new PropertyValueFactory<>("yearOfBirth"));
+        playerR.setCellValueFactory(new PropertyValueFactory<>("R"));
+        playerHR.setCellValueFactory(new PropertyValueFactory<>("HR"));
+        playerRBI.setCellValueFactory(new PropertyValueFactory<>("RBI"));
+        playerSB.setCellValueFactory(new PropertyValueFactory<>("SB"));
+        playerW.setCellValueFactory(new PropertyValueFactory<>("W"));
+        playerSV.setCellValueFactory(new PropertyValueFactory<>("SV"));
+        playerBA.setCellValueFactory(new PropertyValueFactory<>("BA"));
+        playerK.setCellValueFactory(new PropertyValueFactory<>("K"));
+        playerERA.setCellValueFactory(new PropertyValueFactory<>("ERA"));
+        playerWHIP.setCellValueFactory(new PropertyValueFactory<>("WHIP"));
+        playerEstimatedValue.setCellValueFactory(new PropertyValueFactory<>("Estimated Values"));
+        playerNotes.setCellValueFactory(new PropertyValueFactory<>("Notes"));
+        playerRW.setCellValueFactory(new PropertyValueFactory<>("R_W"));
+        playerHRSV.setCellValueFactory(new PropertyValueFactory<>("HR_SV"));
+        playerRBIK.setCellValueFactory(new PropertyValueFactory<>("RBI_K"));
+        playerSBERA.setCellValueFactory(new PropertyValueFactory<>("SB_ERA"));
+        playerBAWHIP.setCellValueFactory(new PropertyValueFactory<>("BA_WHIP"));
+
+        switch (pos) {
+            case "P":
+                playersTable.getColumns().clear();
+                playersTable.getColumns().add(playerFirstName);
+                playersTable.getColumns().add(playerLastName);
+                playersTable.getColumns().add(playerProTeam);
+                playersTable.getColumns().add(playerPositions);
+                playersTable.getColumns().add(playerYearOfBirth);
+                playersTable.getColumns().add(playerW);
+                playersTable.getColumns().add(playerSV);
+                playersTable.getColumns().add(playerK);
+                playersTable.getColumns().add(playerERA);
+                playersTable.getColumns().add(playerWHIP);
+                playersTable.getColumns().add(playerEstimatedValue);
+                playersTable.getColumns().add(playerNotes);
+                playerNotes.setEditable(true);
+                break;
+            case "All":
+                playersTable.getColumns().clear();
+                playersTable.getColumns().add(playerFirstName);
+                playersTable.getColumns().add(playerLastName);
+                playersTable.getColumns().add(playerProTeam);
+                playersTable.getColumns().add(playerPositions);
+                playersTable.getColumns().add(playerYearOfBirth);
+                playersTable.getColumns().add(playerRW);
+                playersTable.getColumns().add(playerHRSV);
+                playersTable.getColumns().add(playerRBIK);
+                playersTable.getColumns().add(playerSBERA);
+                playersTable.getColumns().add(playerBAWHIP);
+                playersTable.getColumns().add(playerEstimatedValue);
+                playersTable.getColumns().add(playerNotes);
+                playerNotes.setEditable(true);
+                break;
+            default:
+                playersTable.getColumns().clear();
+                playersTable.getColumns().add(playerFirstName);
+                playersTable.getColumns().add(playerLastName);
+                playersTable.getColumns().add(playerProTeam);
+                playersTable.getColumns().add(playerPositions);
+                playersTable.getColumns().add(playerYearOfBirth);
+                playersTable.getColumns().add(playerR);
+                playersTable.getColumns().add(playerHR);
+                playersTable.getColumns().add(playerRBI);
+                playersTable.getColumns().add(playerSB);
+                playersTable.getColumns().add(playerBA);
+                playersTable.getColumns().add(playerEstimatedValue);
+                playersTable.getColumns().add(playerNotes);
+                playerNotes.setEditable(true);
+                break;
+
+        }
+    }
+
+    private void enableRadioButton() {
+        toggle.selectedToggleProperty().addListener((ObservableValue<? extends Toggle> observable, Toggle oldValue, Toggle newValue) -> {
+            RadioButton position = (RadioButton) newValue.getToggleGroup().getSelectedToggle();
+            switch (position.getText()) {
+                case "P":
+                    updatePlayersTableColumns(position.getText());
+                    playerSearchTextField.clear();
+                    filteredData = new FilteredList<Player>(dataManager.getDraft().getPitchers(), p -> true);
+                    sortedData = new SortedList<Player>(filteredData);
+                    sortedData.comparatorProperty().bind(playersTable.comparatorProperty());
+                    playersTable.setItems(sortedData);
+                    break;
+                case "All":
+                    updatePlayersTableColumns(position.getText());
+                    playerSearchTextField.clear();
+                    filteredData = new FilteredList<Player>(dataManager.getDraft().getAllPlayers(), p -> true);
+                    sortedData = new SortedList<Player>(filteredData);
+                    sortedData.comparatorProperty().bind(playersTable.comparatorProperty());
+                    playersTable.setItems(sortedData);
+                    break;
+                case "C":
+                    updatePlayersTableColumns(position.getText());
+                    playerSearchTextField.clear();
+                    filteredData = new FilteredList<Player>(dataManager.getDraft().getPlayersWithPositions("C"), p -> true);
+                    sortedData = new SortedList<Player>(filteredData);
+                    sortedData.comparatorProperty().bind(playersTable.comparatorProperty());
+                    playersTable.setItems(sortedData);
+                    break;
+                case "B1":
+                    updatePlayersTableColumns(position.getText());
+                    playerSearchTextField.clear();
+                    filteredData = new FilteredList<Player>(dataManager.getDraft().getPlayersWithPositions("1B"), p -> true);
+                    sortedData = new SortedList<Player>(filteredData);
+                    sortedData.comparatorProperty().bind(playersTable.comparatorProperty());
+                    playersTable.setItems(sortedData);
+                    break;
+                case "CI":
+                    updatePlayersTableColumns(position.getText());
+                    playerSearchTextField.clear();
+                    filteredData = new FilteredList<Player>(dataManager.getDraft().getPlayersWithPositions("CI"), p -> true);
+                    sortedData = new SortedList<Player>(filteredData);
+                    sortedData.comparatorProperty().bind(playersTable.comparatorProperty());
+                    playersTable.setItems(sortedData);
+                    break;
+                case "B3":
+                    updatePlayersTableColumns(position.getText());
+                    playerSearchTextField.clear();
+                    filteredData = new FilteredList<Player>(dataManager.getDraft().getPlayersWithPositions("3B"), p -> true);
+                    sortedData = new SortedList<Player>(filteredData);
+                    sortedData.comparatorProperty().bind(playersTable.comparatorProperty());
+                    playersTable.setItems(sortedData);
+                    break;
+                case "B2":
+                    updatePlayersTableColumns(position.getText());
+                    playerSearchTextField.clear();
+                    filteredData = new FilteredList<Player>(dataManager.getDraft().getPlayersWithPositions("2B"), p -> true);
+                    sortedData = new SortedList<Player>(filteredData);
+                    sortedData.comparatorProperty().bind(playersTable.comparatorProperty());
+                    playersTable.setItems(sortedData);
+                    break;
+                case "MI":
+                    updatePlayersTableColumns(position.getText());
+                    playerSearchTextField.clear();
+                    filteredData = new FilteredList<Player>(dataManager.getDraft().getPlayersWithPositions("MI"), p -> true);
+                    sortedData = new SortedList<Player>(filteredData);
+                    sortedData.comparatorProperty().bind(playersTable.comparatorProperty());
+                    playersTable.setItems(sortedData);
+                    break;
+                case "SS":
+                    updatePlayersTableColumns(position.getText());
+                    playerSearchTextField.clear();
+                    filteredData = new FilteredList<Player>(dataManager.getDraft().getPlayersWithPositions("SS"), p -> true);
+                    sortedData = new SortedList<Player>(filteredData);
+                    sortedData.comparatorProperty().bind(playersTable.comparatorProperty());
+                    playersTable.setItems(sortedData);
+                    break;
+                case "OF":
+                    updatePlayersTableColumns(position.getText());
+                    playerSearchTextField.clear();
+                    filteredData = new FilteredList<Player>(dataManager.getDraft().getPlayersWithPositions("OF"), p -> true);
+                    sortedData = new SortedList<Player>(filteredData);
+                    sortedData.comparatorProperty().bind(playersTable.comparatorProperty());
+                    playersTable.setItems(sortedData);
+                    break;
+                case "U":
+                    updatePlayersTableColumns(position.getText());
+                    playerSearchTextField.clear();
+                    filteredData = new FilteredList<Player>(dataManager.getDraft().getHitters(), p -> true);
+                    sortedData = new SortedList<Player>(filteredData);
+                    sortedData.comparatorProperty().bind(playersTable.comparatorProperty());
+                    playersTable.setItems(sortedData);
+                    break;
+            }
+        });
     }
     // INITIALIZE THE WINDOW (i.e. STAGE) PUTTING ALL THE CONTROLS
     // THERE EXCEPT THE WORKSPACE, WHICH WILL BE ADDED THE FIRST
@@ -719,56 +922,62 @@ public class WDK_GUI implements DraftDataView {
 
     private void initEventHandlers() throws IOException {
         fileController = new FileController(messageDialog, yesNoCancelDialog, draftFileManager, siteExporter);
-        newDraftButton.setOnAction(e -> {
-            fileController.handleNewDraftRequest(this);
+        newDraftButton.setOnAction((ActionEvent e) -> {
+            fileController.handleNewDraftRequest(WDK_GUI.this);
         });
-        exitButton.setOnAction(e -> {
-            fileController.handleExitRequest(this);
+        exitButton.setOnAction((ActionEvent e) -> {
+            fileController.handleExitRequest(WDK_GUI.this);
         });
-        fantasyTeamsScreenButton.setOnAction(e -> {
+        fantasyTeamsScreenButton.setOnAction((ActionEvent e) -> {
             handleScreenSwitchRequest(1);
-
+       
         });
-        playersScreenButton.setOnAction(e -> {
+        playersScreenButton.setOnAction((ActionEvent e) -> {
             handleScreenSwitchRequest(2);
-
+        
         });
-        fantasyStandingsScreenButton.setOnAction(e -> {
+        fantasyStandingsScreenButton.setOnAction((ActionEvent e) -> {
             handleScreenSwitchRequest(3);
-
+        
         });
-        draftScreenButton.setOnAction(e -> {
+        draftScreenButton.setOnAction((ActionEvent e) -> {
             handleScreenSwitchRequest(4);
-
+        
         });
-        mlbTeamsScreenButton.setOnAction(e -> {
+        mlbTeamsScreenButton.setOnAction((ActionEvent e) -> {
             handleScreenSwitchRequest(5);
-
+        
         });
+        enableRadioButton();
+        playerNotes.setCellFactory(TextFieldTableCell.forTableColumn());
+            playerNotes.setOnEditCommit(new EventHandler<CellEditEvent<Player, String>>() {
+                @Override
+                public void handle(CellEditEvent<Player, String> s) {
+                    ((Player) s.getTableView().getItems().get(
+                            s.getTablePosition().getRow())).setNotes(s.getNewValue());
+                }
+            });
         playerSearchTextField.textProperty().addListener((observable, oldValue, newValue) -> {
             filteredData.setPredicate((Predicate<? super Player>) player -> {
                 //if filter text is empty, display all players
-                if(newValue == null || newValue.isEmpty()){
+                if (newValue == null || newValue.isEmpty()) {
                     return true;
                 }
                 String lowerCaseFilter = newValue.toLowerCase();
-                if(player.getFirstName().toLowerCase().startsWith(lowerCaseFilter)){
+                if (player.getFirstName().toLowerCase().startsWith(lowerCaseFilter)) {
                     return true;
-                } else if(player.getLastName().toLowerCase().startsWith(lowerCaseFilter)){
+                } else if (player.getLastName().toLowerCase().startsWith(lowerCaseFilter)) {
                     return true;
                 }
                 return false;
             });
         });
-        
-        SortedList<Player> sortedData = new SortedList<>(filteredData);
+
+        sortedData = new SortedList<>(filteredData);
         sortedData.comparatorProperty().bind(playersTable.comparatorProperty());
         playersTable.setItems(sortedData);
         
-        
     }
-
-    
 
     private void registerTextFieldController(TextField textField) {
         textField.textProperty().addListener((observable, oldValue, newValue) -> {
