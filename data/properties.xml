@@ -18,6 +18,7 @@
         <property name="EXIT_ICON"          value="Exit.png"></property>        
         <property name="ADD_ICON"           value="Add.png"></property>
         <property name="MINUS_ICON"         value="Minus.png"></property>
+        <property name="EDIT_ICON"          value="Edit.png"></property>
         <property name="MOVE_UP_ICON"       value="MoveUp.png"></property>
         <property name="MOVE_DOWN_ICON"     value="MoveDown.png"></property>
         <property name="HOME_ICON"          value="Home.png"></property>        
@@ -42,6 +43,7 @@
         <property name="REMOVE_PLAYER_TOOLTIP"      value="Remove Player"></property>
         <property name="ADD_TEAM_TOOLTIP"           value="Add Team"></property>
         <property name="REMOVE_TEAM_TOOLTIP"        value="Remove Team"></property>
+        <property name="EDIT_TEAM_TOOLTIP"          value="Edit Team"></property>
         <property name="HOME_TOOLTIP"               value="Check Fantasy Teams"></property>
         <property name="PLAYERS_TOOLTIP"            value="Check Available Players"></property>
         <property name="STANDINGS_TOOLTIP"          value="Check Team Standins"></property>
@@ -59,6 +61,14 @@
         <property name="DRAFT_SCREEN_HEADING_LABEL"               value="Draft Summary"></property>
         <property name="MLB_TEAMS_SCREEN_HEADING_LABEL"           value="MLB Teams"></property>
         <property name="PLAYER_SEARCH_LABEL"                      value="Search:"></property>
+        <property name="DRAFT_NAME_LABEL"                         value="Draft Name:"></property>
+        <property name="FANTASY_TEAM_LABEL"                       value="Select Fantasy Team:"></property>
+        <property name="STARTING_SQUAD_LABEL"                     value="Starting Lineup"></property> 
+        <property name="TAXI_SQUAD_LABEL"                         value="Taxi Squad"></property> 
+        
+        
+        
+        
         <!-- ERROR MESSAGES -->
         <property name="CLOSE_BUTTON_TEXT"                          value="Close"></property>
 

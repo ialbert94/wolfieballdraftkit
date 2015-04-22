@@ -22,6 +22,7 @@ public enum WDK_PropertyType {
         EXIT_ICON,
         ADD_ICON,
         MINUS_ICON,
+        EDIT_ICON,
         MOVE_UP_ICON,
         MOVE_DOWN_ICON,
         HOME_ICON,
@@ -41,6 +42,7 @@ public enum WDK_PropertyType {
         REMOVE_PLAYER_TOOLTIP,
         ADD_TEAM_TOOLTIP,
         REMOVE_TEAM_TOOLTIP,
+        EDIT_TEAM_TOOLTIP,
         HOME_TOOLTIP,
         PLAYERS_TOOLTIP,
         STANDINGS_TOOLTIP,
@@ -55,15 +57,13 @@ public enum WDK_PropertyType {
         DRAFT_SCREEN_HEADING_LABEL,
         MLB_TEAMS_SCREEN_HEADING_LABEL,
         
-        COURSE_INFO_LABEL,
-        COURSE_SUBJECT_LABEL,
-        COURSE_NUMBER_LABEL,
-        COURSE_SEMESTER_LABEL,
-        COURSE_YEAR_LABEL,
-        COURSE_TITLE_LABEL,
-        INSTRUCTOR_NAME_LABEL,
-        INSTRUCTOR_URL_LABEL,
+        
         PLAYER_SEARCH_LABEL,
+        DRAFT_NAME_LABEL,
+        FANTASY_TEAM_LABEL,
+        STARTING_SQUAD_LABEL, 
+        TAXI_SQUAD_LABEL,
+        SELECT_TEAM_LABEL, 
         
         // ERROR DIALOG MESSAGES
         START_DATE_AFTER_END_DATE_ERROR_MESSAGE,

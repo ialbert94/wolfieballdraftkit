@@ -17,28 +17,31 @@ public class Player {
     String yearOfBirth;
     String nationOfBirth;
     int H;                  //Hits, earned by hitters, given up by pitchers
+    String contract;        //their contract as a string, how long they play for
+    int salary;             //the cost of the player i believe?
     
     
     //THESE WILL BE THE VARIABLES THAT WILL BELONG
     //TO THE PITCHERS
-    private double IP;      //Innings pitched
-    private int ER;         //Earned Runs
-    private int W;          //Wins
-    private int SV;         //Saves
-    private int BB;         //Bases on Balls earned by hitters, given up by pitchers
-    private int K;          //Strikeputs
+    double IP;      //Innings pitched
+    int ER;         //Earned Runs
+    int W;          //Wins
+    int SV;         //Saves
+    int BB;         //Bases on Balls earned by hitters, given up by pitchers
+    int K;          //Strikeputs
     double WHIP;            //walks+hits/innings pitched
     double ERA;             //earned runs x9/innings pitched
     
     
     //THESE WILL BE THE VARIABELS THAT WIL BELONG
     //TO THE HITTERS
-    private String QP;      //Qualified Positions
-    private int AB;         //At Bats
-    private int R;          //Runs
-    private int HR;         //Home Runs
-    private int RBI;        //Runs Batted in
-    private int SB;         //Stolen Bases
+    String QP;      //Qualified Positions
+    String P;       //Actual Position
+    int AB;         //At Bats
+    int R;          //Runs
+    int HR;         //Home Runs
+    int RBI;        //Runs Batted in
+    int SB;         //Stolen Bases
     double BA;              //calculated batting average as hits/at bats
     
     //THESE WILL BE THE SHARED STATS FOR TABLECOLUMN PURPOSES ONLY
@@ -66,6 +69,30 @@ public class Player {
 
     public void setWHIP(double WHIP) {
         this.WHIP = WHIP;
+    }
+
+    public String getContract() {
+        return contract;
+    }
+
+    public String getP() {
+        return P;
+    }
+
+    public int getSalary() {
+        return salary;
+    }
+
+    public void setContract(String contract) {
+        this.contract = contract;
+    }
+
+    public void setP(String P) {
+        this.P = P;
+    }
+
+    public void setSalary(int salary) {
+        this.salary = salary;
     }
 
     

@@ -131,8 +131,8 @@ public class WDK_GUI implements DraftDataView {
     boolean workspaceActivated;
 
     // WE'LL PUT THE WORKSPACE INSIDE A SCROLL PANE
+    
     ScrollPane workspaceScrollPane;
-
     //THIS WILL REFERENCE ALL THE RADIOBUTTONS THAT WE NEED
     ButtonToolbar radioButtonToolbar;
 
@@ -176,6 +176,7 @@ public class WDK_GUI implements DraftDataView {
     TableColumn playerLastName;
     TableColumn playerProTeam;
     TableColumn playerPositions;
+    TableColumn playerPosition;
     TableColumn playerYearOfBirth;
     TableColumn playerW;
     TableColumn playerSV;
@@ -194,21 +195,37 @@ public class WDK_GUI implements DraftDataView {
     TableColumn playerRBIK;
     TableColumn playerSBERA;
     TableColumn playerBAWHIP;
-
+    TableColumn playerSalary;
+    TableColumn playerContract;
+    
+    
     //THESE ARE THE CONTROLS FOR THE FANTASY TEAMS SCREEN
-    TableView<Player> rostersTable;
+    ScrollPane fantasyTeamScrollPane;
+    SplitPane fantasyTeamSplitPane;
+    TableView<Player> startingTable;
+    TableView<Player> taxiSquadTable;
     VBox fantasyTeamsScreenBox;
+    VBox startingSquadBox;
+    VBox taxiSquadBox;
+    VBox topPaneFantasyTeams;
     Label fantasyTeamsScreenHeadingLabel;
+    Label draftNameLabel;
+    Label startingLineupLabel;
+    Label taxiSquadLabel;
+    Label selectTeamLabel;
     HBox fantasyTeamsScreenToolbar;
     ComboBox teamComboBox;
     Button addTeamButton;
     Button removeTeamButton;
+    Button editTeamButton;
     TextField teamNameTextField;
     TextField teamOwnerTextField;
     GridPane teamsGridPane;
-
+   
     //THESE ARE THE CONTROLS FOR THE FANTASY STANDINGS SCREEN
     //THERE WILL BE RADIO BUTTONS ALSO
+    
+   
     TableView<Draft> fantasyTeamsStatsTable;
     VBox fantasyStandingsScreenBox;
     GridPane standingsGridPane;
@@ -251,6 +268,9 @@ public class WDK_GUI implements DraftDataView {
     public static final String COL_LAST_NAME = "Last";
     public static final String COL_PREV_TEAM = "Prev Team";
     public static final String COL_POSITIONS = "Positions";
+    public static final String COL_POSITION = "Position";
+    public static final String COL_CONTRACT = "Contract";
+    public static final String COL_SALARY = "Salary";
     public static final String COL_YOB = "Year of Birth";
     public static final String COL_VALUE = "Estimated Value";
     public static final String COL_NOTES = "Notes";
@@ -263,6 +283,11 @@ public class WDK_GUI implements DraftDataView {
     // HERE ARE OUR DIALOGS
     MessageDialog messageDialog;
     YesNoCancelDialog yesNoCancelDialog;
+    
+    
+    
+    
+    
 
     /**
      * Constructor for making this GUI, note that it does not initialize the UI
@@ -493,7 +518,7 @@ public class WDK_GUI implements DraftDataView {
         workspaceActivated = false;
     }
 
-    private void initAllScreens() {
+    private void initAllScreens() throws IOException {
         initFantasyTeamsScreen();
         initPlayersScreen();
         initStandingsScreen();
@@ -502,17 +527,106 @@ public class WDK_GUI implements DraftDataView {
 
     }
 
-    private void initFantasyTeamsScreen() {
+    private void initFantasyTeamsScreen() throws IOException {
 
         //FILL THE CONTENT OF THE FANTASY TEAMS SCREEN
         fantasyTeamsScreenBorder = new BorderPane();
-
+        
+        fantasyTeamsScreenBox = new VBox();
+        topPaneFantasyTeams = new VBox();
+        startingSquadBox = new VBox();
+        taxiSquadBox = new VBox();
+        topPaneFantasyTeams.getStyleClass().add(CLASS_BORDERED_PANE);
+        fantasyTeamScrollPane = new ScrollPane();
+        fantasyTeamsScreenToolbar = new HBox();
+        addTeamButton = new Button();
+        removeTeamButton = new Button();
+        editTeamButton = new Button();
+        teamNameTextField = new TextField();
+        teamComboBox = new ComboBox();
+        teamsGridPane = new GridPane();
+        
+        addTeamButton = initChildButton(fantasyTeamsScreenToolbar, WDK_PropertyType.ADD_ICON, WDK_PropertyType.ADD_TEAM_TOOLTIP, false);
+        removeTeamButton = initChildButton(fantasyTeamsScreenToolbar, WDK_PropertyType.MINUS_ICON, WDK_PropertyType.REMOVE_TEAM_TOOLTIP, false);
+        editTeamButton = initChildButton(fantasyTeamsScreenToolbar, WDK_PropertyType.EDIT_ICON, WDK_PropertyType.EDIT_TEAM_TOOLTIP, false);
+        selectTeamLabel = initGridLabel(teamsGridPane, WDK_PropertyType.FANTASY_TEAM_LABEL, CLASS_PROMPT_LABEL, 0, 1, 1, 1);
+        teamComboBox = initGridComboBox(teamsGridPane, 1, 1, 1, 1);
+        draftNameLabel = initGridLabel(teamsGridPane, WDK_PropertyType.DRAFT_NAME_LABEL, CLASS_PROMPT_LABEL, 2, 1, 1, 1);
+        
+        teamNameTextField = initGridTextField(teamsGridPane, LARGE_TEXT_FIELD_LENGTH, EMPTY_TEXT, true, 3, 1, 1, 1);
+        
+        startingTable = new TableView<Player>();
+        taxiSquadTable = new TableView<Player>();
+        
+        //INITIALIZE THE TABLE COLUMNS
+        playerPosition = new TableColumn(COL_POSITION);
+        playerFirstName = new TableColumn(COL_FIRST_NAME);
+        playerLastName = new TableColumn(COL_LAST_NAME);
+        playerProTeam = new TableColumn(COL_PREV_TEAM);
+        playerPositions = new TableColumn(COL_POSITIONS);
+        playerRW = new TableColumn(COL_R_W);
+        playerHRSV = new TableColumn(COL_HR_SV);
+        playerRBIK = new TableColumn(COL_RBI_K);
+        playerSBERA = new TableColumn(COL_SB_ERA);
+        playerBAWHIP = new TableColumn(COL_BA_WHIP);
+        playerEstimatedValue = new TableColumn(COL_VALUE);
+        playerContract = new TableColumn(COL_CONTRACT);
+        playerSalary = new TableColumn(COL_SALARY);
+        
+        playerPosition.setCellValueFactory(new PropertyValueFactory<>("P"));
+        playerFirstName.setCellValueFactory(new PropertyValueFactory<>("firstName"));
+        playerLastName.setCellValueFactory(new PropertyValueFactory<>("lastName"));
+        playerProTeam.setCellValueFactory(new PropertyValueFactory<>("previousTeam"));
+        playerPositions.setCellValueFactory(new PropertyValueFactory<>("QP"));
+        playerRW.setCellValueFactory(new PropertyValueFactory<>("R_W"));
+        playerHRSV.setCellValueFactory(new PropertyValueFactory<>("HR_SV"));
+        playerRBIK.setCellValueFactory(new PropertyValueFactory<>("RBI_K"));
+        playerSBERA.setCellValueFactory(new PropertyValueFactory<>("SB_ERA"));
+        playerBAWHIP.setCellValueFactory(new PropertyValueFactory<>("BA_WHIP"));
+        playerEstimatedValue.setCellValueFactory(new PropertyValueFactory<>("Estimated Values"));
+        playerContract.setCellValueFactory(new PropertyValueFactory<>("contract"));
+        playerSalary.setCellValueFactory(new PropertyValueFactory<>("salary"));
+        
+        startingTable.getColumns().add(playerPosition);
+        startingTable.getColumns().add(playerFirstName);
+        startingTable.getColumns().add(playerLastName);
+        startingTable.getColumns().add(playerProTeam);
+        startingTable.getColumns().add(playerPositions);
+        startingTable.getColumns().add(playerRW);
+        startingTable.getColumns().add(playerHRSV);
+        startingTable.getColumns().add(playerRBIK);
+        startingTable.getColumns().add(playerSBERA);
+        startingTable.getColumns().add(playerBAWHIP);
+        startingTable.getColumns().add(playerEstimatedValue);
+        startingTable.getColumns().add(playerContract);
+        startingTable.getColumns().add(playerSalary);
+        
+        startingTable.setEditable(true);
+        
         // FIRST OUR SCHEDULE HEADER
         fantasyTeamsScreenBox = new VBox();
+       
         fantasyTeamsScreenHeadingLabel = initChildLabel(fantasyTeamsScreenBox, WDK_PropertyType.FANTASY_TEAMS_SCREEN_HEADING_LABEL, CLASS_HEADING_LABEL);
-        FlowPane lowerButtons = initLowerToolbar();
-        fantasyTeamsScreenBorder.setTop(fantasyTeamsScreenBox);
-        fantasyTeamsScreenBorder.setBottom(lowerButtons);
+        startingLineupLabel = initChildLabel(startingSquadBox, WDK_PropertyType.STARTING_SQUAD_LABEL, CLASS_SUBHEADING_LABEL);
+        startingSquadBox.getChildren().add(startingTable);
+        taxiSquadLabel = initChildLabel(taxiSquadBox, WDK_PropertyType.TAXI_SQUAD_LABEL, CLASS_SUBHEADING_LABEL);
+        taxiSquadBox.getChildren().add(taxiSquadTable);
+        
+        
+        
+        fantasyTeamsScreenToolbar.getChildren().add(teamsGridPane);
+ 
+        fantasyTeamsScreenBox.getChildren().add(fantasyTeamsScreenToolbar);
+        topPaneFantasyTeams.getChildren().add(startingSquadBox);
+        topPaneFantasyTeams.getChildren().add(taxiSquadBox);
+        fantasyTeamScrollPane.setContent(topPaneFantasyTeams);
+        fantasyTeamScrollPane.setFitToWidth(true);
+        //topPaneFantasyTeams.getChildren().add(fantasyTeamScrollPane);
+        fantasyTeamsScreenBox.getChildren().add(fantasyTeamScrollPane);
+        fantasyTeamsScreenBorder.setCenter(fantasyTeamsScreenBox);
+
+        
+
 
     }
 
@@ -635,13 +749,13 @@ public class WDK_GUI implements DraftDataView {
         playersTable.setItems(dataManager.getDraft().getFilteredPlayers());
         playersScreenToolbar.getChildren().add(playersGridPane);
 
+        
         topPanePlayer.getChildren().add(playersScreenToolbar);
         topPanePlayer.getChildren().add(radioButtons);
         playersScreenBox.getChildren().add(topPanePlayer);
         playersScreenBox.getChildren().add(playersTable);
 
-        playersScreenBorder.setTop(playersScreenBox);
-        playersScreenBorder.setBottom(fileToolbarPaneLower);
+        playersScreenBorder.setCenter(playersScreenBox);
     }
     
     
@@ -650,7 +764,6 @@ public class WDK_GUI implements DraftDataView {
         fantasyStandingsScreenHeadingLabel = initChildLabel(fantasyStandingsScreenBox, WDK_PropertyType.FANTASY_STANDINGS_SCREEN_HEADING_LABEL, CLASS_HEADING_LABEL);
         fantasyStandingsScreenBorder = new BorderPane();
         fantasyStandingsScreenBorder.setTop(fantasyStandingsScreenBox);
-        fantasyStandingsScreenBorder.setBottom(fileToolbarPaneLower);
     }
 
     private void initDraftScreen() {
@@ -658,7 +771,6 @@ public class WDK_GUI implements DraftDataView {
         draftScreenHeadingLabel = initChildLabel(draftScreenBox, WDK_PropertyType.DRAFT_SCREEN_HEADING_LABEL, CLASS_HEADING_LABEL);
         draftScreenBorder = new BorderPane();
         draftScreenBorder.setTop(draftScreenBox);
-        draftScreenBorder.setBottom(fileToolbarPaneLower);
     }
 
     private void initMLBScreen() {
@@ -666,7 +778,6 @@ public class WDK_GUI implements DraftDataView {
         mlbScreenHeadingLabel = initChildLabel(mlbTeamsScreenBox, WDK_PropertyType.MLB_TEAMS_SCREEN_HEADING_LABEL, CLASS_HEADING_LABEL);
         mlbTeamsScreenBorder = new BorderPane();
         mlbTeamsScreenBorder.setTop(mlbTeamsScreenBox);
-        mlbTeamsScreenBorder.setBottom(fileToolbarPaneLower);
     }
 
     private void handleScreenSwitchRequest(int num) {
