@@ -84,7 +84,9 @@ public class Draft {
     public void setFilteredPlayers(ObservableList<Player> filteredPlayers) {
         this.filteredPlayers = filteredPlayers;
     }
-
+    public void removePlayer(Player playerToRemove){
+        allPlayers.remove(playerToRemove);
+    }
     public ObservableList<Player> getPlayersWithPositions(String pos) {
 
         filteredPlayers.clear();

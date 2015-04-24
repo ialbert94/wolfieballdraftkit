@@ -69,7 +69,7 @@ public class WDK_GUI implements DraftDataView {
     static final String CLASS_SUBHEADING_LABEL = "subheading_label";
     static final String CLASS_PROMPT_LABEL = "prompt_label";
     static final String EMPTY_TEXT = "";
-    static final int LARGE_TEXT_FIELD_LENGTH = 60;
+    static final int LARGE_TEXT_FIELD_LENGTH = 30;
     static final int SMALL_TEXT_FIELD_LENGTH = 5;
 
     //THIS MANAGES ALL OF THE APPLICATION'S DATA
@@ -537,26 +537,33 @@ public class WDK_GUI implements DraftDataView {
         startingSquadBox = new VBox();
         taxiSquadBox = new VBox();
         topPaneFantasyTeams.getStyleClass().add(CLASS_BORDERED_PANE);
-        fantasyTeamScrollPane = new ScrollPane();
+        
+        
+        
+        
+        
         fantasyTeamsScreenToolbar = new HBox();
         addTeamButton = new Button();
         removeTeamButton = new Button();
         editTeamButton = new Button();
-        teamNameTextField = new TextField();
-        teamComboBox = new ComboBox();
-        teamsGridPane = new GridPane();
-        
+        fantasyTeamsScreenToolbar.getStyleClass().add(CLASS_BORDERED_PANE);
         addTeamButton = initChildButton(fantasyTeamsScreenToolbar, WDK_PropertyType.ADD_ICON, WDK_PropertyType.ADD_TEAM_TOOLTIP, false);
         removeTeamButton = initChildButton(fantasyTeamsScreenToolbar, WDK_PropertyType.MINUS_ICON, WDK_PropertyType.REMOVE_TEAM_TOOLTIP, false);
         editTeamButton = initChildButton(fantasyTeamsScreenToolbar, WDK_PropertyType.EDIT_ICON, WDK_PropertyType.EDIT_TEAM_TOOLTIP, false);
+        
+        teamsGridPane = new GridPane();
+        teamNameTextField = new TextField();
+        teamComboBox = new ComboBox();
         selectTeamLabel = initGridLabel(teamsGridPane, WDK_PropertyType.FANTASY_TEAM_LABEL, CLASS_PROMPT_LABEL, 0, 1, 1, 1);
         teamComboBox = initGridComboBox(teamsGridPane, 1, 1, 1, 1);
         draftNameLabel = initGridLabel(teamsGridPane, WDK_PropertyType.DRAFT_NAME_LABEL, CLASS_PROMPT_LABEL, 2, 1, 1, 1);
-        
         teamNameTextField = initGridTextField(teamsGridPane, LARGE_TEXT_FIELD_LENGTH, EMPTY_TEXT, true, 3, 1, 1, 1);
         
         startingTable = new TableView<Player>();
         taxiSquadTable = new TableView<Player>();
+        
+        startingLineupLabel = initChildLabel(startingSquadBox, WDK_PropertyType.STARTING_SQUAD_LABEL, CLASS_SUBHEADING_LABEL);
+        startingSquadBox.getChildren().add(startingTable);
         
         //INITIALIZE THE TABLE COLUMNS
         playerPosition = new TableColumn(COL_POSITION);
@@ -604,24 +611,24 @@ public class WDK_GUI implements DraftDataView {
         startingTable.setEditable(true);
         
         // FIRST OUR SCHEDULE HEADER
-        fantasyTeamsScreenBox = new VBox();
-       
-        fantasyTeamsScreenHeadingLabel = initChildLabel(fantasyTeamsScreenBox, WDK_PropertyType.FANTASY_TEAMS_SCREEN_HEADING_LABEL, CLASS_HEADING_LABEL);
-        startingLineupLabel = initChildLabel(startingSquadBox, WDK_PropertyType.STARTING_SQUAD_LABEL, CLASS_SUBHEADING_LABEL);
-        startingSquadBox.getChildren().add(startingTable);
+        
+
         taxiSquadLabel = initChildLabel(taxiSquadBox, WDK_PropertyType.TAXI_SQUAD_LABEL, CLASS_SUBHEADING_LABEL);
         taxiSquadBox.getChildren().add(taxiSquadTable);
         
-        
+        fantasyTeamsScreenBox = new VBox();
+        fantasyTeamsScreenHeadingLabel = initChildLabel(fantasyTeamsScreenBox, WDK_PropertyType.FANTASY_TEAMS_SCREEN_HEADING_LABEL, CLASS_HEADING_LABEL);
         
         fantasyTeamsScreenToolbar.getChildren().add(teamsGridPane);
  
         fantasyTeamsScreenBox.getChildren().add(fantasyTeamsScreenToolbar);
         topPaneFantasyTeams.getChildren().add(startingSquadBox);
         topPaneFantasyTeams.getChildren().add(taxiSquadBox);
+        
+        fantasyTeamScrollPane = new ScrollPane();
         fantasyTeamScrollPane.setContent(topPaneFantasyTeams);
         fantasyTeamScrollPane.setFitToWidth(true);
-        //topPaneFantasyTeams.getChildren().add(fantasyTeamScrollPane);
+        
         fantasyTeamsScreenBox.getChildren().add(fantasyTeamScrollPane);
         fantasyTeamsScreenBorder.setCenter(fantasyTeamsScreenBox);
 
@@ -914,6 +921,7 @@ public class WDK_GUI implements DraftDataView {
                     sortedData = new SortedList<Player>(filteredData);
                     sortedData.comparatorProperty().bind(playersTable.comparatorProperty());
                     playersTable.setItems(sortedData);
+                    enableNotesHandler();
                     break;
                 case "All":
                     updatePlayersTableColumns(position.getText());
@@ -922,6 +930,7 @@ public class WDK_GUI implements DraftDataView {
                     sortedData = new SortedList<Player>(filteredData);
                     sortedData.comparatorProperty().bind(playersTable.comparatorProperty());
                     playersTable.setItems(sortedData);
+                    enableNotesHandler();
                     break;
                 case "C":
                     updatePlayersTableColumns(position.getText());
@@ -930,6 +939,7 @@ public class WDK_GUI implements DraftDataView {
                     sortedData = new SortedList<Player>(filteredData);
                     sortedData.comparatorProperty().bind(playersTable.comparatorProperty());
                     playersTable.setItems(sortedData);
+                    enableNotesHandler();
                     break;
                 case "B1":
                     updatePlayersTableColumns(position.getText());
@@ -938,6 +948,7 @@ public class WDK_GUI implements DraftDataView {
                     sortedData = new SortedList<Player>(filteredData);
                     sortedData.comparatorProperty().bind(playersTable.comparatorProperty());
                     playersTable.setItems(sortedData);
+                    enableNotesHandler();
                     break;
                 case "CI":
                     updatePlayersTableColumns(position.getText());
@@ -946,6 +957,7 @@ public class WDK_GUI implements DraftDataView {
                     sortedData = new SortedList<Player>(filteredData);
                     sortedData.comparatorProperty().bind(playersTable.comparatorProperty());
                     playersTable.setItems(sortedData);
+                    enableNotesHandler();
                     break;
                 case "B3":
                     updatePlayersTableColumns(position.getText());
@@ -954,6 +966,7 @@ public class WDK_GUI implements DraftDataView {
                     sortedData = new SortedList<Player>(filteredData);
                     sortedData.comparatorProperty().bind(playersTable.comparatorProperty());
                     playersTable.setItems(sortedData);
+                    enableNotesHandler();
                     break;
                 case "B2":
                     updatePlayersTableColumns(position.getText());
@@ -962,6 +975,7 @@ public class WDK_GUI implements DraftDataView {
                     sortedData = new SortedList<Player>(filteredData);
                     sortedData.comparatorProperty().bind(playersTable.comparatorProperty());
                     playersTable.setItems(sortedData);
+                    enableNotesHandler();
                     break;
                 case "MI":
                     updatePlayersTableColumns(position.getText());
@@ -970,6 +984,7 @@ public class WDK_GUI implements DraftDataView {
                     sortedData = new SortedList<Player>(filteredData);
                     sortedData.comparatorProperty().bind(playersTable.comparatorProperty());
                     playersTable.setItems(sortedData);
+                    enableNotesHandler();
                     break;
                 case "SS":
                     updatePlayersTableColumns(position.getText());
@@ -978,6 +993,7 @@ public class WDK_GUI implements DraftDataView {
                     sortedData = new SortedList<Player>(filteredData);
                     sortedData.comparatorProperty().bind(playersTable.comparatorProperty());
                     playersTable.setItems(sortedData);
+                    enableNotesHandler();
                     break;
                 case "OF":
                     updatePlayersTableColumns(position.getText());
@@ -986,6 +1002,7 @@ public class WDK_GUI implements DraftDataView {
                     sortedData = new SortedList<Player>(filteredData);
                     sortedData.comparatorProperty().bind(playersTable.comparatorProperty());
                     playersTable.setItems(sortedData);
+                    enableNotesHandler();
                     break;
                 case "U":
                     updatePlayersTableColumns(position.getText());
@@ -994,6 +1011,7 @@ public class WDK_GUI implements DraftDataView {
                     sortedData = new SortedList<Player>(filteredData);
                     sortedData.comparatorProperty().bind(playersTable.comparatorProperty());
                     playersTable.setItems(sortedData);
+                    enableNotesHandler();
                     break;
             }
         });
@@ -1030,7 +1048,16 @@ public class WDK_GUI implements DraftDataView {
         primaryStage.setScene(primaryScene);
         primaryStage.show();
     }
-
+    private void enableNotesHandler(){
+        playerNotes.setCellFactory(TextFieldTableCell.forTableColumn());
+            playerNotes.setOnEditCommit(new EventHandler<CellEditEvent<Player, String>>() {
+                @Override
+                public void handle(CellEditEvent<Player, String> s) {
+                    ((Player) s.getTableView().getItems().get(
+                            s.getTablePosition().getRow())).setNotes(s.getNewValue());
+                }
+            });
+    }
     private void initEventHandlers() throws IOException {
         fileController = new FileController(messageDialog, yesNoCancelDialog, draftFileManager, siteExporter);
         newDraftButton.setOnAction((ActionEvent e) -> {
@@ -1060,14 +1087,7 @@ public class WDK_GUI implements DraftDataView {
         
         });
         enableRadioButton();
-        playerNotes.setCellFactory(TextFieldTableCell.forTableColumn());
-            playerNotes.setOnEditCommit(new EventHandler<CellEditEvent<Player, String>>() {
-                @Override
-                public void handle(CellEditEvent<Player, String> s) {
-                    ((Player) s.getTableView().getItems().get(
-                            s.getTablePosition().getRow())).setNotes(s.getNewValue());
-                }
-            });
+        enableNotesHandler();
         playerSearchTextField.textProperty().addListener((observable, oldValue, newValue) -> {
             filteredData.setPredicate((Predicate<? super Player>) player -> {
                 //if filter text is empty, display all players
@@ -1083,7 +1103,15 @@ public class WDK_GUI implements DraftDataView {
                 return false;
             });
         });
-
+        
+        // AND NOW THE SCHEDULE ITEM ADDING AND EDITING CONTROLS
+        playerController = new PlayerEditController(primaryStage, dataManager.getDraft(), messageDialog, yesNoCancelDialog);
+        addPlayerButton.setOnAction(e -> {
+            playerController.handleAddPlayerRequest(this);
+        });
+        removePlayerButton.setOnAction(e -> {
+            playerController.handleRemoveAssignmentRequest(this, playersTable.getSelectionModel().getSelectedItem());
+        });
         sortedData = new SortedList<>(filteredData);
         sortedData.comparatorProperty().bind(playersTable.comparatorProperty());
         playersTable.setItems(sortedData);

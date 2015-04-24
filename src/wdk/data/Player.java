@@ -53,6 +53,8 @@ public class Player {
     
     
     public Player() {
+        QP = "";
+        P = "";
     }
 
     public double getERA() {
