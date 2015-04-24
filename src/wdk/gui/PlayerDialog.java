@@ -59,6 +59,9 @@ public class PlayerDialog extends Stage {
     Label cbOFLabel;
     CheckBox cbP;
     Label cbPLabel;
+    
+    //Message dialog for errors?
+   // MessageDialog messageDialog;
 
     //TIS IS FOR KEEPING TRACK OF WHICH BUTTON THE USER PRESSED
     String selection;
@@ -91,7 +94,7 @@ public class PlayerDialog extends Stage {
         // FOR IT WHEN IT IS DISPLAYED
         initModality(Modality.WINDOW_MODAL);
         initOwner(primaryStage);
-
+        
         // FIRST OUR CONTAINER
         gridPane = new GridPane();
         gridPane.setPadding(new Insets(10, 20, 20, 20));
@@ -110,7 +113,8 @@ public class PlayerDialog extends Stage {
         firstNameLabel.getStyleClass().add(CLASS_PROMPT_LABEL);
         firstNameTextField = new TextField();
         firstNameTextField.textProperty().addListener((observable, oldValue, newValue) -> {
-            player.setFirstName(newValue);
+            String firstName = newValue.substring(0, 1).toUpperCase() + newValue.substring(1);
+            player.setFirstName(firstName);
         });
 
         // THEN THE LAST NAME 
@@ -118,7 +122,8 @@ public class PlayerDialog extends Stage {
         lastNameLabel.getStyleClass().add(CLASS_PROMPT_LABEL);
         lastNameTextField = new TextField();
         lastNameTextField.textProperty().addListener((observable, oldValue, newValue) -> {
-            player.setLastName(newValue);
+            String lastName = newValue.substring(0, 1).toUpperCase() + newValue.substring(1);
+            player.setLastName(lastName);
         });
 
         // THEN THE PRO TEAM COMBOBOX 
@@ -247,27 +252,34 @@ public class PlayerDialog extends Stage {
 
         // AND FINALLY, THE BUTTONS
         completeButton = new Button(COMPLETE);
-        
+
         cancelButton = new Button(CANCEL);
 
         // REGISTER EVENT HANDLERS FOR OUR BUTTONS
-        EventHandler completeCancelHandler = (EventHandler<ActionEvent>) (ActionEvent ae) -> {
+        EventHandler completeHandler = (EventHandler<ActionEvent>) (ActionEvent ae) -> {
+
+            if (firstNameTextField.getText()!=null && lastNameTextField.getText()!=null 
+                     && proTeamComboBox.getValue() != null && (cbC.isSelected()
+                     || cb1B.isSelected() || cb2B.isSelected() || cb3B.isSelected()
+                     || cbSS.isSelected() || cbOF.isSelected() ||cbP.isSelected())) {
+                Button sourceButton = (Button) ae.getSource();
+                PlayerDialog.this.selection = sourceButton.getText();
+                PlayerDialog.this.hide();
+            } else {
+                messageDialog.show("Cannot complete, necessary fields not completed");
+            }
+
+        };
+
+        // REGISTER EVENT HANDLERS FOR OUR BUTTONS
+        EventHandler cancelHandler = (EventHandler<ActionEvent>) (ActionEvent ae) -> {
             Button sourceButton = (Button) ae.getSource();
             PlayerDialog.this.selection = sourceButton.getText();
             PlayerDialog.this.hide();
         };
-        
-        if (!(firstNameTextField.getText().isEmpty()) && !(lastNameTextField.getText().isEmpty())
-                && /*proTeamComboBox.getUserData() != null &&*/ (cbC.isSelected()
-                || cb1B.isSelected() || cb2B.isSelected() || cb3B.isSelected()
-                || cbSS.isSelected() || cbOF.isSelected() ||cbP.isSelected())) {
-            completeButton.setDisable(false);
-        } else {
-            completeButton.setDisable(true);
 
-        }
-        completeButton.setOnAction(completeCancelHandler);
-        cancelButton.setOnAction(completeCancelHandler);
+        completeButton.setOnAction(completeHandler);
+        cancelButton.setOnAction(cancelHandler);
 
         // NOW LET'S ARRANGE THEM ALL AT ONCE
         gridPane.add(cbC, 0, 4);
@@ -284,7 +296,7 @@ public class PlayerDialog extends Stage {
         gridPane.add(cbOFLabel, 11, 4);
         gridPane.add(cbP, 12, 4);
         gridPane.add(cbPLabel, 13, 4);
-        gridPane.add(headingLabel, 0, 0, 2, 1);
+        gridPane.add(headingLabel, 0, 0, 1, 1);
         gridPane.add(firstNameLabel, 0, 1, 1, 1);
         gridPane.add(firstNameTextField, 1, 1, 1, 1);
         gridPane.add(lastNameLabel, 0, 2, 1, 1);
@@ -329,8 +341,9 @@ public class PlayerDialog extends Stage {
         player = new Player();
 
         // LOAD THE UI STUFF
-        firstNameTextField.setText(player.getFirstName());
-        lastNameTextField.setText(player.getLastName());
+        firstNameTextField.setText("");
+        lastNameTextField.setText("");
+        proTeamComboBox.getSelectionModel().clearSelection();
         cbC.setSelected(false);
         cb1B.setSelected(false);
         cb2B.setSelected(false);
@@ -341,7 +354,7 @@ public class PlayerDialog extends Stage {
 
         // AND OPEN IT UP
         this.showAndWait();
-        
+
         return player;
     }
 
