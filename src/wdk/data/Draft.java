@@ -33,12 +33,13 @@ public class Draft {
     ObservableList<Player> pitchers;
     ObservableList<Player> allPlayers;
     ObservableList<Player> filteredPlayers;
-
+    ObservableList<Team> teams;
     public Draft() {
         hitters = FXCollections.observableArrayList();
         pitchers = FXCollections.observableArrayList();
         allPlayers = FXCollections.observableArrayList();
         filteredPlayers = FXCollections.observableArrayList();
+        teams = FXCollections.observableArrayList();
     }
 
     public void addHitter(Player p) {
@@ -131,5 +132,15 @@ public class Draft {
     public void removePitcher(Player pitcherToRemove) {
         pitchers.remove(pitcherToRemove);
     }
+    public void addToTeams(Team teamToAdd){
+        teams.add(teamToAdd);
+    }
 
+    public ObservableList<Team> getTeams() {
+        return teams;
+    }
+    
+    public void removeTeam(Team teamToRemove){
+        teams.remove(teamToRemove);
+    }
 }

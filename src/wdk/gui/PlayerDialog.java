@@ -59,10 +59,9 @@ public class PlayerDialog extends Stage {
     Label cbOFLabel;
     CheckBox cbP;
     Label cbPLabel;
-    
-    //Message dialog for errors?
-   // MessageDialog messageDialog;
 
+    //Message dialog for errors?
+    // MessageDialog messageDialog;
     //TIS IS FOR KEEPING TRACK OF WHICH BUTTON THE USER PRESSED
     String selection;
 
@@ -94,7 +93,7 @@ public class PlayerDialog extends Stage {
         // FOR IT WHEN IT IS DISPLAYED
         initModality(Modality.WINDOW_MODAL);
         initOwner(primaryStage);
-        
+
         // FIRST OUR CONTAINER
         gridPane = new GridPane();
         gridPane.setPadding(new Insets(10, 20, 20, 20));
@@ -185,68 +184,37 @@ public class PlayerDialog extends Stage {
                 cbSS.setSelected(false);
                 cbOF.setSelected(false);
                 cbP.setSelected(true);
-                player.setQP(cbPLabel.getText());
+//                player.setQP(cbPLabel.getText());
             }
         });
         cbC.selectedProperty().addListener((observable, oldValue, newValue) -> {
             if (player.getQP() != null) {
                 cbP.setSelected(false);
-                if (player.getQP().isEmpty() && cbC.isSelected()) {
-
-                    player.setQP(player.getQP() + cbCLabel.getText());
-                } else {
-                    player.setQP(player.getQP() + "_" + cbCLabel.getText());
-                }
             }
         });
         cb1B.selectedProperty().addListener((observable, oldValue, newValue) -> {
             if (player.getQP() != null) {
                 cbP.setSelected(false);
-                if (player.getQP().isEmpty() && cb1B.isSelected()) {
-                    player.setQP(player.getQP() + cb1BLabel.getText());
-                } else {
-                    player.setQP(player.getQP() + "_" + cb1BLabel.getText());
-                }
             }
         });
         cb2B.selectedProperty().addListener((observable, oldValue, newValue) -> {
             if (player.getQP() != null) {
                 cbP.setSelected(false);
-                if (player.getQP().isEmpty() && cb2B.isSelected()) {
-                    player.setQP(player.getQP() + cb2BLabel.getText());
-                } else {
-                    player.setQP(player.getQP() + "_" + cb2BLabel.getText());
-                }
             }
         });
         cb3B.selectedProperty().addListener((observable, oldValue, newValue) -> {
             if (player.getQP() != null) {
                 cbP.setSelected(false);
-                if (player.getQP().isEmpty() && cb3B.isSelected()) {
-                    player.setQP(player.getQP() + cb3BLabel.getText());
-                } else {
-                    player.setQP(player.getQP() + "_" + cb3BLabel.getText());
-                }
             }
         });
         cbSS.selectedProperty().addListener((observable, oldValue, newValue) -> {
             if (player.getQP() != null) {
                 cbP.setSelected(false);
-                if (player.getQP().isEmpty() && cbSS.isSelected()) {
-                    player.setQP(cbSSLabel.getText());
-                } else {
-                    player.setQP(player.getQP() + "_" + cbSSLabel.getText());
-                }
             }
         });
         cbOF.selectedProperty().addListener((observable, oldValue, newValue) -> {
             if (player.getQP() != null) {
                 cbP.setSelected(false);
-                if (player.getQP().isEmpty() && cbOF.isSelected()) {
-                    player.setQP(player.getQP() + cbOFLabel.getText());
-                } else {
-                    player.setQP(player.getQP() + "_" + cbOFLabel.getText());
-                }
             }
         });
 
@@ -258,17 +226,66 @@ public class PlayerDialog extends Stage {
         // REGISTER EVENT HANDLERS FOR OUR BUTTONS
         EventHandler completeHandler = (EventHandler<ActionEvent>) (ActionEvent ae) -> {
 
-            if (firstNameTextField.getText()!=null && lastNameTextField.getText()!=null 
-                     && proTeamComboBox.getValue() != null && (cbC.isSelected()
-                     || cb1B.isSelected() || cb2B.isSelected() || cb3B.isSelected()
-                     || cbSS.isSelected() || cbOF.isSelected() ||cbP.isSelected())) {
+            if (firstNameTextField.getText() != null && lastNameTextField.getText() != null
+                    && proTeamComboBox.getValue() != null && (cbC.isSelected()
+                    || cb1B.isSelected() || cb2B.isSelected() || cb3B.isSelected()
+                    || cbSS.isSelected() || cbOF.isSelected() || cbP.isSelected())) {
+
+                if (cbP.isSelected()) {
+                    player.setQP(cbPLabel.getText());
+                }
+
+                if (cbC.isSelected()) {
+                    if (player.getQP().isEmpty()) {
+                        player.setQP(cbCLabel.getText());
+                    } else {
+                        player.setQP(player.getQP() + "_" + cbCLabel.getText());
+                    }
+                }
+
+                if (cb1B.isSelected()) {
+                    if (player.getQP().isEmpty()) {
+                        player.setQP(cb1BLabel.getText());
+                    } else {
+                        player.setQP(player.getQP() + "_" + cb1BLabel.getText());
+                    }
+                }
+                if (cb2B.isSelected()) {
+                    if (player.getQP().isEmpty()) {
+                        player.setQP(cb2BLabel.getText());
+                    } else {
+                        player.setQP(player.getQP() + "_" + cb2BLabel.getText());
+                    }
+                }
+                if (cb3B.isSelected()) {
+                    if (player.getQP().isEmpty()) {
+                        player.setQP(cb3BLabel.getText());
+                    } else {
+                        player.setQP(player.getQP() + "_" + cb3BLabel.getText());
+                    }
+                }
+                if (cbSS.isSelected()) {
+                    if (player.getQP().isEmpty()) {
+                        player.setQP(cbSSLabel.getText());
+                    } else {
+                        player.setQP(player.getQP() + "_" + cbSSLabel.getText());
+                    }
+                }
+                if (cbOF.isSelected()) {
+                    if (player.getQP().isEmpty()) {
+                        player.setQP(cbOFLabel.getText());
+                    } else {
+                        player.setQP(player.getQP() + "_" + cbOFLabel.getText());
+                    }
+                }
+
                 Button sourceButton = (Button) ae.getSource();
+
                 PlayerDialog.this.selection = sourceButton.getText();
                 PlayerDialog.this.hide();
             } else {
                 messageDialog.show("Cannot complete, necessary fields not completed");
             }
-
         };
 
         // REGISTER EVENT HANDLERS FOR OUR BUTTONS
@@ -343,7 +360,7 @@ public class PlayerDialog extends Stage {
         // LOAD THE UI STUFF
         firstNameTextField.setText("");
         lastNameTextField.setText("");
-        proTeamComboBox.getSelectionModel().clearSelection();
+        proTeamComboBox.valueProperty().set(null);
         cbC.setSelected(false);
         cb1B.setSelected(false);
         cb2B.setSelected(false);
