@@ -51,10 +51,12 @@ public class Player {
     double SB_ERA;
     double BA_WHIP;
     
+    String fantasyTeamName;
     
     public Player() {
         QP = "";
         P = "";
+        fantasyTeamName = "";
     }
 
     public double getERA() {
@@ -297,6 +299,14 @@ public class Player {
 
     public void setSB_ERA(double SB_ERA) {
         this.SB_ERA = SB_ERA;
+    }
+
+    public String getFantasyTeamName() {
+        return fantasyTeamName;
+    }
+
+    public void setFantasyTeamName(String fantasyTeamName) {
+        this.fantasyTeamName = fantasyTeamName;
     }
     
     

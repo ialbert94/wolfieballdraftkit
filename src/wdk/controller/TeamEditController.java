@@ -61,27 +61,26 @@ public class TeamEditController {
         }
     }
     
-//    public void handleEditAssignmentRequest(WDK_GUI gui, Player playerToEdit) {
-//        DraftDataManager ddm = gui.getDataManager();
-//        Draft draft = ddm.getCourse();
-//        pd.showEditScheduleItemDialog(playerToEdit);
-//        
-//        // DID THE USER CONFIRM?
-//        if (pd.wasCompleteSelected()) {
-//            // UPDATE THE SCHEDULE ITEM
-//            Player a = pd.getPlayerItem();
-//            playerToEdit.setName(a.getName());
-//            playerToEdit.setDate(a.getDate());
-//            playerToEdit.setTopics(a.getTopics());
-//            //course.editAssignments();
-//            gui.updateToolbarControls(false);
-//        }
-//        else {
-//            // THE USER MUST HAVE PRESSED CANCEL, SO
-//            // WE DO NOTHING
-//        }        
-//    }
-//    
+    public void handleEditTeamRequest(WDK_GUI gui, Team teamToEdit) {
+        DraftDataManager ddm = gui.getDataManager();
+        Draft draft = ddm.getDraft();
+        td.showEditTeamDialog(teamToEdit);
+        
+        // DID THE USER CONFIRM?
+        if (td.wasCompleteSelected()) {
+           // UPDATE THE SCHEDULE ITEM
+              Team t = td.getTeamItem();
+              teamToEdit.setTeamName(t.getTeamName());
+              teamToEdit.setTeamOwner(t.getTeamOwner());
+
+            gui.updateToolbarControls(false);
+        }
+        else {
+            // THE USER MUST HAVE PRESSED CANCEL, SO
+            // WE DO NOTHING
+        }        
+    }
+    
     public void handleRemoveTeamRequest(WDK_GUI gui, Team teamToRemove) {
         // PROMPT THE USER TO SAVE UNSAVED WORK
         yesNoCancelDialog.show(PropertiesManager.getPropertiesManager().getProperty(REMOVE_PLAYER_MESSAGE));

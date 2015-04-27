@@ -26,8 +26,7 @@ public class Draft {
     private String name;
     private String owner;
 
-    ObservableList<Player> startupLine;
-    ObservableList<Player> taxiSquad;
+
     ArrayList<String> filledPositions;
     ObservableList<Player> hitters;
     ObservableList<Player> pitchers;
@@ -135,10 +134,19 @@ public class Draft {
     public void addToTeams(Team teamToAdd){
         teams.add(teamToAdd);
     }
+    
+    public Team getTeamItem(Team teamToFind){
+        for(Team team: teams){
+            if(team.equals(teamToFind))
+                return team;
+        }
+        return null;
+    }
 
     public ObservableList<Team> getTeams() {
         return teams;
     }
+    
     
     public void removeTeam(Team teamToRemove){
         teams.remove(teamToRemove);

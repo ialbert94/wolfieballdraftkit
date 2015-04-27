@@ -15,6 +15,7 @@ import wdk.gui.WDK_GUI;
 import wdk.gui.YesNoCancelDialog;
 import properties_manager.PropertiesManager;
 import static wdk.WDK_PropertyType.REMOVE_PLAYER_MESSAGE;
+import wdk.data.Team;
 
 /**
  *
@@ -59,27 +60,41 @@ public class PlayerEditController {
         }
     }
     
-//    public void handleEditAssignmentRequest(WDK_GUI gui, Player playerToEdit) {
-//        DraftDataManager ddm = gui.getDataManager();
-//        Draft draft = ddm.getCourse();
-//        pd.showEditScheduleItemDialog(playerToEdit);
-//        
-//        // DID THE USER CONFIRM?
-//        if (pd.wasCompleteSelected()) {
-//            // UPDATE THE SCHEDULE ITEM
-//            Player a = pd.getPlayerItem();
-//            playerToEdit.setName(a.getName());
-//            playerToEdit.setDate(a.getDate());
-//            playerToEdit.setTopics(a.getTopics());
-//            //course.editAssignments();
-//            gui.updateToolbarControls(false);
-//        }
-//        else {
-//            // THE USER MUST HAVE PRESSED CANCEL, SO
-//            // WE DO NOTHING
-//        }        
-//    }
-//    
+    public void handleEditPlayerRequest(WDK_GUI gui, Player playerToEdit) {
+        DraftDataManager ddm = gui.getDataManager();
+        Draft draft = ddm.getDraft();
+        pd.showEditPlayerDialog(playerToEdit);
+        
+        // DID THE USER CONFIRM?
+        if (pd.wasCompleteSelected()) {
+            // UPDATE THE SCHEDULE ITEM
+              Player p = pd.getPlayerItem();
+              playerToEdit.setP(p.getP());
+              playerToEdit.setContract(p.getContract());
+              playerToEdit.setSalary(p.getSalary());
+              //draft.getTeamItem(null)
+//              teamToEdit.addPlayerToStartingLineup(playerToEdit);
+//            playerToEdit.setPreviousTeam(p.getPreviousTeam());
+//            playerToEdit.setNotes(p.getNotes());
+//            playerToEdit.setYearOfBirth(p.getYearOfBirth());
+//            playerToEdit.setH(p.getH());
+//            playerToEdit.setContract(p.getContract());
+//            playerToEdit.setSalary(p.getSalary());
+//            playerToEdit.setIP(p.getIP());
+//            playerToEdit.setER(p.getER());
+//            playerToEdit.setW(p.getW());
+//            playerToEdit.setSV(p.getSV());
+
+            
+            //course.editAssignments();
+            gui.updateToolbarControls(false);
+        }
+        else {
+            // THE USER MUST HAVE PRESSED CANCEL, SO
+            // WE DO NOTHING
+        }        
+    }
+    
     public void handleRemoveAssignmentRequest(WDK_GUI gui, Player playerToRemove) {
         // PROMPT THE USER TO SAVE UNSAVED WORK
         yesNoCancelDialog.show(PropertiesManager.getPropertiesManager().getProperty(REMOVE_PLAYER_MESSAGE));

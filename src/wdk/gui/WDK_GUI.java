@@ -1134,7 +1134,14 @@ public class WDK_GUI implements DraftDataView {
         removePlayerButton.setOnAction(e -> {
             playerController.handleRemoveAssignmentRequest(this, playersTable.getSelectionModel().getSelectedItem());
         });
-        
+        // AND NOW THE EDIT PLAYERS
+        playersTable.setOnMouseClicked(e -> {
+            if (e.getClickCount() == 2) {
+                // OPEN UP THE SCHEDULE ITEM EDITOR
+                Player p = playersTable.getSelectionModel().getSelectedItem();
+                playerController.handleEditPlayerRequest(this, p);
+            }
+        });
         //AND TEAM CONTROLLER FOR ADDING REMOVING AND EDITING TEAM CONTROLS
         teamController = new TeamEditController(primaryStage, dataManager.getDraft(), messageDialog, yesNoCancelDialog);
         addTeamButton.setOnAction(e -> {
@@ -1159,6 +1166,16 @@ public class WDK_GUI implements DraftDataView {
           
         });
 
+        editTeamButton.setOnAction(e -> {
+            teamController.handleEditTeamRequest(this, teamComboBox.getSelectionModel().getSelectedItem());
+            teamComboBox.getItems().clear();
+            for (Team team : dataManager.getDraft().getTeams()) {
+                teamComboBox.getItems().add(team);
+                
+            }
+            teamComboBox.getSelectionModel().clearSelection();
+        });
+        
         sortedData = new SortedList<>(filteredData);
         sortedData.comparatorProperty().bind(playersTable.comparatorProperty());
         playersTable.setItems(sortedData);

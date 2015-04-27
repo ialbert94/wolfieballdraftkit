@@ -71,7 +71,7 @@ public class TeamDialog extends Stage {
 
     public static final String FANTASY_TEAM_HEADING = "Fantasy Team Details";
     public static final String ADD_TEAM_TITLE = "Add New Fantasy Team";
-    public static final String EDIT_PLAYER_TITLE = "Edit Fantasy Team";
+    public static final String EDIT_TEAM_TITLE = "Edit Fantasy Team";
 
     public TeamDialog(Stage primaryStage, Draft draft, MessageDialog messageDialog) {
         // MAKE THIS DIALOG MODAL, MEANING OTHERS WILL WAIT
@@ -185,8 +185,30 @@ public class TeamDialog extends Stage {
         return team;
     }
 
+    
+    public void loadGUIData() {
+        // LOAD THE UI STUFF
+        nameTextField.setText(team.getTeamName());
+        ownerTextField.setText(team.getTeamOwner());       
+    }
+    
     public boolean wasCompleteSelected() {
         return selection.equals(COMPLETE);
     }
-
+public void showEditTeamDialog(Team teamToEdit) {
+        // SET THE DIALOG TITLE
+        setTitle(EDIT_TEAM_TITLE);
+        
+        // LOAD THE SCHEDULE ITEM INTScheduleItemO OUR LOCAL OBJECT
+        team = new Team();
+        nameTextField.setText(teamToEdit.getTeamName());
+        
+        ownerTextField.setText(teamToEdit.getTeamOwner()); 
+        
+        // AND THEN INTO OUR GUI
+        loadGUIData();
+               
+        // AND OPEN IT UP
+        this.showAndWait();
+    }
 }
