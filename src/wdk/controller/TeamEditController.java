@@ -15,6 +15,7 @@ import wdk.gui.WDK_GUI;
 import wdk.gui.YesNoCancelDialog;
 import properties_manager.PropertiesManager;
 import static wdk.WDK_PropertyType.REMOVE_PLAYER_MESSAGE;
+import static wdk.WDK_PropertyType.REMOVE_TEAM_MESSAGE;
 import wdk.data.Team;
 import wdk.gui.TeamDialog;
 
@@ -83,13 +84,16 @@ public class TeamEditController {
     
     public void handleRemoveTeamRequest(WDK_GUI gui, Team teamToRemove) {
         // PROMPT THE USER TO SAVE UNSAVED WORK
-        yesNoCancelDialog.show(PropertiesManager.getPropertiesManager().getProperty(REMOVE_PLAYER_MESSAGE));
+        yesNoCancelDialog.show(PropertiesManager.getPropertiesManager().getProperty(REMOVE_TEAM_MESSAGE));
       
         // AND NOW GET THE USER'S SELECTION
         String selection = yesNoCancelDialog.getSelection();
 
         // IF THE USER SAID YES, THEN SAVE BEFORE MOVING ON
         if (selection.equals(YesNoCancelDialog.YES)) { 
+            for(Player player : teamToRemove.getStartupLine()){
+                gui.getDataManager().getDraft().addToAllPlayers(player);
+            }
             gui.getDataManager().getDraft().removeTeam(teamToRemove);
             gui.updateToolbarControls(false);
         }

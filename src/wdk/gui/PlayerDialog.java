@@ -6,6 +6,7 @@
 package wdk.gui;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -245,7 +246,7 @@ public class PlayerDialog extends Stage {
         cancelButton = new Button(CANCEL);
 
         // REGISTER EVENT HANDLERS FOR OUR BUTTONS
-        EventHandler completeHandler = (EventHandler<ActionEvent>) (ActionEvent ae) -> {
+        EventHandler completeHandlerAdd = (EventHandler<ActionEvent>) (ActionEvent ae) -> {
 
             if (firstNameTextField.getText() != null && lastNameTextField.getText() != null
                     && proTeamComboBox.getValue() != null && (cbC.isSelected()
@@ -299,7 +300,9 @@ public class PlayerDialog extends Stage {
                         player.setQP(player.getQP() + "_" + cbOFLabel.getText());
                     }
                 }
-
+                if (!cbP.isSelected()) {
+                    player.setQP(player.getQP() + "_" + "U");
+                }
                 Button sourceButton = (Button) ae.getSource();
 
                 PlayerDialog.this.selection = sourceButton.getText();
@@ -310,14 +313,16 @@ public class PlayerDialog extends Stage {
         };
 
         // REGISTER EVENT HANDLERS FOR OUR BUTTONS
-        EventHandler cancelHandler = (EventHandler<ActionEvent>) (ActionEvent ae) -> {
+        EventHandler cancelHandlerAdd = (EventHandler<ActionEvent>) (ActionEvent ae) -> {
             Button sourceButton = (Button) ae.getSource();
             PlayerDialog.this.selection = sourceButton.getText();
             PlayerDialog.this.hide();
         };
+        
+        
 
-        completeButton.setOnAction(completeHandler);
-        cancelButton.setOnAction(cancelHandler);
+        completeButton.setOnAction(completeHandlerAdd);
+        cancelButton.setOnAction(cancelHandlerAdd);
 
         // NOW LET'S ARRANGE THEM ALL AT ONCE
         addGridPane.add(cbC, 0, 4);
@@ -407,12 +412,12 @@ public class PlayerDialog extends Stage {
         return selection.equals(COMPLETE);
     }
 
-    public void showEditPlayerDialog(Player playerToEdit) {
+    public Player showEditPlayerDialog(Player playerToEdit, Draft draft) {
         // SET THE DIALOG TITLE
         setTitle(EDIT_PLAYER_TITLE);
 
         // LOAD THE SCHEDULE ITEM INTScheduleItemO OUR LOCAL OBJECT
-        player = new Player();
+       //player = new Player();
 
         editGridPane = new GridPane();
         editGridPane.setPadding(new Insets(10, 20, 20, 20));
@@ -424,8 +429,8 @@ public class PlayerDialog extends Stage {
         headingLabel = new Label(PLAYER_HEADING);
         headingLabel.getStyleClass().add(CLASS_HEADING_LABEL);
 
-        String playerPath = "file:" + PLAYERS_DIR + playerToEdit.getLastName().concat(playerToEdit.getFirstName().concat(".jpg"));
-        String flagPath = "file:" + FLAGS_DIR + playerToEdit.getNationOfBirth().concat(".png");
+        String playerPath = "file:" + PLAYERS_DIR + playerToEdit.getLastName() + playerToEdit.getFirstName() + (".jpg");
+        String flagPath = "file:" + FLAGS_DIR + playerToEdit.getNationOfBirth() + (".png");
 
         Image playerImage = new Image(playerPath);
         Image flagImage = new Image(flagPath);
@@ -434,7 +439,7 @@ public class PlayerDialog extends Stage {
         iv1.setImage(playerImage);
         iv2.setImage(flagImage);
 
-        String playerName = playerToEdit.getFirstName() + playerToEdit.getLastName();
+        String playerName = playerToEdit.getFirstName() + " " + playerToEdit.getLastName();
         playerNameLabel = new Label(playerName);
         playerNameLabel.getStyleClass().add(CLASS_SUBHEADING_LABEL);
         String playerPosition = playerToEdit.getQP();
@@ -448,21 +453,42 @@ public class PlayerDialog extends Stage {
 
         ArrayList<String> teamNameList = new ArrayList();
         teamNameList.add("Free Agent");
- //       for (int i = 0; i < dataManager.getDraft().getTeam().size(); i++) {
-//            fantasyTeam.addAll(dataManager.getDraft().getTeam().get(i).getName());
-//        }
+        for (int i = 0; i < draft.getTeams().size(); i++) {
+            teamNameList.add(draft.getTeams().get(i).getTeamName());
+        }
         fantasyTeamComboBox = new ComboBox();
-//       fantasyTeamComboBox.getItems().addAll(fantasyTeam);
-//        fantasyTeamComboBox.setValue(fantasyTeam.get(o));
+        fantasyTeamComboBox.getItems().addAll(teamNameList);
+        fantasyTeamComboBox.setValue(teamNameList.get(0));
         fantasyTeamComboBox.valueProperty().addListener((observable, oldValue, newValue) -> {
-            //    FILL OUT
+            playerToEdit.setFantasyTeamName(newValue.toString());
         });
 
-//        ObservableList<String> position = FXCollections.observableArrayList();
-//        String positions = playerToEdit.getQp();
-//        if (positions.contains("C")) {
-//            position.add("C");
-//        }
+        ArrayList<String> position = new ArrayList();
+        HashMap<String, Boolean> positionTable = new HashMap<>();
+        positionTable.put("C1", false);
+        positionTable.put("C2", false);
+        positionTable.put("1B", false);
+        positionTable.put("3B", false);
+        positionTable.put("CI", false);
+        positionTable.put("2B", false);
+        positionTable.put("SS", false);
+        positionTable.put("MI", false);
+        positionTable.put("OF1", false);
+        positionTable.put("OF2", false);
+        positionTable.put("OF3", false);
+        positionTable.put("OF4", false);
+        positionTable.put("OF5", false);
+        positionTable.put("U", false);
+
+        String positions = playerToEdit.getQP();
+        if (positions.contains("C") && (!positionTable.get("C1") || !positionTable.get("C2"))) {
+            position.add("C");
+            if (!positionTable.get("C1")) {
+                positionTable.replace("C1", true);
+            } else {
+                positionTable.replace("C2", true);
+            }
+        }
 //        if (positions.contains("1B")) {
 //            position.add("1B");
 //        }
@@ -494,24 +520,54 @@ public class PlayerDialog extends Stage {
         //HERE WE WILL IMPLEMENT FOOL PROOF DESIGN. 
         //FIGURE OUT A WAY TO CHECK ALL AVAILABLE POSITIONS OF THE PLAYER
         //VS ALL AVAILPOSIITONS LEFT FOR THE TEAM AND ONLY ADD THOSE
-//        positionComboBox.getItems().addAll(position);
-//        positionComboBox.setValue(position.get(o));
+        positionComboBox.getItems().addAll(position);
+        if (!positionComboBox.getItems().isEmpty()) {
+            positionComboBox.setValue(position.get(0));
+        }
         positionComboBox.valueProperty().addListener((observable, oldValue, newValue) -> {
-
+            playerToEdit.setP(newValue.toString());
         });
 
-//        ObservableList<String> contract = FXCollections.observableArrayList("X", "S1", "S2");
+        ArrayList<String> contract = new ArrayList();
+        contract.add("S2");
+        contract.add("S1");
+        contract.add("X");
         contractComboBox = new ComboBox();
-//        contractComboBox.getItems().addAll(contract);
-//        contractComboBox.setValue(contract.get(o));
+        contractComboBox.getItems().addAll(contract);
+        contractComboBox.setValue(contract.get(0));
         contractComboBox.valueProperty().addListener((observable, oldValue, newValue) -> {
-
+            playerToEdit.setContract(newValue.toString());
         });
 
         salaryTextField = new TextField();
         salaryTextField.textProperty().addListener((observable, oldValue, newValue) -> {
 
         });
+        
+        EventHandler completeHandlerEdit = (EventHandler<ActionEvent>) (ActionEvent ae) -> {
+            if (!fantasyTeamComboBox.getSelectionModel().getSelectedItem().toString().equals("Free Agent")
+                    && positionComboBox.getSelectionModel().getSelectedItem() != null
+                    && positionComboBox.getSelectionModel().getSelectedItem() != null
+                    && !salaryTextField.getText().isEmpty()) {
+
+                Button sourceButton = (Button) ae.getSource();
+                PlayerDialog.this.selection = sourceButton.getText();
+                PlayerDialog.this.hide();
+            }
+            else{
+               
+            }
+        };
+
+        EventHandler cancelHandlerEdit = (EventHandler<ActionEvent>) (ActionEvent ae) -> {
+            Button sourceButton = (Button) ae.getSource();
+            PlayerDialog.this.selection = sourceButton.getText();
+            PlayerDialog.this.hide();
+        };
+
+        
+        completeButton.setOnAction(completeHandlerEdit);
+        cancelButton.setOnAction(cancelHandlerEdit);
 
         //gridPane.add(iv2, columnIndex, rowIndex, colspan, rowspan);
         editGridPane.add(headingLabel, 0, 0, 2, 1);
@@ -536,7 +592,8 @@ public class PlayerDialog extends Stage {
         this.setScene(editDialogScene);
 
         // AND OPEN IT UP
-        this.showAndWait();
+        showAndWait();
+        return playerToEdit;
     }
-
+        
 }

@@ -46,6 +46,10 @@ public class PlayerEditController {
             
             // AND ADD IT AS A ROW TO THE TABLE
             draft.addToAllPlayers(p);
+            if(p.getQP().contains("P"))
+                draft.addPitcher(p);
+            else
+                draft.addHitter(p);
             //I WILL PROBABLY NEED TO DO SOMETHING TO RELOAD AND 
             //REFRESH THE TABLE ONCE I ADD A PLAYER
             //FOR EXAMPLE, IF I AM ON P, AND I ADD A PLAYER TO THE TABLE
@@ -63,17 +67,20 @@ public class PlayerEditController {
     public void handleEditPlayerRequest(WDK_GUI gui, Player playerToEdit) {
         DraftDataManager ddm = gui.getDataManager();
         Draft draft = ddm.getDraft();
-        pd.showEditPlayerDialog(playerToEdit);
+        Player p = pd.showEditPlayerDialog(playerToEdit, draft);
         
         // DID THE USER CONFIRM?
         if (pd.wasCompleteSelected()) {
             // UPDATE THE SCHEDULE ITEM
-              Player p = pd.getPlayerItem();
+              
+              
               playerToEdit.setP(p.getP());
               playerToEdit.setContract(p.getContract());
               playerToEdit.setSalary(p.getSalary());
-              //draft.getTeamItem(null)
-//              teamToEdit.addPlayerToStartingLineup(playerToEdit);
+              playerToEdit.setFantasyTeamName(p.getFantasyTeamName());
+              Team teamToEdit = draft.getTeamItem(p.getFantasyTeamName());
+              teamToEdit.addPlayerToStartingLineup(playerToEdit);
+              draft.removePlayer(playerToEdit);
 //            playerToEdit.setPreviousTeam(p.getPreviousTeam());
 //            playerToEdit.setNotes(p.getNotes());
 //            playerToEdit.setYearOfBirth(p.getYearOfBirth());

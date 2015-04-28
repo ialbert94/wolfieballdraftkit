@@ -1094,38 +1094,47 @@ public class WDK_GUI implements DraftDataView {
                 return false;
             });
         });
-        
-        teamComboBox.setCellFactory(new Callback<ListView<Team>, ListCell<Team>>(){
-                    @Override
-                    public ListCell<Team> call(ListView<Team> team){
-                        return new ListCell<Team>(){
-                            @Override
-                            protected void updateItem(Team item, boolean empty){
-                                super.updateItem(item, empty);
-                                if(item==null || empty){
-                                    setGraphic(null);
-                                } else {
-                                    setText(item.getTeamName());
-                                }
-                            }
-                        };
-                    }
-                });
-        teamComboBox.setConverter(new StringConverter<Team>(){
+
+        teamComboBox.setCellFactory(new Callback<ListView<Team>, ListCell<Team>>() {
             @Override
-            public String toString(Team team){
-                if(team == null){
+            public ListCell<Team> call(ListView<Team> team) {
+                return new ListCell<Team>() {
+                    @Override
+                    protected void updateItem(Team item, boolean empty) {
+                        super.updateItem(item, empty);
+                        if (item == null || empty) {
+                            setGraphic(null);
+                        } else {
+                            setText(item.getTeamName());
+                        }
+                    }
+                };
+            }
+        });
+        teamComboBox.setConverter(new StringConverter<Team>() {
+            @Override
+            public String toString(Team team) {
+                if (team == null) {
                     return null;
                 } else {
                     return team.getTeamName();
                 }
             }
+
             @Override
-            public Team fromString(String teamName){
+            public Team fromString(String teamName) {
                 return null;
             }
         });
-        
+        teamComboBox.setOnAction(e -> {
+            startingTable.getColumns().get(0).setVisible(false);
+            startingTable.getColumns().get(0).setVisible(true);
+            //startingTable.getItems().clear();
+            if (teamComboBox.getSelectionModel().getSelectedItem()!= null) {
+                startingTable.setItems(teamComboBox.getSelectionModel().getSelectedItem().getStartupLine());
+            }
+
+        });
         // AND PLAYER CONTROLLER FOR ADDING REMOVING AND EDITING PLAYER CONTROLS
         playerController = new PlayerEditController(primaryStage, dataManager.getDraft(), messageDialog, yesNoCancelDialog);
         addPlayerButton.setOnAction(e -> {
@@ -1146,36 +1155,36 @@ public class WDK_GUI implements DraftDataView {
         teamController = new TeamEditController(primaryStage, dataManager.getDraft(), messageDialog, yesNoCancelDialog);
         addTeamButton.setOnAction(e -> {
             teamController.handleAddTeamRequest(this);
+            teamComboBox.getSelectionModel().clearSelection();
             teamComboBox.getItems().clear();
             for (Team team : dataManager.getDraft().getTeams()) {
                 teamComboBox.getItems().add(team);
-                
+
             }
-            teamComboBox.getSelectionModel().clearSelection();
+
         });
         removeTeamButton.setOnAction(e -> {
             //the VARIABLE AFTER THIS WILL BE THE SELECTED TEAM FROM THE COMBO BOX
+
             teamController.handleRemoveTeamRequest(this, teamComboBox.getSelectionModel().getSelectedItem());
+
             teamComboBox.getItems().clear();
-            for (Team team : dataManager.getDraft().getTeams()) {
-                
-                teamComboBox.getItems().add(team);
-                
-            }
             teamComboBox.getSelectionModel().clearSelection();
-          
+            for (Team team : dataManager.getDraft().getTeams()) {
+                teamComboBox.getItems().add(team);
+            }
+
         });
 
         editTeamButton.setOnAction(e -> {
             teamController.handleEditTeamRequest(this, teamComboBox.getSelectionModel().getSelectedItem());
+            teamComboBox.getSelectionModel().clearSelection();
             teamComboBox.getItems().clear();
             for (Team team : dataManager.getDraft().getTeams()) {
                 teamComboBox.getItems().add(team);
-                
             }
-            teamComboBox.getSelectionModel().clearSelection();
         });
-        
+
         sortedData = new SortedList<>(filteredData);
         sortedData.comparatorProperty().bind(playersTable.comparatorProperty());
         playersTable.setItems(sortedData);

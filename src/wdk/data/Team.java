@@ -54,6 +54,10 @@ public class Team {
         startupLine.add(playerToRemove);
     }
 
+    public ObservableList<Player> getStartupLine() {
+        return startupLine;
+    }
+    
     public void setTeamName(String teamName) {
         this.teamName = teamName;
     }

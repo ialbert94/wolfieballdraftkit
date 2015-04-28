@@ -135,9 +135,9 @@ public class Draft {
         teams.add(teamToAdd);
     }
     
-    public Team getTeamItem(Team teamToFind){
+    public Team getTeamItem(String teamName){
         for(Team team: teams){
-            if(team.equals(teamToFind))
+            if(team.getTeamName().equals(teamName))
                 return team;
         }
         return null;

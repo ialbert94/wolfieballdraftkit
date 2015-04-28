@@ -19,6 +19,7 @@ import static wdk.WDK_StartupConstants.JSON_FILE_PATH_PITCHERS;
 import static wdk.WDK_StartupConstants.PATH_DRAFTS;
 import wdk.data.Draft;
 import wdk.data.DraftDataManager;
+import wdk.data.Player;
 import wdk.error.ErrorHandler;
 import wdk.file.DraftFileManager;
 import wdk.file.DraftSiteExporter;
@@ -129,6 +130,9 @@ public class FileController {
                 //jsonFileManager.loadHitter(dataManager.getDraft(), JSON_FILE_PATH_HITTERS);
                 //jsonFileManager.loadPitcher(dataManager.getDraft(), JSON_FILE_PATH_PITCHERS);
                 jsonFileManager.loadPlayers(dataManager.getDraft(), JSON_FILE_PATH_HITTERS, JSON_FILE_PATH_PITCHERS);
+                for(Player player : dataManager.getDraft().getHitters()){
+                    player.setQP(player.getQP() + "_U");
+                }
                 // REFRESH THE GUI, WHICH WILL ENABLE AND DISABLE
                 // THE APPROPRIATE CONTROLS
                 gui.updateToolbarControls(saved);
