@@ -1126,15 +1126,7 @@ public class WDK_GUI implements DraftDataView {
                 return null;
             }
         });
-        teamComboBox.setOnAction(e -> {
-            startingTable.getColumns().get(0).setVisible(false);
-            startingTable.getColumns().get(0).setVisible(true);
-            //startingTable.getItems().clear();
-            if (teamComboBox.getSelectionModel().getSelectedItem()!= null) {
-                startingTable.setItems(teamComboBox.getSelectionModel().getSelectedItem().getStartupLine());
-            }
 
-        });
         // AND PLAYER CONTROLLER FOR ADDING REMOVING AND EDITING PLAYER CONTROLS
         playerController = new PlayerEditController(primaryStage, dataManager.getDraft(), messageDialog, yesNoCancelDialog);
         addPlayerButton.setOnAction(e -> {
@@ -1149,6 +1141,7 @@ public class WDK_GUI implements DraftDataView {
                 // OPEN UP THE SCHEDULE ITEM EDITOR
                 Player p = playersTable.getSelectionModel().getSelectedItem();
                 playerController.handleEditPlayerRequest(this, p);
+                //dataManager.getDraft().sortTeam(dataManager.getDraft().getTeamItem(p.getFantasyTeamName()));
             }
         });
         //AND TEAM CONTROLLER FOR ADDING REMOVING AND EDITING TEAM CONTROLS
@@ -1165,26 +1158,41 @@ public class WDK_GUI implements DraftDataView {
         });
         removeTeamButton.setOnAction(e -> {
             //the VARIABLE AFTER THIS WILL BE THE SELECTED TEAM FROM THE COMBO BOX
+            if (teamComboBox.getSelectionModel().getSelectedItem() == null) {
+                messageDialog.show("No team has been selected");
+            } else {
+                teamController.handleRemoveTeamRequest(this, teamComboBox.getSelectionModel().getSelectedItem());
 
-            teamController.handleRemoveTeamRequest(this, teamComboBox.getSelectionModel().getSelectedItem());
-
-            teamComboBox.getItems().clear();
-            teamComboBox.getSelectionModel().clearSelection();
-            for (Team team : dataManager.getDraft().getTeams()) {
-                teamComboBox.getItems().add(team);
+                teamComboBox.getItems().clear();
+  //              startingTable.getItems().clear();
+                teamComboBox.getSelectionModel().clearSelection();
+                for (Team team : dataManager.getDraft().getTeams()) {
+                    teamComboBox.getItems().add(team);
+                }
             }
-
         });
 
         editTeamButton.setOnAction(e -> {
-            teamController.handleEditTeamRequest(this, teamComboBox.getSelectionModel().getSelectedItem());
-            teamComboBox.getSelectionModel().clearSelection();
-            teamComboBox.getItems().clear();
-            for (Team team : dataManager.getDraft().getTeams()) {
-                teamComboBox.getItems().add(team);
+            if (teamComboBox.getSelectionModel().getSelectedItem() == null) {
+                messageDialog.show("No team has been selected");
+            } else {
+                teamController.handleEditTeamRequest(this, teamComboBox.getSelectionModel().getSelectedItem());
+                teamComboBox.getSelectionModel().clearSelection();
+                teamComboBox.getItems().clear();
+                for (Team team : dataManager.getDraft().getTeams()) {
+                    teamComboBox.getItems().add(team);
+                }
             }
         });
-
+        teamComboBox.setOnAction(e -> {
+//            startingTable.getColumns().get(0).setVisible(false);
+//            startingTable.getColumns().get(0).setVisible(true);
+            //           startingTable.getItems().clear();
+            Team team = teamComboBox.getSelectionModel().getSelectedItem();
+            if (team != null) {
+                startingTable.setItems(team.getStartupLine());
+            }
+        });
         sortedData = new SortedList<>(filteredData);
         sortedData.comparatorProperty().bind(playersTable.comparatorProperty());
         playersTable.setItems(sortedData);

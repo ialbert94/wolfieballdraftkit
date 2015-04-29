@@ -24,6 +24,7 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import wdk.data.Draft;
 import wdk.data.Player;
+import wdk.data.Team;
 import static wdk.gui.WDK_GUI.CLASS_HEADING_LABEL;
 import static wdk.gui.WDK_GUI.CLASS_PROMPT_LABEL;
 import static wdk.gui.WDK_GUI.CLASS_SUBHEADING_LABEL;
@@ -51,7 +52,7 @@ public class PlayerDialog extends Stage {
     ComboBox proTeamComboBox;
     Button completeButton;
     Button cancelButton;
-
+    MessageDialog dialog;
     CheckBox cbC;
     Label cbCLabel;
     CheckBox cb1B;
@@ -115,7 +116,39 @@ public class PlayerDialog extends Stage {
         // FOR IT WHEN IT IS DISPLAYED
         initModality(Modality.WINDOW_MODAL);
         initOwner(primaryStage);
+        // AND FINALLY, THE BUTTONS
+        completeButton = new Button(COMPLETE);
 
+        cancelButton = new Button(CANCEL);
+    }
+
+    /**
+     * Accessor method for getting the selection the user made.
+     *
+     * @return Either YES, NO, or CANCEL, depending on which button the user
+     * selected when this dialog was presented.
+     */
+    public String getSelection() {
+        return selection;
+    }
+
+    public Player getPlayerItem() {
+        return player;
+    }
+
+    /**
+     * This method loads a custom message into the label and then pops open the
+     * dialog.
+     *
+     * @param message Message to appear inside the dialog.
+     */
+    public Player showAddPlayerDialog() {
+        // SET THE DIALOG TITLE
+        setTitle(ADD_PLAYER_TITLE);
+
+        // RESET THE SCHEDULE ITEM OBJECT WITH DEFAULT VALUES
+        player = new Player();
+        
         // FIRST OUR CONTAINER
         addGridPane = new GridPane();
         addGridPane.setPadding(new Insets(10, 20, 20, 20));
@@ -133,6 +166,7 @@ public class PlayerDialog extends Stage {
         firstNameLabel = new Label(FIRST_NAME_PROMPT);
         firstNameLabel.getStyleClass().add(CLASS_PROMPT_LABEL);
         firstNameTextField = new TextField();
+        firstNameTextField.autosize();
         firstNameTextField.textProperty().addListener((observable, oldValue, newValue) -> {
             String firstName = newValue.substring(0, 1).toUpperCase() + newValue.substring(1);
             player.setFirstName(firstName);
@@ -142,6 +176,7 @@ public class PlayerDialog extends Stage {
         lastNameLabel = new Label(LAST_NAME_PROMPT);
         lastNameLabel.getStyleClass().add(CLASS_PROMPT_LABEL);
         lastNameTextField = new TextField();
+        lastNameTextField.autosize();
         lastNameTextField.textProperty().addListener((observable, oldValue, newValue) -> {
             String lastName = newValue.substring(0, 1).toUpperCase() + newValue.substring(1);
             player.setLastName(lastName);
@@ -305,84 +340,56 @@ public class PlayerDialog extends Stage {
                 }
                 Button sourceButton = (Button) ae.getSource();
 
-                PlayerDialog.this.selection = sourceButton.getText();
-                PlayerDialog.this.hide();
+                selection = sourceButton.getText();
+                hide();
             } else {
-                messageDialog.show("Cannot complete, necessary fields not completed");
+                dialog = new MessageDialog(this, ("Close"));
+                dialog.show("Cannot complete, necessary fields not completed");
             }
         };
 
         // REGISTER EVENT HANDLERS FOR OUR BUTTONS
         EventHandler cancelHandlerAdd = (EventHandler<ActionEvent>) (ActionEvent ae) -> {
             Button sourceButton = (Button) ae.getSource();
-            PlayerDialog.this.selection = sourceButton.getText();
-            PlayerDialog.this.hide();
+            selection = sourceButton.getText();
+            hide();
         };
-        
-        
 
         completeButton.setOnAction(completeHandlerAdd);
         cancelButton.setOnAction(cancelHandlerAdd);
 
         // NOW LET'S ARRANGE THEM ALL AT ONCE
-        addGridPane.add(cbC, 0, 4);
-        addGridPane.add(cbCLabel, 1, 4);
-        addGridPane.add(cb1B, 2, 4);
-        addGridPane.add(cb1BLabel, 3, 4);
-        addGridPane.add(cb2B, 4, 4);
-        addGridPane.add(cb2BLabel, 5, 4);
-        addGridPane.add(cb3B, 6, 4);
-        addGridPane.add(cb3BLabel, 7, 4);
-        addGridPane.add(cbSS, 8, 4);
-        addGridPane.add(cbSSLabel, 9, 4);
-        addGridPane.add(cbOF, 10, 4);
-        addGridPane.add(cbOFLabel, 11, 4);
-        addGridPane.add(cbP, 12, 4);
-        addGridPane.add(cbPLabel, 13, 4);
-        addGridPane.add(headingLabel, 0, 0, 1, 1);
-        addGridPane.add(firstNameLabel, 0, 1, 1, 1);
-        addGridPane.add(firstNameTextField, 1, 1, 1, 1);
-        addGridPane.add(lastNameLabel, 0, 2, 1, 1);
-        addGridPane.add(lastNameTextField, 1, 2, 1, 1);
-        addGridPane.add(proTeamLabel, 0, 3, 1, 1);
-        addGridPane.add(proTeamComboBox, 1, 3, 1, 1);
+        addGridPane.addRow(4, cbC,cbCLabel,cb1B,cb1BLabel,cb2B,cb2BLabel,cb3B,cb3BLabel,cbSS,cbSSLabel,cbOF,cbOFLabel,cbP,cbPLabel);
+//        addGridPane.add(cbCLabel, 3, 4);
+//        addGridPane.add(cb1B, 4, 4);
+//        addGridPane.add(cb1BLabel, 5, 4);
+//        addGridPane.add(cb2B, 6, 4);
+//        addGridPane.add(cb2BLabel, 7, 4);
+//        addGridPane.add(cb3B, 7, 4);
+//        addGridPane.add(cb3BLabel, 8, 4);
+//        addGridPane.add(cbSS, 1, 5);
+//        addGridPane.add(cbSSLabel, 2, 5);
+//        addGridPane.add(cbOF, 3, 5);
+//        addGridPane.add(cbOFLabel, 4, 5);
+//        addGridPane.add(cbP, 5, 5);
+//        addGridPane.add(cbPLabel, 6, 5);
+        addGridPane.add(headingLabel, 0, 0, 19, 1);
+        addGridPane.add(firstNameLabel, 0, 1, 19, 1);
+        addGridPane.add(firstNameTextField, 1, 1, 19, 1);
+        addGridPane.add(lastNameLabel, 0, 2, 19, 1);
+        addGridPane.add(lastNameTextField, 1, 2, 19, 1);
+        addGridPane.add(proTeamLabel, 0, 3, 19, 1);
+        addGridPane.add(proTeamComboBox, 1, 3, 19, 1);
 
-        addGridPane.add(completeButton, 0, 5, 1, 1);
-        addGridPane.add(cancelButton, 1, 5, 1, 1);
-
+        addGridPane.add(completeButton, 0, 7, 1, 1);
+        addGridPane.add(cancelButton, 1, 7, 1, 1);
+        
+        addGridPane.autosize();
         // AND PUT THE GRID PANE IN THE WINDOW
         dialogScene = new Scene(addGridPane);
         dialogScene.getStylesheets().add(PRIMARY_STYLE_SHEET);
-        this.setScene(dialogScene);
-    }
-
-    /**
-     * Accessor method for getting the selection the user made.
-     *
-     * @return Either YES, NO, or CANCEL, depending on which button the user
-     * selected when this dialog was presented.
-     */
-    public String getSelection() {
-        return selection;
-    }
-
-    public Player getPlayerItem() {
-        return player;
-    }
-
-    /**
-     * This method loads a custom message into the label and then pops open the
-     * dialog.
-     *
-     * @param message Message to appear inside the dialog.
-     */
-    public Player showAddPlayerDialog() {
-        // SET THE DIALOG TITLE
-        setTitle(ADD_PLAYER_TITLE);
-
-        // RESET THE SCHEDULE ITEM OBJECT WITH DEFAULT VALUES
-        player = new Player();
-
+        setScene(dialogScene);
+    
         // LOAD THE UI STUFF
         firstNameTextField.setText("");
         lastNameTextField.setText("");
@@ -396,7 +403,7 @@ public class PlayerDialog extends Stage {
         cbP.setSelected(false);
 
         // AND OPEN IT UP
-        this.showAndWait();
+        showAndWait();
 
         return player;
     }
@@ -417,8 +424,7 @@ public class PlayerDialog extends Stage {
         setTitle(EDIT_PLAYER_TITLE);
 
         // LOAD THE SCHEDULE ITEM INTScheduleItemO OUR LOCAL OBJECT
-       //player = new Player();
-
+        //player = new Player();
         editGridPane = new GridPane();
         editGridPane.setPadding(new Insets(10, 20, 20, 20));
         editGridPane.setHgap(10);
@@ -457,92 +463,166 @@ public class PlayerDialog extends Stage {
             teamNameList.add(draft.getTeams().get(i).getTeamName());
         }
         fantasyTeamComboBox = new ComboBox();
+        positionComboBox = new ComboBox();
         fantasyTeamComboBox.getItems().addAll(teamNameList);
         fantasyTeamComboBox.setValue(teamNameList.get(0));
         fantasyTeamComboBox.valueProperty().addListener((observable, oldValue, newValue) -> {
             playerToEdit.setFantasyTeamName(newValue.toString());
+            positionComboBox.getSelectionModel().clearSelection();
+            positionComboBox.getItems().clear();
+            ArrayList<String> position = new ArrayList();
+            HashMap<String, Integer> positionTable = new HashMap<>();
+            positionTable.put("C", 2);
+
+            positionTable.put("1B", 1);
+            positionTable.put("3B", 1);
+            positionTable.put("CI", 1);
+            positionTable.put("2B", 1);
+            positionTable.put("SS", 1);
+            positionTable.put("MI", 1);
+            positionTable.put("OF", 5);
+            positionTable.put("U", 1);
+            positionTable.put("P", 9);
+
+            String positions = playerToEdit.getQP();
+            Team team = draft.getTeamItem(fantasyTeamComboBox.getSelectionModel().getSelectedItem().toString());
+            if (team != null) {
+                for (Player p : team.getStartupLine()) {
+                    String pos = p.getP();
+                    positionTable.replace(pos, positionTable.get(pos) - 1);
+                }
+            }
+
+            //CHECK TO SEE IF WE CAN ADD A "C" TO THE COMBO BOX
+            if (positions.contains("C") && (positionTable.get("C") > 0) 
+                    && !fantasyTeamComboBox.getSelectionModel().getSelectedItem().toString().equals("Free Agent")) {
+                position.add("C");
+
+                positionTable.replace("C", positionTable.get("C") - 1);
+            }
+
+            //CHECK TO SEE IF WE CAN ADD A "1B" TO THE COMBO BOX
+            if (positions.contains("1B") && (positionTable.get("1B") > 0) 
+                    && !fantasyTeamComboBox.getSelectionModel().getSelectedItem().toString().equals("Free Agent")) {
+                position.add("1B");
+
+                positionTable.replace("1B", positionTable.get("1B") - 1);
+            }
+
+            //CHECK TO SEE IF WE CAN ADD A "3B" TO THE COMBO BOX
+            if (positions.contains("3B") && (positionTable.get("3B") > 0) 
+                    && !fantasyTeamComboBox.getSelectionModel().getSelectedItem().toString().equals("Free Agent")) {
+                position.add("3B");
+
+                positionTable.replace("3B", positionTable.get("3B") - 1);
+            }
+
+            //CHECK TO SEE IF WE CAN ADD A "CI" TO THE COMBO BOX
+            if ((positions.contains("1B") || position.contains("3B")) 
+                    && (positionTable.get("CI") > 0) && !fantasyTeamComboBox.getSelectionModel().getSelectedItem().toString().equals("Free Agent")) {
+                position.add("CI");
+
+                positionTable.replace("CI", positionTable.get("CI") - 1);
+            }
+
+            //CHECK TO SEE IF WE CAN ADD A "2B" TO THE COMBO BOX
+            if (positions.contains("2B") && (positionTable.get("2B") > 0) 
+                    && !fantasyTeamComboBox.getSelectionModel().getSelectedItem().toString().equals("Free Agent")) {
+                position.add("2B");
+
+                positionTable.replace("2B", positionTable.get("2B") - 1);
+            }
+
+            //CHECK TO SEE IF WE CAN ADD A "SS" TO THE COMBO BOX
+            if (positions.contains("SS") && (positionTable.get("SS") > 0) 
+                    && !fantasyTeamComboBox.getSelectionModel().getSelectedItem().toString().equals("Free Agent")) {
+                position.add("SS");
+
+                positionTable.replace("SS", positionTable.get("SS") - 1);
+            }
+
+            //CHECK TO SEE IF WE CAN ADD A "2B" TO THE COMBO BOX
+            if ((positions.contains("2B") || position.contains("SS")) 
+                    && (positionTable.get("MI") > 0) && !fantasyTeamComboBox.getSelectionModel().getSelectedItem().toString().equals("Free Agent")) {
+                position.add("MI");
+
+                positionTable.replace("MI", positionTable.get("MI") - 1);
+            }
+
+            //CHECK TO SEE IF WE CAN ADD A "OF" TO THE COMBO BOX
+            if (positions.contains("OF") && (positionTable.get("OF") > 0) 
+                    && !fantasyTeamComboBox.getSelectionModel().getSelectedItem().toString().equals("Free Agent")) {
+                position.add("OF");
+
+                positionTable.replace("OF", positionTable.get("OF") - 1);
+            }
+
+            //CHECK TO SEE IF WE CAN ADD A "U" TO THE COMBO BOX
+            if (positions.contains("U") && (positionTable.get("U") > 0) 
+                    && !fantasyTeamComboBox.getSelectionModel().getSelectedItem().toString().equals("Free Agent")) {
+                position.add("U");
+
+                positionTable.replace("U", positionTable.get("U") - 1);
+            }
+
+            //CHECK TO SEE IF WE CAN ADD A "P" TO THE COMBO BOX
+            if (positions.contains("P") && (positionTable.get("P") > 0) 
+                    && !fantasyTeamComboBox.getSelectionModel().getSelectedItem().toString().equals("Free Agent")) {
+                position.add("P");
+
+                positionTable.replace("P", positionTable.get("P") - 1);
+            }
+            if (fantasyTeamComboBox.getSelectionModel().getSelectedItem().toString().equals("Free Agent")) {
+                positionComboBox.getItems().clear();
+            }
+            //HERE WE WILL IMPLEMENT FOOL PROOF DESIGN. 
+            //FIGURE OUT A WAY TO CHECK ALL AVAILABLE POSITIONS OF THE PLAYER
+            //VS ALL AVAILPOSIITONS LEFT FOR THE TEAM AND ONLY ADD THOSE
+            positionComboBox.getSelectionModel().clearSelection();
+            positionComboBox.getItems().clear();
+            positionComboBox.getSelectionModel().clearSelection();
+            positionComboBox.getItems().addAll(position);
+
         });
 
-        ArrayList<String> position = new ArrayList();
-        HashMap<String, Boolean> positionTable = new HashMap<>();
-        positionTable.put("C1", false);
-        positionTable.put("C2", false);
-        positionTable.put("1B", false);
-        positionTable.put("3B", false);
-        positionTable.put("CI", false);
-        positionTable.put("2B", false);
-        positionTable.put("SS", false);
-        positionTable.put("MI", false);
-        positionTable.put("OF1", false);
-        positionTable.put("OF2", false);
-        positionTable.put("OF3", false);
-        positionTable.put("OF4", false);
-        positionTable.put("OF5", false);
-        positionTable.put("U", false);
-
-        String positions = playerToEdit.getQP();
-        if (positions.contains("C") && (!positionTable.get("C1") || !positionTable.get("C2"))) {
-            position.add("C");
-            if (!positionTable.get("C1")) {
-                positionTable.replace("C1", true);
-            } else {
-                positionTable.replace("C2", true);
-            }
-        }
-//        if (positions.contains("1B")) {
-//            position.add("1B");
-//        }
-//        if (positions.contains("CI")) {
-//            position.add("CI");
-//        }
-//        if (positions.contains("3B")) {
-//            position.add("3B");
-//        }
-//        if (positions.contains("2B")) {
-//            position.add("2B");
-//        }
-//        if (positions.contains("MI")) {
-//            position.add("MI");
-//        }
-//        if (positions.contains("SS")) {
-//            position.add("SS");
-//        }
-//        if (positions.contains("OF")) {
-//            position.add("OF");
-//        }
-//        if (positions.contains("U")) {
-//            position.add("U");
-//        }
-//        if (positions.contains("P")) {
-//            position.add("P");
-//        }
-        positionComboBox = new ComboBox();
-        //HERE WE WILL IMPLEMENT FOOL PROOF DESIGN. 
-        //FIGURE OUT A WAY TO CHECK ALL AVAILABLE POSITIONS OF THE PLAYER
-        //VS ALL AVAILPOSIITONS LEFT FOR THE TEAM AND ONLY ADD THOSE
-        positionComboBox.getItems().addAll(position);
-        if (!positionComboBox.getItems().isEmpty()) {
-            positionComboBox.setValue(position.get(0));
-        }
         positionComboBox.valueProperty().addListener((observable, oldValue, newValue) -> {
-            playerToEdit.setP(newValue.toString());
+            if (newValue != null) {
+                playerToEdit.setP(newValue.toString());
+            }
         });
 
         ArrayList<String> contract = new ArrayList();
+
         contract.add("S2");
         contract.add("S1");
         contract.add("X");
         contractComboBox = new ComboBox();
+        contractComboBox.prefWidth(100);
         contractComboBox.getItems().addAll(contract);
-        contractComboBox.setValue(contract.get(0));
+        contractComboBox.getSelectionModel().clearSelection();
         contractComboBox.valueProperty().addListener((observable, oldValue, newValue) -> {
             playerToEdit.setContract(newValue.toString());
         });
 
         salaryTextField = new TextField();
-        salaryTextField.textProperty().addListener((observable, oldValue, newValue) -> {
 
+        salaryTextField.textProperty().addListener((observable, oldValue, newValue) -> {
+            try {
+                int sel = Integer.parseInt(newValue);
+                playerToEdit.setSalary(sel);
+            } catch (Exception e) {
+                if (salaryTextField.getText().length() > 0) {
+                    dialog = new MessageDialog(this, ("Close"));
+                    dialog.show("Numbers only");
+                    salaryTextField.setText(newValue.substring(0, newValue.length() - 1));
+                }
+            }
         });
+        
+          // AND FINALLY, THE BUTTONS
+        completeButton = new Button(COMPLETE);
+
+        cancelButton = new Button(CANCEL);
         
         EventHandler completeHandlerEdit = (EventHandler<ActionEvent>) (ActionEvent ae) -> {
             if (!fantasyTeamComboBox.getSelectionModel().getSelectedItem().toString().equals("Free Agent")
@@ -553,9 +633,8 @@ public class PlayerDialog extends Stage {
                 Button sourceButton = (Button) ae.getSource();
                 PlayerDialog.this.selection = sourceButton.getText();
                 PlayerDialog.this.hide();
-            }
-            else{
-               
+            } else {
+
             }
         };
 
@@ -565,8 +644,8 @@ public class PlayerDialog extends Stage {
             PlayerDialog.this.hide();
         };
 
-        
         completeButton.setOnAction(completeHandlerEdit);
+
         cancelButton.setOnAction(cancelHandlerEdit);
 
         //gridPane.add(iv2, columnIndex, rowIndex, colspan, rowspan);
@@ -588,12 +667,14 @@ public class PlayerDialog extends Stage {
 
         // AND PUT THE GRID PANE IN THE WINDOW
         editDialogScene = new Scene(editGridPane);
+
         editDialogScene.getStylesheets().add(PRIMARY_STYLE_SHEET);
+
         this.setScene(editDialogScene);
 
         // AND OPEN IT UP
         showAndWait();
         return playerToEdit;
     }
-        
+
 }

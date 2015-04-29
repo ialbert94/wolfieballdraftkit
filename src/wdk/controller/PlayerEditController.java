@@ -80,6 +80,7 @@ public class PlayerEditController {
               playerToEdit.setFantasyTeamName(p.getFantasyTeamName());
               Team teamToEdit = draft.getTeamItem(p.getFantasyTeamName());
               teamToEdit.addPlayerToStartingLineup(playerToEdit);
+              draft.sortTeam(draft.getTeamItem(p.getFantasyTeamName()));
               draft.removePlayer(playerToEdit);
 //            playerToEdit.setPreviousTeam(p.getPreviousTeam());
 //            playerToEdit.setNotes(p.getNotes());

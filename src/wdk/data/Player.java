@@ -52,6 +52,7 @@ public class Player {
     double BA_WHIP;
     
     String fantasyTeamName;
+    private String comp;
     
     public Player() {
         QP = "";
@@ -309,6 +310,13 @@ public class Player {
         this.fantasyTeamName = fantasyTeamName;
     }
     
+    public void setComparator(String comp){
+        this.comp = comp;
+    }
+
+    public String getComp() {
+        return comp;
+    }
     
    
     
