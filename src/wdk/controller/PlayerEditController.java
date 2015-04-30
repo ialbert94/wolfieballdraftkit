@@ -22,10 +22,11 @@ import wdk.data.Team;
  * @author Albert
  */
 public class PlayerEditController {
+
     PlayerDialog pd;
     MessageDialog messageDialog;
     YesNoCancelDialog yesNoCancelDialog;
-    
+
     public PlayerEditController(Stage initPrimaryStage, Draft draft, MessageDialog initMessageDialog, YesNoCancelDialog initYesNoCancelDialog) {
         pd = new PlayerDialog(initPrimaryStage, draft, initMessageDialog);
         messageDialog = initMessageDialog;
@@ -33,23 +34,23 @@ public class PlayerEditController {
     }
 
       // THESE ARE FOR PLAUERS
-    
     public void handleAddPlayerRequest(WDK_GUI gui) {
         DraftDataManager ddm = gui.getDataManager();
         Draft draft = ddm.getDraft();
         pd.showAddPlayerDialog();
-        
+
         // DID THE USER CONFIRM?
         if (pd.wasCompleteSelected()) {
             // GET THE SCHEDULE ITEM
             Player p = pd.getPlayerItem();
-            
+
             // AND ADD IT AS A ROW TO THE TABLE
             draft.addToAllPlayers(p);
-            if(p.getQP().contains("P"))
+            if (p.getQP().contains("P")) {
                 draft.addPitcher(p);
-            else
+            } else {
                 draft.addHitter(p);
+            }
             //I WILL PROBABLY NEED TO DO SOMETHING TO RELOAD AND 
             //REFRESH THE TABLE ONCE I ADD A PLAYER
             //FOR EXAMPLE, IF I AM ON P, AND I ADD A PLAYER TO THE TABLE
@@ -57,64 +58,91 @@ public class PlayerEditController {
             //LIKEWISE IF I ADD A PLAYER THAT IS A CATCHER, AND IM ON THE C
             //RADIO BUTTON, HE SHOULD BE THERE
             gui.updateToolbarControls(false);
-        }
-        else {
+        } else {
             // THE USER MUST HAVE PRESSED CANCEL, SO
             // WE DO NOTHING
         }
     }
-    
-    public void handleEditPlayerRequest(WDK_GUI gui, Player playerToEdit) {
+
+    public void handleEditPlayerScreenRequest(WDK_GUI gui, Player playerToEdit) {
         DraftDataManager ddm = gui.getDataManager();
         Draft draft = ddm.getDraft();
         Player p = pd.showEditPlayerDialog(playerToEdit, draft);
-        
+
         // DID THE USER CONFIRM?
         if (pd.wasCompleteSelected()) {
             // UPDATE THE SCHEDULE ITEM
-              
-              
-              playerToEdit.setP(p.getP());
-              playerToEdit.setContract(p.getContract());
-              playerToEdit.setSalary(p.getSalary());
-              playerToEdit.setFantasyTeamName(p.getFantasyTeamName());
-              Team teamToEdit = draft.getTeamItem(p.getFantasyTeamName());
-              teamToEdit.addPlayerToStartingLineup(playerToEdit);
-              draft.sortTeam(draft.getTeamItem(p.getFantasyTeamName()));
-              draft.removePlayer(playerToEdit);
-//            playerToEdit.setPreviousTeam(p.getPreviousTeam());
-//            playerToEdit.setNotes(p.getNotes());
-//            playerToEdit.setYearOfBirth(p.getYearOfBirth());
-//            playerToEdit.setH(p.getH());
-//            playerToEdit.setContract(p.getContract());
-//            playerToEdit.setSalary(p.getSalary());
-//            playerToEdit.setIP(p.getIP());
-//            playerToEdit.setER(p.getER());
-//            playerToEdit.setW(p.getW());
-//            playerToEdit.setSV(p.getSV());
 
-            
+            playerToEdit.setP(p.getP());
+            playerToEdit.setContract(p.getContract());
+            playerToEdit.setSalary(p.getSalary());
+            playerToEdit.setFantasyTeamName(p.getFantasyTeamName());
+            Team teamToEdit = draft.getTeamItem(p.getFantasyTeamName());
+            teamToEdit.addPlayerToStartingLineup(playerToEdit);
+            draft.sortTeam(draft.getTeamItem(p.getFantasyTeamName()));
+            draft.removePlayer(playerToEdit);
+
             //course.editAssignments();
             gui.updateToolbarControls(false);
-        }
-        else {
+        } else {
             // THE USER MUST HAVE PRESSED CANCEL, SO
             // WE DO NOTHING
-        }        
+        }
     }
-    
-    public void handleRemoveAssignmentRequest(WDK_GUI gui, Player playerToRemove) {
+
+    public void handleEditTeamScreenRequest(WDK_GUI gui, Player playerToEdit) {
+        DraftDataManager ddm = gui.getDataManager();
+        Draft draft = ddm.getDraft();
+        Player p = pd.showEditTeamScreenDialog(playerToEdit, draft);
+
+        // DID THE USER CONFIRM?
+        if (pd.wasCompleteSelected()) {
+            // UPDATE THE SCHEDULE ITEM
+            if (p.getFantasyTeamName().equals("Free Agent")) {
+                draft.addToAllPlayers(playerToEdit);
+                draft.getTeamItem(playerToEdit.getFantasyTeamName()).removePlayerFromStartingLineup(playerToEdit);
+                
+            } else if(p.getFantasyTeamName().equals(playerToEdit.getFantasyTeamName())){
+                playerToEdit.setP(p.getP());
+                playerToEdit.setContract(p.getContract());
+                playerToEdit.setSalary(p.getSalary());
+                //.setFantasyTeamName(p.getFantasyTeamName());
+                //TeplayerToEditam teamToEdit = draft.getTeamItem(p.getFantasyTeamName());
+                //teamToEdit.addPlayerToStartingLineup(playerToEdit);
+                draft.getTeamItem(playerToEdit.getFantasyTeamName()).refreshTeam();
+                draft.sortTeam(draft.getTeamItem(p.getFantasyTeamName()));
+                //draft.getTeamItem(teamToRemoveFrom).removePlayerFromStartingLineup(playerToEdit);
+            } else {
+                
+                playerToEdit.setP(p.getP());
+                playerToEdit.setContract(p.getContract());
+                playerToEdit.setSalary(p.getSalary());
+                playerToEdit.setFantasyTeamName(p.getFantasyTeamName());
+                //TeplayerToEditam teamToEdit = draft.getTeamItem(p.getFantasyTeamName());
+                //teamToEdit.addPlayerToStartingLineup(playerToEdit);
+                draft.getTeamItem(playerToEdit.getFantasyTeamName()).refreshTeam();
+                draft.sortTeam(draft.getTeamItem(p.getFantasyTeamName()));
+                //draft.getTeamItem(teamToRemoveFrom).removePlayerFromStartingLineup(playerToEdit);
+            }
+            //course.editAssignments();
+            gui.updateToolbarControls(false);
+        } else {
+            // THE USER MUST HAVE PRESSED CANCEL, SO
+            // WE DO NOTHING
+        }
+    }
+
+    public void handleRemovePlayerRequest(WDK_GUI gui, Player playerToRemove) {
         // PROMPT THE USER TO SAVE UNSAVED WORK
         yesNoCancelDialog.show(PropertiesManager.getPropertiesManager().getProperty(REMOVE_PLAYER_MESSAGE));
-      
+
         // AND NOW GET THE USER'S SELECTION
         String selection = yesNoCancelDialog.getSelection();
 
         // IF THE USER SAID YES, THEN SAVE BEFORE MOVING ON
-        if (selection.equals(YesNoCancelDialog.YES)) { 
+        if (selection.equals(YesNoCancelDialog.YES)) {
             gui.getDataManager().getDraft().removePlayer(playerToRemove);
             gui.updateToolbarControls(false);
         }
     }
 }
-

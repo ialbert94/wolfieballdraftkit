@@ -1,5 +1,7 @@
 package wdk.data;
 
+import java.util.Collections;
+import java.util.Comparator;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
@@ -57,7 +59,11 @@ public class Team {
     public ObservableList<Player> getStartupLine() {
         return startupLine;
     }
-    
+    public void refreshTeam(){
+         Comparator<Player> byComparator = (p1, p2) -> p1.getComp().compareTo(p2.getComp());
+        //teamToSort.startupLine.stream().sorted(byComparator);
+         Collections.sort(startupLine, byComparator);
+    }
     public void setTeamName(String teamName) {
         this.teamName = teamName;
     }

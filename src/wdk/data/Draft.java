@@ -163,7 +163,7 @@ public class Draft {
 
     public void sortTeam(Team teamToSort) {
         for (Player p : teamToSort.startupLine) {
-            if (p.getComp() == null) {
+            //if (p.getComp() == null) {
                 if (p.getP().equals("C")) {
                     p.setComparator("a");
                 }
@@ -194,7 +194,7 @@ public class Draft {
                 if (p.getP().equals("P")) {
                     p.setComparator("j");
                 }
-            }
+            //}
 
         }
         Comparator<Player> byComparator = (p1, p2) -> p1.getComp().compareTo(p2.getComp());

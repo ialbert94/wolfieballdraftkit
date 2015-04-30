@@ -1133,15 +1133,38 @@ public class WDK_GUI implements DraftDataView {
             playerController.handleAddPlayerRequest(this);
         });
         removePlayerButton.setOnAction(e -> {
-            playerController.handleRemoveAssignmentRequest(this, playersTable.getSelectionModel().getSelectedItem());
+            playerController.handleRemovePlayerRequest(this, playersTable.getSelectionModel().getSelectedItem());
         });
         // AND NOW THE EDIT PLAYERS
         playersTable.setOnMouseClicked(e -> {
             if (e.getClickCount() == 2) {
                 // OPEN UP THE SCHEDULE ITEM EDITOR
                 Player p = playersTable.getSelectionModel().getSelectedItem();
-                playerController.handleEditPlayerRequest(this, p);
-                //dataManager.getDraft().sortTeam(dataManager.getDraft().getTeamItem(p.getFantasyTeamName()));
+                playerController.handleEditPlayerScreenRequest(this, p);
+                teamComboBoxActionHandler();
+                for (Team item : teamComboBox.getItems()) {
+                    item.refreshTeam();
+                    //startingTable.getItems().clear();
+                    //startingTable.setItems(teamComboBox.getSelectionModel().getSelectedItem().getStartupLine());
+                }
+                teamComboBoxActionHandler();
+//dataManager.getDraft().sortTeam(dataManager.getDraft().getTeamItem(p.getFantasyTeamName()));
+            }
+        });
+        // AND NOW THE EDIT PLAYERS
+        startingTable.setOnMouseClicked(e -> {
+            if (e.getClickCount() == 2) {
+                // OPEN UP THE SCHEDULE ITEM EDITOR
+                Player p = startingTable.getSelectionModel().getSelectedItem();
+                playerController.handleEditTeamScreenRequest(this, p);
+                teamComboBoxActionHandler();
+                for (Team item : teamComboBox.getItems()) {
+                    item.refreshTeam();
+                    //startingTable.getItems().clear();
+                    //startingTable.setItems(teamComboBox.getSelectionModel().getSelectedItem().getStartupLine());
+                }
+                teamComboBoxActionHandler();
+//dataManager.getDraft().sortTeam(dataManager.getDraft().getTeamItem(p.getFantasyTeamName()));
             }
         });
         //AND TEAM CONTROLLER FOR ADDING REMOVING AND EDITING TEAM CONTROLS
@@ -1164,7 +1187,7 @@ public class WDK_GUI implements DraftDataView {
                 teamController.handleRemoveTeamRequest(this, teamComboBox.getSelectionModel().getSelectedItem());
 
                 teamComboBox.getItems().clear();
-  //              startingTable.getItems().clear();
+                //              startingTable.getItems().clear();
                 teamComboBox.getSelectionModel().clearSelection();
                 for (Team team : dataManager.getDraft().getTeams()) {
                     teamComboBox.getItems().add(team);
@@ -1184,19 +1207,23 @@ public class WDK_GUI implements DraftDataView {
                 }
             }
         });
+
+        sortedData = new SortedList<>(filteredData);
+        sortedData.comparatorProperty().bind(playersTable.comparatorProperty());
+        playersTable.setItems(sortedData);
+
+    }
+
+    private void teamComboBoxActionHandler() {
         teamComboBox.setOnAction(e -> {
-//            startingTable.getColumns().get(0).setVisible(false);
-//            startingTable.getColumns().get(0).setVisible(true);
+    //            startingTable.getColumns().get(0).setVisible(false);
+            //            startingTable.getColumns().get(0).setVisible(true);
             //           startingTable.getItems().clear();
             Team team = teamComboBox.getSelectionModel().getSelectedItem();
             if (team != null) {
                 startingTable.setItems(team.getStartupLine());
             }
         });
-        sortedData = new SortedList<>(filteredData);
-        sortedData.comparatorProperty().bind(playersTable.comparatorProperty());
-        playersTable.setItems(sortedData);
-
     }
 
     private void registerTextFieldController(TextField textField) {
