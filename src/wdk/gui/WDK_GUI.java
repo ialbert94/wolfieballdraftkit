@@ -430,7 +430,10 @@ public class WDK_GUI implements DraftDataView {
         // NOTE THAT THE NEW, LOAD, AND EXIT BUTTONS
         // ARE NEVER DISABLED SO WE NEVER HAVE TO TOUCH THEM
     }
-
+    
+    public void updateDraftInto(Draft draft){
+        draft.setDraftName(dr);
+    }
     @Override
     public void reloadDraft(Draft draftToReload) {
         // FIRST ACTIVATE THE WORKSPACE IF NECESSARY
@@ -1054,6 +1057,12 @@ public class WDK_GUI implements DraftDataView {
         newDraftButton.setOnAction((ActionEvent e) -> {
             fileController.handleNewDraftRequest(WDK_GUI.this);
         });
+        loadDraftButton.setOnAction((ActionEvent e) -> {
+            fileController.handleLoadDraftRequest(this);
+        });
+        saveDraftButton.setOnAction((ActionEvent e) -> {
+            fileController.handleSaveDraftRequest(this, dataManager.getDraft());
+        });
         exitButton.setOnAction((ActionEvent e) -> {
             fileController.handleExitRequest(WDK_GUI.this);
         });
@@ -1094,39 +1103,7 @@ public class WDK_GUI implements DraftDataView {
                 return false;
             });
         });
-
-        teamComboBox.setCellFactory(new Callback<ListView<Team>, ListCell<Team>>() {
-            @Override
-            public ListCell<Team> call(ListView<Team> team) {
-                return new ListCell<Team>() {
-                    @Override
-                    protected void updateItem(Team item, boolean empty) {
-                        super.updateItem(item, empty);
-                        if (item == null || empty) {
-                            setGraphic(null);
-                        } else {
-                            setText(item.getTeamName());
-                        }
-                    }
-                };
-            }
-        });
-        teamComboBox.setConverter(new StringConverter<Team>() {
-            @Override
-            public String toString(Team team) {
-                if (team == null) {
-                    return null;
-                } else {
-                    return team.getTeamName();
-                }
-            }
-
-            @Override
-            public Team fromString(String teamName) {
-                return null;
-            }
-        });
-
+        registerTextFieldController(draftNameLabel);
         // AND PLAYER CONTROLLER FOR ADDING REMOVING AND EDITING PLAYER CONTROLS
         playerController = new PlayerEditController(primaryStage, dataManager.getDraft(), messageDialog, yesNoCancelDialog);
         addPlayerButton.setOnAction(e -> {
@@ -1144,13 +1121,19 @@ public class WDK_GUI implements DraftDataView {
                 teamComboBoxActionHandler();
                 for (Team item : teamComboBox.getItems()) {
                     item.refreshTeam();
-                    //startingTable.getItems().clear();
-                    //startingTable.setItems(teamComboBox.getSelectionModel().getSelectedItem().getStartupLine());
                 }
+                startingTable.getItems().clear();
+                if (teamComboBox.getSelectionModel().getSelectedItem() != null) {
+                    startingTable.setItems(teamComboBox.getSelectionModel().getSelectedItem().getStartupLine());
+                }
+
                 teamComboBoxActionHandler();
 //dataManager.getDraft().sortTeam(dataManager.getDraft().getTeamItem(p.getFantasyTeamName()));
             }
         });
+
+        //AND TEAM CONTROLLER FOR ADDING REMOVING AND EDITING TEAM CONTROLS
+        teamController = new TeamEditController(primaryStage, dataManager.getDraft(), messageDialog, yesNoCancelDialog);
         // AND NOW THE EDIT PLAYERS
         startingTable.setOnMouseClicked(e -> {
             if (e.getClickCount() == 2) {
@@ -1160,15 +1143,19 @@ public class WDK_GUI implements DraftDataView {
                 teamComboBoxActionHandler();
                 for (Team item : teamComboBox.getItems()) {
                     item.refreshTeam();
-                    //startingTable.getItems().clear();
-                    //startingTable.setItems(teamComboBox.getSelectionModel().getSelectedItem().getStartupLine());
                 }
-                teamComboBoxActionHandler();
+                //startingTable.getItems().clear();
+                startingTable.getColumns().get(0).setVisible(false);
+                startingTable.getColumns().get(0).setVisible(true);
+                if (teamComboBox.getSelectionModel().getSelectedItem() != null) {
+                    startingTable.setItems(teamComboBox.getSelectionModel().getSelectedItem().getStartupLine());
+                }
+
+              
 //dataManager.getDraft().sortTeam(dataManager.getDraft().getTeamItem(p.getFantasyTeamName()));
             }
-        });
-        //AND TEAM CONTROLLER FOR ADDING REMOVING AND EDITING TEAM CONTROLS
-        teamController = new TeamEditController(primaryStage, dataManager.getDraft(), messageDialog, yesNoCancelDialog);
+        });  
+        teamComboBoxActionHandler();
         addTeamButton.setOnAction(e -> {
             teamController.handleAddTeamRequest(this);
             teamComboBox.getSelectionModel().clearSelection();
@@ -1207,17 +1194,51 @@ public class WDK_GUI implements DraftDataView {
                 }
             }
         });
+        teamComboBox.setCellFactory(new Callback<ListView<Team>, ListCell<Team>>() {
+            @Override
+            public ListCell<Team> call(ListView<Team> team) {
+                return new ListCell<Team>() {
+                    @Override
+                    protected void updateItem(Team item, boolean empty) {
+                        super.updateItem(item, empty);
+                        if (item == null || empty) {
+                            setGraphic(null);
+                        } else {
+                            setText(item.getTeamName());
+                        }
+                    }
+                };
+            }
+        });
+        teamComboBox.setConverter(new StringConverter<Team>() {
+            @Override
+            public String toString(Team team) {
+                if (team == null) {
+                    return null;
+                } else {
+                    return team.getTeamName();
+                }
+            }
 
+            @Override
+            public Team fromString(String teamName) {
+                return null;
+            }
+        });
         sortedData = new SortedList<>(filteredData);
         sortedData.comparatorProperty().bind(playersTable.comparatorProperty());
         playersTable.setItems(sortedData);
+        Team team = teamComboBox.getSelectionModel().getSelectedItem();
+        if (team != null) {
+            startingTable.setItems(team.getStartupLine());
 
+        }
     }
 
     private void teamComboBoxActionHandler() {
         teamComboBox.setOnAction(e -> {
-    //            startingTable.getColumns().get(0).setVisible(false);
-            //            startingTable.getColumns().get(0).setVisible(true);
+            startingTable.getColumns().get(0).setVisible(false);
+            startingTable.getColumns().get(0).setVisible(true);
             //           startingTable.getItems().clear();
             Team team = teamComboBox.getSelectionModel().getSelectedItem();
             if (team != null) {

@@ -24,7 +24,7 @@ import javafx.collections.ObservableList;
 public class Draft {
 
     private int biddingAmount;
-    private String name;
+    private String draftName;
     private String owner;
 
     ArrayList<String> filledPositions;
@@ -68,6 +68,14 @@ public class Draft {
         hitters.clear();
     }
 
+    public String getDraftName() {
+        return draftName;
+    }
+
+    public void setDraftName(String draftName) {
+        this.draftName = draftName;
+    }
+    
     public void resetAllPlayers() {
         allPlayers.clear();
     }

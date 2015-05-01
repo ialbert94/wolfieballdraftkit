@@ -152,7 +152,7 @@ public class FileController {
      *
      * @param gui The user interface editing the course.
      */
-    public void handleLoadCourseRequest(WDK_GUI gui) {
+    public void handleLoadDraftRequest(WDK_GUI gui) {
         try {
             // WE MAY HAVE TO SAVE CURRENT WORK
             boolean continueToOpen = true;
@@ -181,7 +181,7 @@ public class FileController {
      * @param courseToSave The course being edited that is to be saved to a
      * file.
      */
-    public void handleSaveCourseRequest(WDK_GUI gui, Draft draftToSave) {
+    public void handleSaveDraftRequest(WDK_GUI gui, Draft draftToSave) {
         try {
             // SAVE IT TO A FILE
             draftIO.saveDraft(draftToSave);

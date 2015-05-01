@@ -5,6 +5,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.math.BigDecimal;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -17,46 +18,66 @@ import javax.json.JsonObject;
 import javax.json.JsonReader;
 import javax.json.JsonValue;
 import javax.json.JsonWriter;
+import static wdk.WDK_StartupConstants.PATH_DRAFTS;
 import wdk.data.Draft;
 import wdk.data.Player;
+import wdk.data.Team;
 import wdk.file.DraftFileManager;
 
 public class JsonDraftFileManager implements DraftFileManager {
 
     // JSON FILE READING AND WRITING CONSTANTS
-
+    //THESE ARE THE CONSTANTS THAT ARE SHARED
     String JSON_TEAM = "TEAM";
     String JSON_LAST_NAME = "LAST_NAME";
     String JSON_FIRST_NAME = "FIRST_NAME";
-    String JSON_QP = "QP";
-    String JSON_AB = "AB";
-    String JSON_R = "R";
     String JSON_H = "H";
-    String JSON_HR = "HR";
-    String JSON_RBI = "RBI";
-    String JSON_SB = "SB";
     String JSON_NOTES = "NOTES";
     String JSON_YEAR_OF_BIRTH = "YEAR_OF_BIRTH";
     String JSON_NATION_OF_BIRTH = "NATION_OF_BIRTH";
+
+    String JSON_R_W = "R/W";
+    String JSON_BA_WHIP = "HR/SV";
+    String JSON_SB_ERA = "SB/ERA";
+    String JSON_HR_SV = "BA/WHIP";
+    String JSON_RBI_K = "RBI/K";
+    String JsON_ESTIMATED_VALUE = "Estimated Value";
+
+    //CONSTANTS FOR THE HITTERS
+    String JSON_HITTERS = "Hitters";
+    String JSON_QP = "QP";
+    String JSON_AB = "AB";
+    String JSON_R = "R";
+    String JSON_HR = "HR";
+    String JSON_RBI = "RBI";
+    String JSON_SB = "SB";
+
+    //CONSTANTS FOR THE PITCHERS
+    String JSON_PITCHERS = "Pitchers";
     String JSON_IP = "IP";
     String JSON_ER = "ER";
     String JSON_W = "W";
     String JSON_SV = "SV";
     String JSON_BB = "BB";
     String JSON_K = "K";
-    String JSON_PITCHERS = "Pitchers";
-    String JSON_HITTERS = "Hitters";
 
-    String JSON_SCHEDULE_ITEM_DESCRIPTION = "description";
-    String JSON_SCHEDULE_ITEM_DATE = "date";
-    String JSON_SCHEDULE_ITEM_LINK = "link";
-    String JSON_LECTURE_TOPIC = "topic";
-    String JSON_LECTURE_SESSIONS = "sessions";
-    String JSON_ASSIGNMENT_NAME = "name";
-    String JSON_ASSIGNMENT_TOPICS = "topics";
-    String JSON_ASSIGNMENT_DATE = "date";
+    String JSON_TEAM_NAME = "TEAM_NAME";
+    String JSON_TEAM_OWNER = "TEAM_OWNER";
+    String JSON_TEAM_PLAYERS = "TEAM_PLAYERS";
+    String JSON_POSITION = "POSITION";
+    String JSON_PRO_TEAM = "PRO_TEAM";
+    String JSON_CONTRACT = "CONTRACT";
+    String JSON_SALARY = "SALARY";
+
     String JSON_EXT = ".json";
     String SLASH = "/";
+
+    String JSON_PLAYERS = "Players";
+    String JSON_DRAFT_NAME = "Draft Name";
+    String JSON_FANTASY_TEAM = "Fantasy Team";
+
+    JsonArray jsonTeamPlayersArray;
+    JsonArray teamJsonArray;
 
     /**
      * This method saves all the data associated with a course to a JSON file.
@@ -68,174 +89,29 @@ public class JsonDraftFileManager implements DraftFileManager {
      */
     @Override
     public void saveDraft(Draft draftToSave) throws IOException {
-//        // BUILD THE FILE PATH
-//        String courseListing = "" + draftToSave.getSubject() + draftToSave.getNumber();
-//        String jsonFilePath = PATH_COURSES + SLASH + courseListing + JSON_EXT;
+        // BUILD THE FILE PATH
+        String draftListing = "" + draftToSave.getDraftName();
+        String jsonFilePath = PATH_DRAFTS + SLASH + draftListing + JSON_EXT;
+
+        // INIT THE WRITER
+        OutputStream os = new FileOutputStream(jsonFilePath);
+        JsonWriter jsonWriter = Json.createWriter(os);
+
+        // MAKE A JSON ARRAY FOR THE PLAYERS ARRAY
+        JsonArray playersJsonArray = makePlayersJsonArray(draftToSave.getAllPlayers());
+        JsonArray teamsJsonArray = makeTeamsJsonArray(draftToSave.getTeams());
 //        
-//        // INIT THE WRITER
-//        OutputStream os = new FileOutputStream(jsonFilePath);
-//        JsonWriter jsonWriter = Json.createWriter(os);  
-//        
-//        // MAKE A JSON ARRAY FOR THE PAGES ARRAY
-//        JsonArray pagesJsonArray = makePagesJsonArray(courseToSave.getPages());
-//        
-//        // AND AN OBJECT FOR THE INSTRUCTOR
-//        JsonObject instructorJsonObject = makeInstructorJsonObject(courseToSave.getInstructor());
-//        
-//        // ONE FOR EACH OF OUR DATES
-//        JsonObject startingMondayJsonObject = makeLocalDateJsonObject(courseToSave.getStartingMonday());
-//        JsonObject endingFridayJsonObject = makeLocalDateJsonObject(courseToSave.getEndingFriday());
-//        
-//        // THE LECTURE DAYS ARRAY
-//        JsonArray lectureDaysJsonArray = makeLectureDaysJsonArray(courseToSave.getLectureDays());
-//        
-//        // THE SCHEDULE ITEMS ARRAY
-//        JsonArray scheduleItemsJsonArray = makeScheduleItemsJsonArray(courseToSave.getScheduleItems());
-//        
-//        // THE LECTURES ARRAY
-//        JsonArray lecturesJsonArray = makeLecturesJsonArray(courseToSave.getLectures());
-//        
-//        // THE HWS ARRAY
-//        JsonArray hwsJsonArray = makeHWsJsonArray(courseToSave.getAssignments());
-//        
-//        // NOW BUILD THE COURSE USING EVERYTHING WE'VE ALREADY MADE
-//        JsonObject courseJsonObject = Json.createObjectBuilder()
-//                                    .add(JSON_SUBJECT, courseToSave.getSubject().toString())
-//                                    .add(JSON_NUMBER, courseToSave.getNumber())
-//                                    .add(JSON_TITLE, courseToSave.getTitle())
-//                                    .add(JSON_SEMESTER, courseToSave.getSemester().toString())
-//                                    .add(JSON_YEAR, courseToSave.getYear())
-//                                    .add(JSON_PAGES, pagesJsonArray)
-//                                    .add(JSON_INSTRUCTOR, instructorJsonObject)
-//                                    .add(JSON_STARTING_MONDAY, startingMondayJsonObject)
-//                                    .add(JSON_ENDING_FRIDAY, endingFridayJsonObject)
-//                                    .add(JSON_LECTURE_DAYS, lectureDaysJsonArray)
-//                                    .add(JSON_SCHEDULE_ITEMS, scheduleItemsJsonArray)
-//                                    .add(JSON_LECTURES, lecturesJsonArray)
-//                                    .add(JSON_HWS, hwsJsonArray)
-//                .build();
-//        
-//        // AND SAVE EVERYTHING AT ONCE
-//        jsonWriter.writeObject(courseJsonObject);
+        // NOW BUILD THE COURSE USING EVERYTHING WE'VE ALREADY MADE
+        JsonObject draftJsonObject = Json.createObjectBuilder()
+                .add(JSON_PLAYERS, playersJsonArray)
+                .add(JSON_FANTASY_TEAM, teamsJsonArray)
+                .build();
+
+        // AND SAVE EVERYTHING AT ONCE
+        jsonWriter.writeObject(draftJsonObject);
+
     }
 
-    /**
-     * Loads the courseToLoad argument using the data found in the json file.
-     *
-     * @param courseToLoad Course to load.
-     * @param jsonFilePath File containing the data to load.
-     *
-     * @throws IOException Thrown when IO fails.
-     */
-//    @Override
-//    public void loadDraft(Draft draftToLoad, String jsonFilePath) throws IOException {
-//        // LOAD THE JSON FILE WITH ALL THE DATA
-//        JsonObject json = loadJSONFile(jsonFilePath);
-//        
-//        // NOW LOAD THE Draft
-//        courseToLoad.setSubject(Subject.valueOf(json.getString(JSON_SUBJECT)));
-//        courseToLoad.setNumber(json.getInt(JSON_NUMBER));
-//        courseToLoad.setSemester(Semester.valueOf(json.getString(JSON_SEMESTER)));
-//        courseToLoad.setYear(json.getInt(JSON_YEAR));
-//        courseToLoad.setTitle(json.getString(JSON_TITLE));
-//        
-//        // GET THE PAGES TO INCLUDE 
-//        courseToLoad.clearPages();
-//        JsonArray jsonPagesArray = json.getJsonArray(JSON_PAGES);
-//        for (int i = 0; i < jsonPagesArray.size(); i++)
-//            courseToLoad.addPage(CoursePage.valueOf(jsonPagesArray.getString(i)));
-//        
-//        // GET THE LECTURE DAYS TO INCLUDE
-//        courseToLoad.clearLectureDays();
-//        JsonArray jsonLectureDaysArray = json.getJsonArray(JSON_LECTURE_DAYS);
-//        for (int i = 0; i < jsonLectureDaysArray.size(); i++)
-//            courseToLoad.addLectureDay(DayOfWeek.valueOf(jsonLectureDaysArray.getString(i)));
-//
-//        // LOAD AND SET THE INSTRUCTOR
-//        JsonObject jsonInstructor = json.getJsonObject(JSON_INSTRUCTOR);
-//        Instructor instructor = new Instructor( jsonInstructor.getString(JSON_INSTRUCTOR_NAME),
-//                                                jsonInstructor.getString(JSON_HOMEPAGE_URL));
-//        courseToLoad.setInstructor(instructor);
-//        
-//        // GET THE STARTING MONDAY
-//        JsonObject startingMonday = json.getJsonObject(JSON_STARTING_MONDAY);
-//        int year = startingMonday.getInt(JSON_YEAR);
-//        int month = startingMonday.getInt(JSON_MONTH);
-//        int day = startingMonday.getInt(JSON_DAY);
-//        courseToLoad.setStartingMonday(LocalDate.of(year, month, day));
-//
-//        // GET THE ENDING FRIDAY
-//        JsonObject endingFriday = json.getJsonObject(JSON_ENDING_FRIDAY);
-//        year = endingFriday.getInt(JSON_YEAR);
-//        month = endingFriday.getInt(JSON_MONTH);
-//        day = endingFriday.getInt(JSON_DAY);
-//        courseToLoad.setEndingFriday(LocalDate.of(year, month, day));
-//        
-//        // GET THE SCHEDULE ITEMS
-//        courseToLoad.clearScheduleItems();
-//        JsonArray jsonScheduleItemsArray = json.getJsonArray(JSON_SCHEDULE_ITEMS);
-//        for (int i = 0; i < jsonScheduleItemsArray.size(); i++) {
-//            JsonObject jso = jsonScheduleItemsArray.getJsonObject(i);
-//            ScheduleItem si = new ScheduleItem();
-//            si.setDescription(jso.getString(JSON_SCHEDULE_ITEM_DESCRIPTION));
-//            JsonObject jsoDate = jso.getJsonObject(JSON_SCHEDULE_ITEM_DATE);
-//            year = jsoDate.getInt(JSON_YEAR);
-//            month = jsoDate.getInt(JSON_MONTH);
-//            day = jsoDate.getInt(JSON_DAY);            
-//            si.setDate(LocalDate.of(year, month, day));
-//            si.setLink(jso.getString(JSON_SCHEDULE_ITEM_LINK));
-//            
-//            // ADD IT TO THE COURSE
-//            courseToLoad.addScheduleItem(si);
-//        }
-//        
-//        // GET THE LECTURES
-//        JsonArray jsonLecturesArray = json.getJsonArray(JSON_LECTURES);
-//        courseToLoad.clearLectures();
-//        for (int i = 0; i < jsonLecturesArray.size(); i++) {
-//            JsonObject jso = jsonLecturesArray.getJsonObject(i);
-//            Lecture l = new Lecture();
-//            l.setTopic(jso.getString(JSON_LECTURE_TOPIC));
-//            l.setSessions(jso.getInt(JSON_LECTURE_SESSIONS));
-//            
-//            // ADD IT TO THE COURSE
-//            courseToLoad.addLecture(l);
-//        }
-//        
-//        // GET THE HWS
-//        JsonArray jsonHWsArray = json.getJsonArray(JSON_HWS);
-//        courseToLoad.clearHWs();
-//        for (int i = 0; i < jsonHWsArray.size(); i++) {
-//            JsonObject jso = jsonHWsArray.getJsonObject(i);
-//            Assignment a = new Assignment();
-//            a.setName(jso.getString(JSON_ASSIGNMENT_NAME));
-//            JsonObject jsoDate = jso.getJsonObject(JSON_ASSIGNMENT_DATE);
-//            year = jsoDate.getInt(JSON_YEAR);
-//            month = jsoDate.getInt(JSON_MONTH);
-//            day = jsoDate.getInt(JSON_DAY);            
-//            a.setDate(LocalDate.of(year, month, day));
-//            a.setTopics(jso.getString(JSON_ASSIGNMENT_TOPICS));
-//            
-//            // ADD IT TO THE COURSE
-//            courseToLoad.addAssignment(a);
-//        }
-//    }
-//   
-//
-//    
-//    /**
-//     * Saves the subjects list to a json file.
-//     * @param subjects List of Subjects to save.
-//     * @param jsonFilePath Path of json file.
-//     * @throws IOException Thrown when I/O fails.
-//     */
-//    @Override
-//    public void saveSubjects(List<Object> subjects, String jsonFilePath) throws IOException {
-//        JsonObject arrayObject = buildJsonArrayObject(subjects);
-//        OutputStream os = new FileOutputStream(jsonFilePath);
-//        JsonWriter jsonWriter = Json.createWriter(os);  
-//        jsonWriter.writeObject(arrayObject);        
-//    }
     /**
      * Loads pitchers from the json file.
      *
@@ -273,11 +149,13 @@ public class JsonDraftFileManager implements DraftFileManager {
         }
         return cleanedArray;
     }
-    public void loadPlayers(Draft draftToLoad, String jsonHitterPath, String jsonPitcherPath) throws IOException{
+
+    public void loadPlayers(Draft draftToLoad, String jsonHitterPath, String jsonPitcherPath) throws IOException {
         loadHitter(draftToLoad, jsonHitterPath);
         loadPitcher(draftToLoad, jsonPitcherPath);
-        
+
     }
+
     public void loadHitter(Draft draftToLoad, String jsonFilePath) throws IOException {
 
         JsonObject json = loadJSONFile(jsonFilePath);
@@ -300,7 +178,7 @@ public class JsonDraftFileManager implements DraftFileManager {
             playerToLoad.setSB(Integer.valueOf(jsonHitter.getString(JSON_SB)));
             playerToLoad.setSB_ERA(playerToLoad.getSB());
             if (playerToLoad.getAB() != 0) {
-                playerToLoad.setBA((double)playerToLoad.getH() / (double) playerToLoad.getAB());
+                playerToLoad.setBA((double) playerToLoad.getH() / (double) playerToLoad.getAB());
                 playerToLoad.setBA_WHIP(playerToLoad.getBA());
             }
             playerToLoad.setNotes(jsonHitter.getString(JSON_NOTES));
@@ -309,11 +187,11 @@ public class JsonDraftFileManager implements DraftFileManager {
             draftToLoad.addToFilteredPlayers(playerToLoad);
             draftToLoad.addHitter(playerToLoad);
             draftToLoad.addToAllPlayers(playerToLoad);
-            
+
         }
 
     }
-    
+
     public void loadPitcher(Draft draftToLoad, String jsonFilePath) throws IOException {
 
         JsonObject json = loadJSONFile(jsonFilePath);
@@ -337,23 +215,91 @@ public class JsonDraftFileManager implements DraftFileManager {
             playerToLoad.setK(Integer.valueOf(jsonHitter.getString(JSON_K)));
             playerToLoad.setRBI_K(playerToLoad.getK());
             if (playerToLoad.getIP() != 0) {
-                playerToLoad.setWHIP((double)(playerToLoad.getH() +playerToLoad.getW()) /  playerToLoad.getIP());
+                playerToLoad.setWHIP((double) (playerToLoad.getH() + playerToLoad.getW()) / playerToLoad.getIP());
                 playerToLoad.setBA_WHIP(playerToLoad.getWHIP());
             }
             if (playerToLoad.getIP() != 0) {
-                playerToLoad.setERA((double)(playerToLoad.getER()*9) / playerToLoad.getIP());
+                playerToLoad.setERA((double) (playerToLoad.getER() * 9) / playerToLoad.getIP());
                 playerToLoad.setSB_ERA(playerToLoad.getERA());
             }
             playerToLoad.setNotes(jsonHitter.getString(JSON_NOTES));
-            
+
             playerToLoad.setNationOfBirth(jsonHitter.getString(JSON_NATION_OF_BIRTH));
             draftToLoad.addToFilteredPlayers(playerToLoad);
             draftToLoad.addPitcher(playerToLoad);
             draftToLoad.addToAllPlayers(playerToLoad);
-            
+
         }
 
     }
+
+    @Override
+    public void loadDraft(Draft draftToLoad, String draftPath) throws IOException {
+        JsonObject json = loadJSONFile(draftPath);
+
+        //first worry about loading the players
+        JsonArray jsonPlayersArray = json.getJsonArray(JSON_PLAYERS);
+        draftToLoad.resetAllPlayers();
+
+        for (int i = 0; i < jsonPlayersArray.size(); i++) {
+            JsonObject jso = jsonPlayersArray.getJsonObject(i);
+
+            Player p = new Player();
+            p.setFirstName(jso.getString(JSON_FIRST_NAME));
+            p.setLastName(jso.getString(JSON_FIRST_NAME));
+            p.setPreviousTeam(jso.getString(JSON_FIRST_NAME));
+            p.setQP(jso.getString(JSON_FIRST_NAME));
+            p.setYearOfBirth(jso.getString(JSON_FIRST_NAME));
+            p.setNationOfBirth(jso.getString(JSON_FIRST_NAME));
+            p.setR_W(jso.getInt(JSON_R_W));
+            p.setHR_SV(jso.getInt(JSON_HR_SV));
+            p.setRBI_K(jso.getInt(JSON_RBI_K));
+            p.setSB_ERA(Double.parseDouble(jso.getString(JSON_SB_ERA)));
+            p.setBA_WHIP(Double.parseDouble(jso.getString(JSON_BA_WHIP)));
+            p.setNotes(jso.getString(JSON_NOTES));
+
+            draftToLoad.addToAllPlayers(p);
+        }
+
+        //then worry about loading the teams
+        JsonArray jsonTeamsArray = json.getJsonArray(JSON_FANTASY_TEAM);
+
+        //CLEAR ALL THE PLAYERS FIRST
+        for (Team team : draftToLoad.getTeams()) {
+            team.getStartupLine().clear();
+            team.getTaxiSquad().clear();
+        }
+
+        for (int i = 0; i < jsonTeamsArray.size(); i++) {
+            JsonObject jso = jsonTeamsArray.getJsonObject(i);
+            Team t1 = new Team();
+            t1.setTeamName(jso.getString(JSON_TEAM_NAME));
+            t1.setTeamOwner(jso.getString(JSON_TEAM_OWNER));
+            draftToLoad.addToTeams(t1);
+
+            jsonTeamPlayersArray = jso.getJsonArray(JSON_TEAM_PLAYERS);
+
+            for (int j = 0; j < jsonTeamPlayersArray.size(); j++) {
+                JsonObject jso1 = jsonTeamPlayersArray.getJsonObject(j);
+                Player player = new Player();
+
+                player.setP(jso1.getString(JSON_POSITION));
+                player.setFirstName(jso1.getString(JSON_FIRST_NAME));
+                player.setLastName(jso1.getString(JSON_LAST_NAME));
+                player.setPreviousTeam(jso1.getString(JSON_PRO_TEAM));
+                player.setQP(jso1.getString(JSON_QP));
+                player.setR_W(jso1.getInt(JSON_R_W));
+                player.setHR_SV(jso1.getInt(JSON_HR_SV));
+                player.setRBI_K(jso1.getInt(JSON_RBI_K));
+                player.setSB_ERA(Double.parseDouble(jso1.getString(JSON_SB_ERA)));
+                player.setBA_WHIP(Double.parseDouble(jso1.getString(JSON_BA_WHIP)));
+                player.setContract(jso1.getString(JSON_CONTRACT));
+                player.setSalary(jso1.getInt(JSON_SALARY));
+                draftToLoad.getTeams().get(i).addPlayerToStartingLineup(player);
+            }
+        }
+    }
+
     // AND HERE ARE THE PRIVATE HELPER METHODS TO HELP THE PUBLIC ONES
     // LOADS A JSON FILE AS A SINGLE OBJECT AND RETURNS IT
     private JsonObject loadJSONFile(String jsonFilePath) throws IOException {
@@ -377,36 +323,72 @@ public class JsonDraftFileManager implements DraftFileManager {
         return items;
     }
 
-    // MAKES AND RETURNS A JSON OBJECT FOR THE PROVIDED HITTER
-    private JsonObject makeHitterJsonObject(Player player) {
-        JsonObject jso = Json.createObjectBuilder().add(JSON_TEAM, player.getAB())
+    // MAKES AND RETURNS A JSON OBJECT FOR THE PROVIDED PLAYERS
+    private JsonObject makePlayerJsonObject(Player player) {
+        JsonObject jso = Json.createObjectBuilder().add(JSON_TEAM, player.getPreviousTeam())
+                .add(JSON_LAST_NAME, player.getLastName())
+                .add(JSON_FIRST_NAME, player.getFirstName())
+                .add(JSON_QP, player.getQP())
+                .add(JSON_YEAR_OF_BIRTH, player.getYearOfBirth())
+                .add(JSON_R_W, player.getR_W())
+                .add(JSON_HR_SV, player.getHR_SV())
+                .add(JSON_RBI_K, player.getRBI_K())
+                .add(JSON_SB_ERA, player.getSB_ERA())
+                .add(JSON_BA_WHIP, player.getBA_WHIP())
+                .add(JSON_NOTES, player.getNotes())
                 .build();
         return jso;
     }
 
-    // MAKES AND RETURNS A JSON OBJECT FOR THE PROVIDED PITCHER
-    private JsonObject makePitcherJsonObject(Player player) {
-        JsonObject jso = Json.createObjectBuilder().add(JSON_ASSIGNMENT_NAME, player.getBB())
+    // MAKES AND RETURNS A JSON OBJECT FOR THE PROVIDED TEAM
+    private JsonObject makeTeamJsonObject(Team team) {
+        JsonArrayBuilder players = Json.createArrayBuilder();
+        ObservableList<Player> teamPlayers = team.getStartupLine();
+        for (Player p : teamPlayers) {
+            players.add(makePlayerOnTeamJsonObject(p));
+        }
+        JsonObject jso = Json.createObjectBuilder().add(JSON_FANTASY_TEAM, team.getTeamName())
+                .add(JSON_TEAM_OWNER, team.getTeamOwner())
+                .add(JSON_TEAM_PLAYERS, players)
                 .build();
+        return jso;
+    }
+
+    private JsonObject makePlayerOnTeamJsonObject(Player player) {
+        JsonObject jso = Json.createObjectBuilder()
+                .add(JSON_POSITION, player.getP())
+                .add(JSON_FIRST_NAME, player.getFirstName())
+                .add(JSON_LAST_NAME, player.getLastName())
+                .add(JSON_PRO_TEAM, player.getPreviousTeam())
+                .add(JSON_QP, player.getQP())
+                .add(JSON_R_W, player.getR_W())
+                .add(JSON_HR_SV, player.getHR_SV())
+                .add(JSON_RBI_K, player.getRBI_K())
+                .add(JSON_SB_ERA, player.getSB_ERA())
+                .add(JSON_BA_WHIP, player.getBA_WHIP())
+                .add(JSON_CONTRACT, player.getContract())
+                .add(JSON_SALARY, player.getSalary())
+                .build();
+
         return jso;
     }
 
     // MAKE AN ARRAY OF PLAYERS
-    private JsonArray makeHitterJsonArray(ObservableList<Player> data) {
+    private JsonArray makePlayersJsonArray(ObservableList<Player> data) {
         JsonArrayBuilder jsb = Json.createArrayBuilder();
         for (Player p : data) {
 
-            jsb.add(makeHitterJsonObject(p));
+            jsb.add(makePlayerJsonObject(p));
         }
         JsonArray jA = jsb.build();
         return jA;
     }
 
-    // MAKE AN ARRAY OF LECTURE ITEMS
-    private JsonArray makePitcherJsonArray(ObservableList<Player> data) {
+    // MAKE AN ARRAY OF TEAMS
+    private JsonArray makeTeamsJsonArray(ObservableList<Team> data) {
         JsonArrayBuilder jsb = Json.createArrayBuilder();
-        for (Player p : data) {
-            jsb.add(makePitcherJsonObject(p));
+        for (Team t : data) {
+            jsb.add(makeTeamJsonObject(t));
         }
         JsonArray jA = jsb.build();
         return jA;
@@ -428,11 +410,6 @@ public class JsonDraftFileManager implements DraftFileManager {
         JsonArray jA = buildJsonArray(data);
         JsonObject arrayObject = Json.createObjectBuilder().add(JSON_HITTERS, jA).build();
         return arrayObject;
-    }
-
-    @Override
-    public void loadDraft(Draft draftToLoad, String coursePath) throws IOException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override

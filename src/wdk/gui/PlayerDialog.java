@@ -359,20 +359,7 @@ public class PlayerDialog extends Stage {
         cancelButton.setOnAction(cancelHandlerAdd);
 
         // NOW LET'S ARRANGE THEM ALL AT ONCE
-        addGridPane.addRow(4, cbC, cbCLabel, cb1B, cb1BLabel, cb2B, cb2BLabel, cb3B, cb3BLabel, cbSS, cbSSLabel, cbOF, cbOFLabel, cbP, cbPLabel);
-//        addGridPane.add(cbCLabel, 3, 4);
-//        addGridPane.add(cb1B, 4, 4);
-//        addGridPane.add(cb1BLabel, 5, 4);
-//        addGridPane.add(cb2B, 6, 4);
-//        addGridPane.add(cb2BLabel, 7, 4);
-//        addGridPane.add(cb3B, 7, 4);
-//        addGridPane.add(cb3BLabel, 8, 4);
-//        addGridPane.add(cbSS, 1, 5);
-//        addGridPane.add(cbSSLabel, 2, 5);
-//        addGridPane.add(cbOF, 3, 5);
-//        addGridPane.add(cbOFLabel, 4, 5);
-//        addGridPane.add(cbP, 5, 5);
-//        addGridPane.add(cbPLabel, 6, 5);
+        
         addGridPane.add(headingLabel, 0, 0, 19, 1);
         addGridPane.add(firstNameLabel, 0, 1, 19, 1);
         addGridPane.add(firstNameTextField, 1, 1, 19, 1);
@@ -380,10 +367,9 @@ public class PlayerDialog extends Stage {
         addGridPane.add(lastNameTextField, 1, 2, 19, 1);
         addGridPane.add(proTeamLabel, 0, 3, 19, 1);
         addGridPane.add(proTeamComboBox, 1, 3, 19, 1);
-
+        addGridPane.addRow(4, cbC, cbCLabel, cb1B, cb1BLabel, cb2B, cb2BLabel, cb3B, cb3BLabel, cbSS, cbSSLabel, cbOF, cbOFLabel, cbP, cbPLabel);
         addGridPane.add(completeButton, 0, 7, 1, 1);
         addGridPane.add(cancelButton, 1, 7, 1, 1);
-
         addGridPane.autosize();
         // AND PUT THE GRID PANE IN THE WINDOW
         dialogScene = new Scene(addGridPane);
@@ -473,7 +459,6 @@ public class PlayerDialog extends Stage {
             ArrayList<String> position = new ArrayList();
             HashMap<String, Integer> positionTable = new HashMap<>();
             positionTable.put("C", 2);
-
             positionTable.put("1B", 1);
             positionTable.put("3B", 1);
             positionTable.put("CI", 1);
@@ -612,8 +597,8 @@ public class PlayerDialog extends Stage {
                 playerToEdit.setSalary(sel);
             } catch (Exception e) {
                 if (salaryTextField.getText().length() > 0) {
-                    dialog = new MessageDialog(this, ("Close"));
-                    dialog.show("Numbers only");
+//                    dialog = new MessageDialog(this, ("Close"));
+//                    dialog.show("Numbers only");
                     salaryTextField.setText(newValue.substring(0, newValue.length() - 1));
                 }
             }
@@ -677,12 +662,12 @@ public class PlayerDialog extends Stage {
         return playerToEdit;
     }
 
-    public Player showEditTeamScreenDialog(Player playerToEdit, Draft draft) {
+    public void showEditTeamScreenDialog(Player playerToEdit, Draft draft) {
         // SET THE DIALOG TITLE
         setTitle(EDIT_PLAYER_TITLE);
 
         // LOAD THE SCHEDULE ITEM INTScheduleItemO OUR LOCAL OBJECT
-        //player = new Player();
+        player = new Player();
         editGridPane = new GridPane();
         editGridPane.setPadding(new Insets(10, 20, 20, 20));
         editGridPane.setHgap(10);
@@ -725,9 +710,10 @@ public class PlayerDialog extends Stage {
         fantasyTeamComboBox = new ComboBox();
         positionComboBox = new ComboBox();
         fantasyTeamComboBox.getItems().addAll(teamNameList);
-        fantasyTeamComboBox.setValue(teamNameList.get(0));
+        fantasyTeamComboBox.getSelectionModel().clearSelection();
         fantasyTeamComboBox.valueProperty().addListener((observable, oldValue, newValue) -> {
-            playerToEdit.setFantasyTeamName(newValue.toString());
+            //playerToEdit.setFantasyTeamName(newValue.toString());
+            player.setFantasyTeamName(newValue.toString());
             positionComboBox.getSelectionModel().clearSelection();
             positionComboBox.getItems().clear();
             ArrayList<String> position = new ArrayList();
@@ -835,7 +821,8 @@ public class PlayerDialog extends Stage {
 
         positionComboBox.valueProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {
-                playerToEdit.setP(newValue.toString());
+                //playerToEdit.setP(newValue.toString());
+                player.setP(newValue.toString());
             }
         });
 
@@ -849,7 +836,8 @@ public class PlayerDialog extends Stage {
         contractComboBox.getItems().addAll(contract);
         contractComboBox.getSelectionModel().clearSelection();
         contractComboBox.valueProperty().addListener((observable, oldValue, newValue) -> {
-            playerToEdit.setContract(newValue.toString());
+           // playerToEdit.setContract(newValue.toString());
+            player.setContract(newValue.toString());
         });
 
         salaryTextField = new TextField();
@@ -857,7 +845,8 @@ public class PlayerDialog extends Stage {
         salaryTextField.textProperty().addListener((observable, oldValue, newValue) -> {
             try {
                 int sel = Integer.parseInt(newValue);
-                playerToEdit.setSalary(sel);
+                //playerToEdit.setSalary(sel);
+                player.setSalary(sel);
             } catch (Exception e) {
                 if (salaryTextField.getText().length() > 0) {
                     dialog = new MessageDialog(this, ("Close"));
@@ -925,6 +914,6 @@ public class PlayerDialog extends Stage {
 
         // AND OPEN IT UP
         showAndWait();
-        return playerToEdit;
+        //return playerToEdit;
     }
 }

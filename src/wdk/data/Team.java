@@ -59,6 +59,20 @@ public class Team {
     public ObservableList<Player> getStartupLine() {
         return startupLine;
     }
+
+    public ObservableList<Player> getTaxiSquad() {
+        return taxiSquad;
+    }
+
+    public void setStartupLine(ObservableList<Player> startupLine) {
+        this.startupLine = startupLine;
+    }
+
+    public void setTaxiSquad(ObservableList<Player> taxiSquad) {
+        this.taxiSquad = taxiSquad;
+    }
+    
+    
     public void refreshTeam(){
          Comparator<Player> byComparator = (p1, p2) -> p1.getComp().compareTo(p2.getComp());
         //teamToSort.startupLine.stream().sorted(byComparator);

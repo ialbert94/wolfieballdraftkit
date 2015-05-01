@@ -16,7 +16,6 @@ public class DraftEditController {
 
     // WE USE THIS TO MAKE SURE OUR PROGRAMMED UPDATES OF UI
     // VALUES DON'T THEMSELVES TRIGGER EVENTS
-
     private boolean enabled;
 
     /**
@@ -46,22 +45,21 @@ public class DraftEditController {
      * @param gui The user interface that requested the change.
      */
     public void handleDraftChangeRequest(WDK_GUI gui) {
-//        if (enabled) {
-//            try {
-//                // UPDATE THE COURSE, VERIFYING INPUT VALUES
-//                gui.updateDraftInfo(gui.getDataManager().getDraft());
-//                
-//                // THE COURSE IS NOW DIRTY, MEANING IT'S BEEN 
-//                // CHANGED SINCE IT WAS LAST SAVED, SO MAKE SURE
-//                // THE SAVE BUTTON IS ENABLED
-//                gui.getFileController().markAsEdited(gui);
-//            } catch (Exception e) {
-//                // SOMETHING WENT WRONG
-//                ErrorHandler eH = ErrorHandler.getErrorHandler();
-//                eH.handleUpdateDraftError();
-//            }
-//        }
-//    }
+        if (enabled) {
+            try {
+                // UPDATE THE COURSE, VERIFYING INPUT VALUES
+                gui.updateDraftInfo(gui.getDataManager().getDraft());
 
+                // THE COURSE IS NOW DIRTY, MEANING IT'S BEEN 
+                // CHANGED SINCE IT WAS LAST SAVED, SO MAKE SURE
+                // THE SAVE BUTTON IS ENABLED
+                gui.getFileController().markAsEdited(gui);
+            } catch (Exception e) {
+//                // SOMETHING WENT WRONG
+                ErrorHandler eH = ErrorHandler.getErrorHandler();
+                eH.handleUpdateDraftError();
+            }
+        }
     }
+
 }
