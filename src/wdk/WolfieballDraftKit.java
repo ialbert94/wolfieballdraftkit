@@ -79,7 +79,7 @@ public class WolfieballDraftKit extends Application {
                 gui = new WDK_GUI(primaryStage);
                 
                 //COMMENT THESE OUR FOR NOW TOO
-                //gui.setCourseFileManager(jsonFileManager);
+                gui.setDraftFileManager(jsonFileManager);
                 //gui.setSiteExporter(exporter);
                 
                 // CONSTRUCT THE DATA MANAGER AND GIVE IT TO THE GUI

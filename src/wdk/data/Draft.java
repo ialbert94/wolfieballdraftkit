@@ -40,6 +40,7 @@ public class Draft {
         allPlayers = FXCollections.observableArrayList();
         filteredPlayers = FXCollections.observableArrayList();
         teams = FXCollections.observableArrayList();
+        draftName = "";
     }
 
     public void addHitter(Player p) {

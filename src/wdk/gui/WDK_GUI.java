@@ -83,7 +83,7 @@ public class WDK_GUI implements DraftDataView {
     DraftDataManager dataManager;
 
     //THIS MANAGES DRAFT FILE I/O
-    //REMEMBER THIS IS AN INTERFACT
+    //REMEMBER THIS IS AN INTERFACE
     DraftFileManager draftFileManager;
 
     //THIS MANAGES EXPORTING THE DRAFT
@@ -225,8 +225,7 @@ public class WDK_GUI implements DraftDataView {
     Button addTeamButton;
     Button removeTeamButton;
     Button editTeamButton;
-    TextField teamNameTextField;
-    TextField teamOwnerTextField;
+    TextField draftNameTextField;
     GridPane teamsGridPane;
 
     //THESE ARE THE CONTROLS FOR THE FANTASY STANDINGS SCREEN
@@ -371,6 +370,14 @@ public class WDK_GUI implements DraftDataView {
         siteExporter = initSiteExporter;
     }
 
+    public void setDraftController(DraftEditController draftController) {
+        this.draftController = draftController;
+    }
+
+    public void setDraftFileManager(DraftFileManager draftFileManager) {
+        this.draftFileManager = draftFileManager;
+    }
+
     /**
      * This method fully initializes the user interface for use.
      *
@@ -430,16 +437,57 @@ public class WDK_GUI implements DraftDataView {
         // NOTE THAT THE NEW, LOAD, AND EXIT BUTTONS
         // ARE NEVER DISABLED SO WE NEVER HAVE TO TOUCH THEM
     }
-    
-    public void updateDraftInto(Draft draft){
-        draft.setDraftName(dr);
+
+    public void updateDraftInfo(Draft draft) {
+        draft.setDraftName(draftNameTextField.getText());
     }
+
     @Override
     public void reloadDraft(Draft draftToReload) {
         // FIRST ACTIVATE THE WORKSPACE IF NECESSARY
         if (!workspaceActivated) {
             activateWorkspace();
         }
+
+        draftController.enable(false);
+
+        //filtered list to reload
+        //filteredData = new FilteredList<>(draftToReload.getAllPlayers(), p -> true);
+//        playerSearchTextField.textProperty().addListener((observable, oldValue, newValue) -> {
+//            filteredData.setPredicate(players -> {
+//                if (newValue.isEmpty()) {
+//                    return true;
+//                }
+//                String lowerCaseFilter = newValue.toLowerCase();
+//                if (players.getFirstName().toLowerCase().startsWith(lowerCaseFilter)) {
+//                    return true;
+//                } else if (players.getLastName().toLowerCase().startsWith(lowerCaseFilter)) {
+//                    return true;
+//                }
+//                return false;
+//            });
+//        });
+        playerSearchTextField.clear();
+        All.setSelected(true);
+
+        //ADDED THE FILTERD PLAYED TO SORTED DATA
+        sortedData = new SortedList<>(filteredData);
+        sortedData.comparatorProperty().bind(playersTable.comparatorProperty());
+
+        //SET THE SORTED DATA TO PLAYER'S TABLE
+        playersTable.setItems(draftToReload.getAllPlayers());
+        
+        teamComboBox.getItems().clear();
+        for (Team team : draftToReload.getTeams()) {
+            teamComboBox.getItems().add(team);
+        }
+        //Team team = draftToReload.getTeams().get(0);
+        teamComboBox.getSelectionModel().clearSelection();
+        //if (team != null) {
+        //    startingTable.setItems(team.getStartupLine());
+        //}
+        draftNameTextField.setText(draftToReload.getDraftName());
+        draftController.enable(true);
     }
 
     /**
@@ -551,12 +599,12 @@ public class WDK_GUI implements DraftDataView {
         editTeamButton = initChildButton(fantasyTeamsScreenToolbar, WDK_PropertyType.EDIT_ICON, WDK_PropertyType.EDIT_TEAM_TOOLTIP, false);
 
         teamsGridPane = new GridPane();
-        teamNameTextField = new TextField();
+        draftNameTextField = new TextField();
         teamComboBox = new ComboBox();
         selectTeamLabel = initGridLabel(teamsGridPane, WDK_PropertyType.FANTASY_TEAM_LABEL, CLASS_PROMPT_LABEL, 0, 1, 1, 1);
         teamComboBox = initGridComboBox(teamsGridPane, 1, 1, 1, 1);
         draftNameLabel = initGridLabel(teamsGridPane, WDK_PropertyType.DRAFT_NAME_LABEL, CLASS_PROMPT_LABEL, 2, 1, 1, 1);
-        teamNameTextField = initGridTextField(teamsGridPane, LARGE_TEXT_FIELD_LENGTH, EMPTY_TEXT, true, 3, 1, 1, 1);
+        draftNameTextField = initGridTextField(teamsGridPane, LARGE_TEXT_FIELD_LENGTH, EMPTY_TEXT, true, 3, 1, 1, 1);
 
         startingTable = new TableView<Player>();
         taxiSquadTable = new TableView<Player>();
@@ -1086,6 +1134,11 @@ public class WDK_GUI implements DraftDataView {
             handleScreenSwitchRequest(5);
 
         });
+
+        //THEN THE DRAFT EDITING CONTROLS
+        draftController = new DraftEditController();
+        registerTextFieldController(draftNameTextField);
+
         enableRadioButton();
         enableNotesHandler();
         playerSearchTextField.textProperty().addListener((observable, oldValue, newValue) -> {
@@ -1103,7 +1156,6 @@ public class WDK_GUI implements DraftDataView {
                 return false;
             });
         });
-        registerTextFieldController(draftNameLabel);
         // AND PLAYER CONTROLLER FOR ADDING REMOVING AND EDITING PLAYER CONTROLS
         playerController = new PlayerEditController(primaryStage, dataManager.getDraft(), messageDialog, yesNoCancelDialog);
         addPlayerButton.setOnAction(e -> {
@@ -1151,10 +1203,9 @@ public class WDK_GUI implements DraftDataView {
                     startingTable.setItems(teamComboBox.getSelectionModel().getSelectedItem().getStartupLine());
                 }
 
-              
 //dataManager.getDraft().sortTeam(dataManager.getDraft().getTeamItem(p.getFantasyTeamName()));
             }
-        });  
+        });
         teamComboBoxActionHandler();
         addTeamButton.setOnAction(e -> {
             teamController.handleAddTeamRequest(this);

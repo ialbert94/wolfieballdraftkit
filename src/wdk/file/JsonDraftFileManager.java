@@ -5,7 +5,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.math.BigDecimal;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -82,7 +81,7 @@ public class JsonDraftFileManager implements DraftFileManager {
     /**
      * This method saves all the data associated with a course to a JSON file.
      *
-     * @param courseToSave The course whose data we are saving.
+     * @param draftToSave The course whose data we are saving.
      *
      * @throws IOException Thrown when there are issues writing to the JSON
      * file.
@@ -91,7 +90,7 @@ public class JsonDraftFileManager implements DraftFileManager {
     public void saveDraft(Draft draftToSave) throws IOException {
         // BUILD THE FILE PATH
         String draftListing = "" + draftToSave.getDraftName();
-        String jsonFilePath = PATH_DRAFTS + SLASH + draftListing + JSON_EXT;
+        String jsonFilePath = PATH_DRAFTS + draftListing + JSON_EXT;
 
         // INIT THE WRITER
         OutputStream os = new FileOutputStream(jsonFilePath);
@@ -110,6 +109,73 @@ public class JsonDraftFileManager implements DraftFileManager {
         // AND SAVE EVERYTHING AT ONCE
         jsonWriter.writeObject(draftJsonObject);
 
+    }
+
+    @Override
+    public void loadDraft(Draft draftToLoad, String draftPath) throws IOException {
+        JsonObject json = loadJSONFile(draftPath);
+
+        //first worry about loading the players
+        JsonArray jsonPlayersArray = json.getJsonArray(JSON_PLAYERS);
+        draftToLoad.resetAllPlayers();
+
+        for (int i = 0; i < jsonPlayersArray.size(); i++) {
+            JsonObject jso = jsonPlayersArray.getJsonObject(i);
+
+            Player p = new Player();
+            p.setFirstName(jso.getString(JSON_FIRST_NAME));
+            p.setLastName(jso.getString(JSON_LAST_NAME));
+            p.setPreviousTeam(jso.getString(JSON_TEAM));
+            p.setQP(jso.getString(JSON_QP));
+            p.setYearOfBirth(jso.getString(JSON_YEAR_OF_BIRTH));
+            p.setNationOfBirth(jso.getString(JSON_NATION_OF_BIRTH));
+            p.setR_W(jso.getInt(JSON_R_W));
+            p.setHR_SV(jso.getInt(JSON_HR_SV));
+            p.setRBI_K(jso.getInt(JSON_RBI_K));
+            p.setSB_ERA(Double.valueOf(jso.getString(JSON_SB_ERA)));
+            p.setBA_WHIP(Double.valueOf(jso.getString(JSON_BA_WHIP)));
+            p.setNotes(jso.getString(JSON_NOTES));
+
+            draftToLoad.addToAllPlayers(p);
+        }
+
+        //then worry about loading the teams
+        JsonArray jsonTeamsArray = json.getJsonArray(JSON_FANTASY_TEAM);
+
+        //CLEAR ALL THE PLAYERS FIRST
+        for (Team team : draftToLoad.getTeams()) {
+            team.getStartupLine().clear();
+            team.getTaxiSquad().clear();
+        }
+
+        for (int i = 0; i < jsonTeamsArray.size(); i++) {
+            JsonObject jso = jsonTeamsArray.getJsonObject(i);
+            Team t1 = new Team();
+            t1.setTeamName(jso.getString(JSON_TEAM_NAME));
+            t1.setTeamOwner(jso.getString(JSON_TEAM_OWNER));
+            draftToLoad.addToTeams(t1);
+
+            jsonTeamPlayersArray = jso.getJsonArray(JSON_TEAM_PLAYERS);
+
+            for (int j = 0; j < jsonTeamPlayersArray.size(); j++) {
+                JsonObject jso1 = jsonTeamPlayersArray.getJsonObject(j);
+                Player player = new Player();
+
+                player.setP(jso1.getString(JSON_POSITION));
+                player.setFirstName(jso1.getString(JSON_FIRST_NAME));
+                player.setLastName(jso1.getString(JSON_LAST_NAME));
+                player.setPreviousTeam(jso1.getString(JSON_PRO_TEAM));
+                player.setQP(jso1.getString(JSON_QP));
+                player.setR_W(jso1.getInt(JSON_R_W));
+                player.setHR_SV(jso1.getInt(JSON_HR_SV));
+                player.setRBI_K(jso1.getInt(JSON_RBI_K));
+                player.setSB_ERA(Double.parseDouble(jso1.getString(JSON_SB_ERA)));
+                player.setBA_WHIP(Double.parseDouble(jso1.getString(JSON_BA_WHIP)));
+                player.setContract(jso1.getString(JSON_CONTRACT));
+                player.setSalary(jso1.getInt(JSON_SALARY));
+                draftToLoad.getTeams().get(i).addPlayerToStartingLineup(player);
+            }
+        }
     }
 
     /**
@@ -233,75 +299,9 @@ public class JsonDraftFileManager implements DraftFileManager {
 
     }
 
-    @Override
-    public void loadDraft(Draft draftToLoad, String draftPath) throws IOException {
-        JsonObject json = loadJSONFile(draftPath);
-
-        //first worry about loading the players
-        JsonArray jsonPlayersArray = json.getJsonArray(JSON_PLAYERS);
-        draftToLoad.resetAllPlayers();
-
-        for (int i = 0; i < jsonPlayersArray.size(); i++) {
-            JsonObject jso = jsonPlayersArray.getJsonObject(i);
-
-            Player p = new Player();
-            p.setFirstName(jso.getString(JSON_FIRST_NAME));
-            p.setLastName(jso.getString(JSON_FIRST_NAME));
-            p.setPreviousTeam(jso.getString(JSON_FIRST_NAME));
-            p.setQP(jso.getString(JSON_FIRST_NAME));
-            p.setYearOfBirth(jso.getString(JSON_FIRST_NAME));
-            p.setNationOfBirth(jso.getString(JSON_FIRST_NAME));
-            p.setR_W(jso.getInt(JSON_R_W));
-            p.setHR_SV(jso.getInt(JSON_HR_SV));
-            p.setRBI_K(jso.getInt(JSON_RBI_K));
-            p.setSB_ERA(Double.parseDouble(jso.getString(JSON_SB_ERA)));
-            p.setBA_WHIP(Double.parseDouble(jso.getString(JSON_BA_WHIP)));
-            p.setNotes(jso.getString(JSON_NOTES));
-
-            draftToLoad.addToAllPlayers(p);
-        }
-
-        //then worry about loading the teams
-        JsonArray jsonTeamsArray = json.getJsonArray(JSON_FANTASY_TEAM);
-
-        //CLEAR ALL THE PLAYERS FIRST
-        for (Team team : draftToLoad.getTeams()) {
-            team.getStartupLine().clear();
-            team.getTaxiSquad().clear();
-        }
-
-        for (int i = 0; i < jsonTeamsArray.size(); i++) {
-            JsonObject jso = jsonTeamsArray.getJsonObject(i);
-            Team t1 = new Team();
-            t1.setTeamName(jso.getString(JSON_TEAM_NAME));
-            t1.setTeamOwner(jso.getString(JSON_TEAM_OWNER));
-            draftToLoad.addToTeams(t1);
-
-            jsonTeamPlayersArray = jso.getJsonArray(JSON_TEAM_PLAYERS);
-
-            for (int j = 0; j < jsonTeamPlayersArray.size(); j++) {
-                JsonObject jso1 = jsonTeamPlayersArray.getJsonObject(j);
-                Player player = new Player();
-
-                player.setP(jso1.getString(JSON_POSITION));
-                player.setFirstName(jso1.getString(JSON_FIRST_NAME));
-                player.setLastName(jso1.getString(JSON_LAST_NAME));
-                player.setPreviousTeam(jso1.getString(JSON_PRO_TEAM));
-                player.setQP(jso1.getString(JSON_QP));
-                player.setR_W(jso1.getInt(JSON_R_W));
-                player.setHR_SV(jso1.getInt(JSON_HR_SV));
-                player.setRBI_K(jso1.getInt(JSON_RBI_K));
-                player.setSB_ERA(Double.parseDouble(jso1.getString(JSON_SB_ERA)));
-                player.setBA_WHIP(Double.parseDouble(jso1.getString(JSON_BA_WHIP)));
-                player.setContract(jso1.getString(JSON_CONTRACT));
-                player.setSalary(jso1.getInt(JSON_SALARY));
-                draftToLoad.getTeams().get(i).addPlayerToStartingLineup(player);
-            }
-        }
-    }
-
     // AND HERE ARE THE PRIVATE HELPER METHODS TO HELP THE PUBLIC ONES
     // LOADS A JSON FILE AS A SINGLE OBJECT AND RETURNS IT
+
     private JsonObject loadJSONFile(String jsonFilePath) throws IOException {
         InputStream is = new FileInputStream(jsonFilePath);
         JsonReader jsonReader = Json.createReader(is);
@@ -325,16 +325,22 @@ public class JsonDraftFileManager implements DraftFileManager {
 
     // MAKES AND RETURNS A JSON OBJECT FOR THE PROVIDED PLAYERS
     private JsonObject makePlayerJsonObject(Player player) {
+        
+        String sb_era = Double.toString(player.getSB_ERA());
+        
+        String ba_whip = Double.toString(player.getBA_WHIP());
+        
         JsonObject jso = Json.createObjectBuilder().add(JSON_TEAM, player.getPreviousTeam())
                 .add(JSON_LAST_NAME, player.getLastName())
                 .add(JSON_FIRST_NAME, player.getFirstName())
                 .add(JSON_QP, player.getQP())
                 .add(JSON_YEAR_OF_BIRTH, player.getYearOfBirth())
+                .add(JSON_NATION_OF_BIRTH, player.getNationOfBirth())
                 .add(JSON_R_W, player.getR_W())
                 .add(JSON_HR_SV, player.getHR_SV())
                 .add(JSON_RBI_K, player.getRBI_K())
-                .add(JSON_SB_ERA, player.getSB_ERA())
-                .add(JSON_BA_WHIP, player.getBA_WHIP())
+                .add(JSON_SB_ERA, sb_era)
+                .add(JSON_BA_WHIP, ba_whip)
                 .add(JSON_NOTES, player.getNotes())
                 .build();
         return jso;
