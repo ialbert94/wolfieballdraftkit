@@ -2,12 +2,15 @@ package wdk.gui;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.function.Predicate;
 import static javafx.application.ConditionalFeature.FXML;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
+import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.collections.transformation.SortedList;
 import javafx.event.ActionEvent;
@@ -230,28 +233,49 @@ public class WDK_GUI implements DraftDataView {
 
     //THESE ARE THE CONTROLS FOR THE FANTASY STANDINGS SCREEN
     //THERE WILL BE RADIO BUTTONS ALSO
-    TableView<Draft> fantasyTeamsStatsTable;
+    TableView<Team> fantasyTeamsStatsTable;
     VBox fantasyStandingsScreenBox;
     GridPane standingsGridPane;
     Label fantasyStandingsScreenHeadingLabel;
+    VBox topPaneMLBScreen;
+    HBox mlbScreenToolbar;
+    Label mlbTeamLabel;
+    TableColumn teamName;
+    TableColumn playersNeeded;
+    TableColumn moneyLeft;
+    TableColumn pricePP;
+    TableColumn teamR;
+    TableColumn teamHR;
+    TableColumn teamRBI;
+    TableColumn teamSB;
+    TableColumn teamBA;
+    TableColumn teamW;
+    TableColumn teamSV;
+    TableColumn teamK;
+    TableColumn teamERA;
+    TableColumn teamWHIP;
+    TableColumn teamTotalPoints;
 
     //THESE ARE THE CONTROLS FOR THE DRAFT SCREEN
     TableView<Player> playersDraftedTable;
     VBox draftScreenBox;
+    Button selectPlayerButton;
     Button autoDraftPlayerButton;
     Button pauseAutomatedDraftButton;
     GridPane draftGridPane;
     Label draftScreenHeadingLabel;
+    HBox draftScreenToolbar;
+    TableColumn pickNum;
 
     //THESE ARE THE CONTROLS FOR THE MLB TEAMS SCREEN
     TableView<Player> mlbTeamPlayers;
-    ComboBox mlbTeamSelectionComboBox;
+    ComboBox mlbTeamsComboBox;
     VBox mlbTeamsScreenBox;
     GridPane mlbGridPane;
     Label mlbScreenHeadingLabel;
 
     // AND TABLE COLUMNS   
-    public static final String COL_TEAM_NAME = "Name";
+    public static final String COL_TEAM_NAME = "Team Name";
     public static final String COL_PLAYERS_NEEDED = "Players Needed";
     public static final String COL_MONEY_LEFT = "$ Left";
     public static final String COL_MONEY_PER_PLAYER = "$ PP";
@@ -283,10 +307,11 @@ public class WDK_GUI implements DraftDataView {
     public static final String COL_RBI_K = "RBI/K";
     public static final String COL_SB_ERA = "SB/ERA";
     public static final String COL_BA_WHIP = "BA/WHIP";
-
+    public static final String COL_PICK_NUM = "Pick #";
     // HERE ARE OUR DIALOGS
     MessageDialog messageDialog;
     YesNoCancelDialog yesNoCancelDialog;
+    
 
     /**
      * Constructor for making this GUI, note that it does not initialize the UI
@@ -450,23 +475,6 @@ public class WDK_GUI implements DraftDataView {
         }
 
         draftController.enable(false);
-
-        //filtered list to reload
-        //filteredData = new FilteredList<>(draftToReload.getAllPlayers(), p -> true);
-//        playerSearchTextField.textProperty().addListener((observable, oldValue, newValue) -> {
-//            filteredData.setPredicate(players -> {
-//                if (newValue.isEmpty()) {
-//                    return true;
-//                }
-//                String lowerCaseFilter = newValue.toLowerCase();
-//                if (players.getFirstName().toLowerCase().startsWith(lowerCaseFilter)) {
-//                    return true;
-//                } else if (players.getLastName().toLowerCase().startsWith(lowerCaseFilter)) {
-//                    return true;
-//                }
-//                return false;
-//            });
-//        });
         playerSearchTextField.clear();
         All.setSelected(true);
 
@@ -476,16 +484,13 @@ public class WDK_GUI implements DraftDataView {
 
         //SET THE SORTED DATA TO PLAYER'S TABLE
         playersTable.setItems(draftToReload.getAllPlayers());
-        
+
         teamComboBox.getItems().clear();
         for (Team team : draftToReload.getTeams()) {
             teamComboBox.getItems().add(team);
         }
-        //Team team = draftToReload.getTeams().get(0);
         teamComboBox.getSelectionModel().clearSelection();
-        //if (team != null) {
-        //    startingTable.setItems(team.getStartupLine());
-        //}
+        draftNameTextField.clear();
         draftNameTextField.setText(draftToReload.getDraftName());
         draftController.enable(true);
     }
@@ -654,9 +659,24 @@ public class WDK_GUI implements DraftDataView {
         startingTable.getColumns().add(playerEstimatedValue);
         startingTable.getColumns().add(playerContract);
         startingTable.getColumns().add(playerSalary);
+        
+        taxiSquadTable.getColumns().add(playerPosition);
+        taxiSquadTable.getColumns().add(playerFirstName);
+        taxiSquadTable.getColumns().add(playerLastName);
+        taxiSquadTable.getColumns().add(playerProTeam);
+        taxiSquadTable.getColumns().add(playerPositions);
+        taxiSquadTable.getColumns().add(playerRW);
+        taxiSquadTable.getColumns().add(playerHRSV);
+        taxiSquadTable.getColumns().add(playerRBIK);
+        taxiSquadTable.getColumns().add(playerSBERA);
+        taxiSquadTable.getColumns().add(playerBAWHIP);
+        taxiSquadTable.getColumns().add(playerEstimatedValue);
+        taxiSquadTable.getColumns().add(playerContract);
+        taxiSquadTable.getColumns().add(playerSalary);
 
         startingTable.setEditable(true);
-
+        taxiSquadTable.setEditable(true);
+        
         // FIRST OUR SCHEDULE HEADER
         taxiSquadLabel = initChildLabel(taxiSquadBox, WDK_PropertyType.TAXI_SQUAD_LABEL, CLASS_SUBHEADING_LABEL);
         taxiSquadBox.getChildren().add(taxiSquadTable);
@@ -809,6 +829,61 @@ public class WDK_GUI implements DraftDataView {
     private void initStandingsScreen() {
         fantasyStandingsScreenBox = new VBox();
         fantasyStandingsScreenHeadingLabel = initChildLabel(fantasyStandingsScreenBox, WDK_PropertyType.FANTASY_STANDINGS_SCREEN_HEADING_LABEL, CLASS_HEADING_LABEL);
+
+        fantasyTeamsStatsTable = new TableView<Team>();
+
+        teamName = new TableColumn(COL_TEAM_NAME);
+        playersNeeded = new TableColumn(COL_PLAYERS_NEEDED);
+        moneyLeft = new TableColumn(COL_MONEY_LEFT);
+        pricePP = new TableColumn(COL_MONEY_PER_PLAYER);
+        teamR = new TableColumn(COL_R);
+        teamHR = new TableColumn(COL_HR);
+        teamRBI = new TableColumn(COL_RBI);
+        teamSB = new TableColumn(COL_SB);
+        teamBA = new TableColumn(COL_BA);
+        teamW = new TableColumn(COL_W);
+        teamSV = new TableColumn(COL_SV);
+        teamK = new TableColumn(COL_K);
+        teamERA = new TableColumn(COL_ERA);
+        teamWHIP = new TableColumn(COL_WHIP);
+        teamTotalPoints = new TableColumn(COL_TOTAL_PTS);
+
+        teamName.setCellValueFactory(new PropertyValueFactory<>("teamName"));
+        playersNeeded.setCellValueFactory(new PropertyValueFactory<>("playersNeeded"));
+        moneyLeft.setCellValueFactory(new PropertyValueFactory<>("moneyLeft"));
+        pricePP.setCellValueFactory(new PropertyValueFactory<>("pricePP"));
+        teamR.setCellValueFactory(new PropertyValueFactory<>("teamR"));
+        teamHR.setCellValueFactory(new PropertyValueFactory<>("teamHR"));
+        teamRBI.setCellValueFactory(new PropertyValueFactory<>("teamRBI"));
+        teamSB.setCellValueFactory(new PropertyValueFactory<>("teamSB"));
+        teamBA.setCellValueFactory(new PropertyValueFactory<>("teamBA"));
+        teamW.setCellValueFactory(new PropertyValueFactory<>("teamW"));
+        teamSV.setCellValueFactory(new PropertyValueFactory<>("teamSV"));
+        teamK.setCellValueFactory(new PropertyValueFactory<>("teamK"));
+        teamERA.setCellValueFactory(new PropertyValueFactory<>("teamERA"));
+        teamWHIP.setCellValueFactory(new PropertyValueFactory<>("teamWHIP"));
+        teamTotalPoints.setCellValueFactory(new PropertyValueFactory<>("teamTotalPoints"));
+
+        fantasyTeamsStatsTable.getColumns().add(teamName);
+        fantasyTeamsStatsTable.getColumns().add(playersNeeded);
+        fantasyTeamsStatsTable.getColumns().add(moneyLeft);
+        fantasyTeamsStatsTable.getColumns().add(pricePP);
+        fantasyTeamsStatsTable.getColumns().add(teamR);
+        fantasyTeamsStatsTable.getColumns().add(teamHR);
+        fantasyTeamsStatsTable.getColumns().add(teamRBI);
+        fantasyTeamsStatsTable.getColumns().add(teamSB);
+        fantasyTeamsStatsTable.getColumns().add(teamBA);
+        fantasyTeamsStatsTable.getColumns().add(teamW);
+        fantasyTeamsStatsTable.getColumns().add(teamSV);
+        fantasyTeamsStatsTable.getColumns().add(teamK);
+        fantasyTeamsStatsTable.getColumns().add(teamERA);
+        fantasyTeamsStatsTable.getColumns().add(teamWHIP);
+        fantasyTeamsStatsTable.getColumns().add(teamTotalPoints);
+
+        fantasyTeamsStatsTable.setEditable(false);
+
+        fantasyTeamsStatsTable.setItems(dataManager.getDraft().getTeams());
+        fantasyStandingsScreenBox.getChildren().add(fantasyTeamsStatsTable);
         fantasyStandingsScreenBorder = new BorderPane();
         fantasyStandingsScreenBorder.setTop(fantasyStandingsScreenBox);
     }
@@ -816,13 +891,106 @@ public class WDK_GUI implements DraftDataView {
     private void initDraftScreen() {
         draftScreenBox = new VBox();
         draftScreenHeadingLabel = initChildLabel(draftScreenBox, WDK_PropertyType.DRAFT_SCREEN_HEADING_LABEL, CLASS_HEADING_LABEL);
+        draftScreenToolbar = new HBox();
+        
+        selectPlayerButton = new Button();
+        autoDraftPlayerButton = new Button();
+        pauseAutomatedDraftButton = new Button();
+        
+        selectPlayerButton = initChildButton(draftScreenToolbar, WDK_PropertyType.SELECT_PLAYER_ICON, WDK_PropertyType.SELECT_PLAYER_TOOLTIP, false);
+        autoDraftPlayerButton = initChildButton(draftScreenToolbar, WDK_PropertyType.AUTO_DRAFT_ICON, WDK_PropertyType.AUTO_DRAFT_TOOLTIP, false);
+        pauseAutomatedDraftButton = initChildButton(draftScreenToolbar, WDK_PropertyType.PAUSE_DRAFT_ICON, WDK_PropertyType.PAUSE_DRAFT_TOOLTIP, false);
+        
+        
+        playersDraftedTable = new TableView<Player>();
+        
+        pickNum = new TableColumn(COL_PICK_NUM);
+        playerFirstName = new TableColumn(COL_FIRST_NAME);
+        playerLastName = new TableColumn(COL_LAST_NAME);
+        teamName = new TableColumn(COL_TEAM_NAME);
+        playerContract = new TableColumn(COL_CONTRACT);
+        playerSalary = new TableColumn(COL_SALARY);
+        
+        
+        pickNum.setCellValueFactory(new PropertyValueFactory<>(""));
+        playerFirstName.setCellValueFactory(new PropertyValueFactory<>("firstName"));
+        playerLastName.setCellValueFactory(new PropertyValueFactory<>("lastName"));
+        teamName.setCellValueFactory(new PropertyValueFactory<>("teamName"));
+        playerContract.setCellValueFactory(new PropertyValueFactory<>("lastName"));
+        playerSalary.setCellValueFactory(new PropertyValueFactory<>("player.getTeamName()"));
+        
+        playersDraftedTable.getColumns().add(pickNum);
+        playersDraftedTable.getColumns().add(playerFirstName);
+        playersDraftedTable.getColumns().add(playerLastName);
+        playersDraftedTable.getColumns().add(teamName);
+        playersDraftedTable.getColumns().add(playerContract);
+        playersDraftedTable.getColumns().add(playerSalary);
+        
+        
         draftScreenBorder = new BorderPane();
+        draftScreenBox.getChildren().add(draftScreenToolbar);
+        draftScreenBox.getChildren().add(playersDraftedTable);
+        
         draftScreenBorder.setTop(draftScreenBox);
     }
 
-    private void initMLBScreen() {
+    private void initMLBScreen() throws IOException {
         mlbTeamsScreenBox = new VBox();
+        topPaneMLBScreen = new VBox();
+        topPaneFantasyTeams.getStyleClass().add(CLASS_BORDERED_PANE);
+        mlbScreenToolbar = new HBox();
+
+        //instantiate the combobox, label, and gridpane that will hold it
+        mlbTeamsComboBox = new ComboBox();
+        mlbTeamLabel = new Label();
+        mlbGridPane = new GridPane();
+        mlbTeamLabel = initGridLabel(mlbGridPane, WDK_PropertyType.MLB_SCREEN_LABEL, CLASS_PROMPT_LABEL, 2, 1, 1, 1);
+        mlbTeamsComboBox = initGridComboBox(mlbGridPane, 3, 1, 1, 1);
+
+        mlbTeamsComboBox.getItems().add("ATL");
+        mlbTeamsComboBox.getItems().add("AZ");
+        mlbTeamsComboBox.getItems().add("CHC");
+        mlbTeamsComboBox.getItems().add("CIN");
+        mlbTeamsComboBox.getItems().add("COL");
+        mlbTeamsComboBox.getItems().add("LAD");
+        mlbTeamsComboBox.getItems().add("MIA");
+        mlbTeamsComboBox.getItems().add("MIL");
+        mlbTeamsComboBox.getItems().add("NYM");
+        mlbTeamsComboBox.getItems().add("PHI");
+        mlbTeamsComboBox.getItems().add("PIT");
+        mlbTeamsComboBox.getItems().add("SD");
+        mlbTeamsComboBox.getItems().add("SF");
+        mlbTeamsComboBox.getItems().add("STL");
+        mlbTeamsComboBox.getItems().add("WAS");
+        mlbTeamsComboBox.getSelectionModel().clearSelection();
+
+        //instantiate the players
+        mlbTeamPlayers = new TableView<Player>();
+
+        //instantiate the columns
+        playerFirstName = new TableColumn(COL_FIRST_NAME);
+        playerLastName = new TableColumn(COL_LAST_NAME);
+        playerPositions = new TableColumn(COL_POSITIONS);
+
+        //set the values
+        playerFirstName.setCellValueFactory(new PropertyValueFactory<>("firstName"));
+        playerLastName.setCellValueFactory(new PropertyValueFactory<>("lastName"));
+        playerPositions.setCellValueFactory(new PropertyValueFactory<>("QP"));
+
+        //add the columns
+        mlbTeamPlayers.getColumns().add(playerFirstName);
+        mlbTeamPlayers.getColumns().add(playerLastName);
+        mlbTeamPlayers.getColumns().add(playerPositions);
+
+        //no editing for this table
+        startingTable.setEditable(false);
+
         mlbScreenHeadingLabel = initChildLabel(mlbTeamsScreenBox, WDK_PropertyType.MLB_TEAMS_SCREEN_HEADING_LABEL, CLASS_HEADING_LABEL);
+        mlbScreenToolbar.getChildren().add(mlbGridPane);
+        mlbScreenToolbar.getStyleClass().add(CLASS_BORDERED_PANE);
+        topPaneMLBScreen.getChildren().add(mlbTeamPlayers);
+        mlbTeamsScreenBox.getChildren().add(mlbScreenToolbar);
+        mlbTeamsScreenBox.getChildren().add(topPaneMLBScreen);
         mlbTeamsScreenBorder = new BorderPane();
         mlbTeamsScreenBorder.setTop(mlbTeamsScreenBox);
     }
@@ -836,7 +1004,13 @@ public class WDK_GUI implements DraftDataView {
                 workspacePane.setCenter(playersScreenBorder);
                 break;
             case 3:
+                //fantasyTeamsStatsTable.getItems().clear();
+//                for (Team team : dataManager.getDraft().getTeams()) {
+//                    dataManager.getDraft().calculateStats(team);
+//                }
+//                initStandingsScreen();
                 workspacePane.setCenter(fantasyStandingsScreenBorder);
+
                 break;
             case 4:
                 workspacePane.setCenter(draftScreenBorder);
@@ -1104,6 +1278,7 @@ public class WDK_GUI implements DraftDataView {
         fileController = new FileController(messageDialog, yesNoCancelDialog, draftFileManager, siteExporter);
         newDraftButton.setOnAction((ActionEvent e) -> {
             fileController.handleNewDraftRequest(WDK_GUI.this);
+            startingTable.getItems().clear();
         });
         loadDraftButton.setOnAction((ActionEvent e) -> {
             fileController.handleLoadDraftRequest(this);
@@ -1174,13 +1349,18 @@ public class WDK_GUI implements DraftDataView {
                 for (Team item : teamComboBox.getItems()) {
                     item.refreshTeam();
                 }
-                startingTable.getItems().clear();
+                //startingTable.getItems().clear();
                 if (teamComboBox.getSelectionModel().getSelectedItem() != null) {
                     startingTable.setItems(teamComboBox.getSelectionModel().getSelectedItem().getStartupLine());
+                    taxiSquadTable.setItems(teamComboBox.getSelectionModel().getSelectedItem().getTaxiSquad());
                 }
 
                 teamComboBoxActionHandler();
+
 //dataManager.getDraft().sortTeam(dataManager.getDraft().getTeamItem(p.getFantasyTeamName()));
+            }
+            for (Team team : dataManager.getDraft().getTeams()) {
+                dataManager.getDraft().calculateStats(team);
             }
         });
 
@@ -1201,10 +1381,12 @@ public class WDK_GUI implements DraftDataView {
                 startingTable.getColumns().get(0).setVisible(true);
                 if (teamComboBox.getSelectionModel().getSelectedItem() != null) {
                     startingTable.setItems(teamComboBox.getSelectionModel().getSelectedItem().getStartupLine());
+                    taxiSquadTable.setItems(teamComboBox.getSelectionModel().getSelectedItem().getTaxiSquad());
                 }
 
 //dataManager.getDraft().sortTeam(dataManager.getDraft().getTeamItem(p.getFantasyTeamName()));
             }
+
         });
         teamComboBoxActionHandler();
         addTeamButton.setOnAction(e -> {
@@ -1213,9 +1395,9 @@ public class WDK_GUI implements DraftDataView {
             teamComboBox.getItems().clear();
             for (Team team : dataManager.getDraft().getTeams()) {
                 teamComboBox.getItems().add(team);
+                //dataManager.getDraft().calculateStats(team);
 
             }
-
         });
         removeTeamButton.setOnAction(e -> {
             //the VARIABLE AFTER THIS WILL BE THE SELECTED TEAM FROM THE COMBO BOX
@@ -1225,11 +1407,13 @@ public class WDK_GUI implements DraftDataView {
                 teamController.handleRemoveTeamRequest(this, teamComboBox.getSelectionModel().getSelectedItem());
 
                 teamComboBox.getItems().clear();
-                //              startingTable.getItems().clear();
+                startingTable.getItems().clear();
                 teamComboBox.getSelectionModel().clearSelection();
                 for (Team team : dataManager.getDraft().getTeams()) {
                     teamComboBox.getItems().add(team);
+                    //dataManager.getDraft().calculateStats(team);
                 }
+
             }
         });
 
@@ -1242,8 +1426,10 @@ public class WDK_GUI implements DraftDataView {
                 teamComboBox.getItems().clear();
                 for (Team team : dataManager.getDraft().getTeams()) {
                     teamComboBox.getItems().add(team);
+                    dataManager.getDraft().calculateStats(team);
                 }
             }
+
         });
         teamComboBox.setCellFactory(new Callback<ListView<Team>, ListCell<Team>>() {
             @Override
@@ -1276,6 +1462,7 @@ public class WDK_GUI implements DraftDataView {
                 return null;
             }
         });
+        mlbComboBoxActionHandler();
         sortedData = new SortedList<>(filteredData);
         sortedData.comparatorProperty().bind(playersTable.comparatorProperty());
         playersTable.setItems(sortedData);
@@ -1284,6 +1471,27 @@ public class WDK_GUI implements DraftDataView {
             startingTable.setItems(team.getStartupLine());
 
         }
+    }
+
+    private void mlbComboBoxActionHandler() {
+        mlbTeamsComboBox.setOnAction(e -> {
+            mlbTeamPlayers.getColumns().get(0).setVisible(false);
+            mlbTeamPlayers.getColumns().get(0).setVisible(true);
+            ObservableList<Player> mlbPlayers = FXCollections.observableArrayList();
+
+            String mlbTeam = mlbTeamsComboBox.getSelectionModel().getSelectedItem().toString();
+
+            for (Player p : sortedData) {
+                if (p.getPreviousTeam().equals(mlbTeam)) {
+                    mlbPlayers.add(p);
+                }
+            }
+            Comparator<Player> byFirstName = (p1, p2) -> p1.getFirstName().compareTo(p2.getFirstName());
+            Comparator<Player> byLastName = (p1, p2) -> p1.getLastName().compareTo(p2.getLastName());
+            Collections.sort(mlbPlayers, byFirstName);
+            Collections.sort(mlbPlayers, byLastName);
+            mlbTeamPlayers.setItems(mlbPlayers);
+        });
     }
 
     private void teamComboBoxActionHandler() {

@@ -30,6 +30,9 @@ public enum WDK_PropertyType {
         STANDINGS_ICON,
         DRAFT_ICON,
         MLB_ICON,
+        SELECT_PLAYER_ICON,
+        AUTO_DRAFT_ICON,
+        PAUSE_DRAFT_ICON,
         
         // APPLICATION TOOLTIPS FOR BUTTONS
         NEW_DRAFT_TOOLTIP,
@@ -48,6 +51,9 @@ public enum WDK_PropertyType {
         STANDINGS_TOOLTIP,
         DRAFT_TOOLTIP,
         MLB_TOOLTIP,
+        SELECT_PLAYER_TOOLTIP, 
+        AUTO_DRAFT_TOOLTIP, 
+        PAUSE_DRAFT_TOOLTIP, 
  
 
         // FOR COURSE EDIT WORKSPACE
@@ -63,7 +69,9 @@ public enum WDK_PropertyType {
         FANTASY_TEAM_LABEL,
         STARTING_SQUAD_LABEL, 
         TAXI_SQUAD_LABEL,
-        SELECT_TEAM_LABEL, 
+        SELECT_TEAM_LABEL,
+        MLB_SCREEN_LABEL, 
+        
         
         // ERROR DIALOG MESSAGES
         START_DATE_AFTER_END_DATE_ERROR_MESSAGE,

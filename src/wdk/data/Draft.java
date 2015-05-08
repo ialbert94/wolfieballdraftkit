@@ -33,6 +33,7 @@ public class Draft {
     ObservableList<Player> allPlayers;
     ObservableList<Player> filteredPlayers;
     ObservableList<Team> teams;
+    ObservableList<Team> teamsWithTotalStats;
 
     public Draft() {
         hitters = FXCollections.observableArrayList();
@@ -40,6 +41,7 @@ public class Draft {
         allPlayers = FXCollections.observableArrayList();
         filteredPlayers = FXCollections.observableArrayList();
         teams = FXCollections.observableArrayList();
+        teamsWithTotalStats = FXCollections.observableArrayList();
         draftName = "";
     }
 
@@ -69,6 +71,10 @@ public class Draft {
         hitters.clear();
     }
 
+    public void resetAllTeams() {
+        teams.clear();
+    }
+
     public String getDraftName() {
         return draftName;
     }
@@ -76,7 +82,7 @@ public class Draft {
     public void setDraftName(String draftName) {
         this.draftName = draftName;
     }
-    
+
     public void resetAllPlayers() {
         allPlayers.clear();
     }
@@ -170,44 +176,98 @@ public class Draft {
         teams.remove(teamToRemove);
     }
 
+    public ObservableList<Team> getTeamsWithStats() {
+        for (Team team : teams) {
+
+            calculateStats(team);
+        }
+        return teams;
+    }
+
+    public void calculateStats(Team teamToCalculate) {
+        clearStats(teamToCalculate);
+        teamToCalculate.setPlayersNeeded(23 - teamToCalculate.getStartupLine().size());
+        if (teamToCalculate.playersNeeded == 0) {
+            teamToCalculate.setPricePP(-1);
+        } else {
+            teamToCalculate.setPricePP(teamToCalculate.getMoneyLeft() / teamToCalculate.playersNeeded);
+        }
+        for (Player p : teamToCalculate.getStartupLine()) {
+            if (p.getQP().contains("P") || p.getP().contains("P")) {
+                //W SV K ERA WHIP
+                teamToCalculate.setMoneyLeft(teamToCalculate.getMoneyLeft() - p.getSalary());
+                teamToCalculate.setTeamW(teamToCalculate.getTeamW() + p.getR_W());
+                teamToCalculate.setTeamSV(teamToCalculate.getTeamSV() + p.getHR_SV());
+                teamToCalculate.setTeamK(teamToCalculate.getTeamK() + p.getRBI_K());
+
+                teamToCalculate.setTeamW(teamToCalculate.getTeamW() + p.getW());
+            } else {
+                //R HR RBI SB BA
+                teamToCalculate.setMoneyLeft(teamToCalculate.getMoneyLeft() - p.getSalary());
+                teamToCalculate.setTeamR(teamToCalculate.getTeamR() + p.getR_W());
+                teamToCalculate.setTeamHR(teamToCalculate.getTeamHR() + p.getHR_SV());
+                teamToCalculate.setTeamRBI(teamToCalculate.getTeamRBI() + p.getRBI_K());
+                teamToCalculate.setTeamSB((int) (teamToCalculate.getTeamSB() + p.getSB_ERA()));
+
+            }
+        }
+
+    }
+
     public void sortTeam(Team teamToSort) {
         for (Player p : teamToSort.startupLine) {
             //if (p.getComp() == null) {
-                if (p.getP().equals("C")) {
-                    p.setComparator("a");
-                }
-                if (p.getP().equals("1B")) {
-                    p.setComparator("b");
-                }
-                if (p.getP().equals("3B")) {
-                    p.setComparator("c");
-                }
-                if (p.getP().equals("CI")) {
-                    p.setComparator("d");
-                }
-                if (p.getP().equals("2B")) {
-                    p.setComparator("e");
-                }
-                if (p.getP().equals("SS")) {
-                    p.setComparator("f");
-                }
-                if (p.getP().equals("MI")) {
-                    p.setComparator("g");
-                }
-                if (p.getP().equals("OF")) {
-                    p.setComparator("h");
-                }
-                if (p.getP().equals("U")) {
-                    p.setComparator("i");
-                }
-                if (p.getP().equals("P")) {
-                    p.setComparator("j");
-                }
+            if (p.getP().equals("C")) {
+                p.setComparator("a");
+            }
+            if (p.getP().equals("1B")) {
+                p.setComparator("b");
+            }
+            if (p.getP().equals("3B")) {
+                p.setComparator("c");
+            }
+            if (p.getP().equals("CI")) {
+                p.setComparator("d");
+            }
+            if (p.getP().equals("2B")) {
+                p.setComparator("e");
+            }
+            if (p.getP().equals("SS")) {
+                p.setComparator("f");
+            }
+            if (p.getP().equals("MI")) {
+                p.setComparator("g");
+            }
+            if (p.getP().equals("OF")) {
+                p.setComparator("h");
+            }
+            if (p.getP().equals("U")) {
+                p.setComparator("i");
+            }
+            if (p.getP().equals("P")) {
+                p.setComparator("j");
+            }
             //}
 
         }
         Comparator<Player> byComparator = (p1, p2) -> p1.getComp().compareTo(p2.getComp());
         //teamToSort.startupLine.stream().sorted(byComparator);
         Collections.sort(teamToSort.startupLine, byComparator);
+    }
+
+    private void clearStats(Team teamToCalculate) {
+        teamToCalculate.setPlayersNeeded(23);
+        teamToCalculate.setMoneyLeft(Team.TOTAL_MONEY);
+        teamToCalculate.setPricePP(0);
+        teamToCalculate.setTeamR(0);
+        teamToCalculate.setTeamHR(0);
+        teamToCalculate.setTeamK(0);
+        teamToCalculate.setTeamRBI(0);
+        teamToCalculate.setTeamSB(0);
+        teamToCalculate.setTeamSV(0);
+        teamToCalculate.setTeamW(0);
+        teamToCalculate.setTeamBA(0);
+        teamToCalculate.setTeamERA(0);
+        teamToCalculate.setTeamWHIP(0);
     }
 }

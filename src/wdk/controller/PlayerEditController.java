@@ -33,7 +33,7 @@ public class PlayerEditController {
         yesNoCancelDialog = initYesNoCancelDialog;
     }
 
-      // THESE ARE FOR PLAUERS
+    // THESE ARE FOR PLAUERS
     public void handleAddPlayerRequest(WDK_GUI gui) {
         DraftDataManager ddm = gui.getDataManager();
         Draft draft = ddm.getDraft();
@@ -72,7 +72,7 @@ public class PlayerEditController {
         // DID THE USER CONFIRM?
         if (pd.wasCompleteSelected()) {
             // UPDATE THE SCHEDULE ITEM
-            
+
             playerToEdit.setP(p.getP());
             playerToEdit.setContract(p.getContract());
             playerToEdit.setSalary(p.getSalary());
@@ -81,7 +81,9 @@ public class PlayerEditController {
             teamToEdit.addPlayerToStartingLineup(playerToEdit);
             draft.sortTeam(draft.getTeamItem(p.getFantasyTeamName()));
             draft.removePlayer(playerToEdit);
-
+            for (Team team : draft.getTeams()) {
+                gui.getDataManager().getDraft().calculateStats(team);
+            }
             //course.editAssignments();
             gui.updateToolbarControls(false);
         } else {
@@ -93,7 +95,7 @@ public class PlayerEditController {
     public void handleEditTeamScreenRequest(WDK_GUI gui, Player playerToEdit) {
         DraftDataManager ddm = gui.getDataManager();
         Draft draft = ddm.getDraft();
-       pd.showEditTeamScreenDialog(playerToEdit, draft);
+        pd.showEditTeamScreenDialog(playerToEdit, draft);
 
         // DID THE USER CONFIRM?
         if (pd.wasCompleteSelected()) {
@@ -102,8 +104,8 @@ public class PlayerEditController {
             if (p.getFantasyTeamName().equals("Free Agent")) {
                 draft.addToAllPlayers(playerToEdit);
                 draft.getTeamItem(playerToEdit.getFantasyTeamName()).removePlayerFromStartingLineup(playerToEdit);
-                
-            } else if(p.getFantasyTeamName().equals(playerToEdit.getFantasyTeamName())){
+
+            } else if (p.getFantasyTeamName().equals(playerToEdit.getFantasyTeamName())) {
                 //draft.getTeamItem(playerToEdit.getFantasyTeamName()).refreshTeam();
                 //draft.sortTeam(draft.getTeamItem(p.getFantasyTeamName()));
                 playerToEdit.setP(p.getP());
@@ -121,10 +123,10 @@ public class PlayerEditController {
                 playerToEdit.setContract(p.getContract());
                 playerToEdit.setSalary(p.getSalary());
                 playerToEdit.setFantasyTeamName(p.getFantasyTeamName());
-                
+
                 Team teamToAdd = draft.getTeamItem(p.getFantasyTeamName());
                 teamToAdd.addPlayerToStartingLineup(playerToEdit);
-                
+
                 Team teamToRemove = draft.getTeamItem(oldTeam);
                 teamToRemove.removePlayerFromStartingLineup(playerToEdit);
 //                draft.getTeamItem(playerToEdit.getFantasyTeamName()).refreshTeam();
@@ -133,7 +135,10 @@ public class PlayerEditController {
             }
             draft.getTeamItem(playerToEdit.getFantasyTeamName()).refreshTeam();
             draft.sortTeam(draft.getTeamItem(playerToEdit.getFantasyTeamName()));
-            //course.editAssignments();
+
+            for (Team team : draft.getTeams()) {
+               gui.getDataManager().getDraft().calculateStats(team);
+            }
             gui.updateToolbarControls(false);
         } else {
             // THE USER MUST HAVE PRESSED CANCEL, SO
@@ -152,6 +157,9 @@ public class PlayerEditController {
         if (selection.equals(YesNoCancelDialog.YES)) {
             gui.getDataManager().getDraft().removePlayer(playerToRemove);
             gui.updateToolbarControls(false);
+            for (Team team : gui.getDataManager().getDraft().getTeams()) {
+                gui.getDataManager().getDraft().calculateStats(team);
+            }
         }
     }
 }

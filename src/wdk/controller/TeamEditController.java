@@ -48,6 +48,7 @@ public class TeamEditController {
             
             // AND ADD IT AS A ROW TO THE TABLE
             draft.addToTeams(t);
+            //draft.calculateStats(t);
             //I WILL PROBABLY NEED TO DO SOMETHING TO RELOAD AND 
             //REFRESH THE TABLE ONCE I ADD A PLAYER
             //FOR EXAMPLE, IF I AM ON P, AND I ADD A PLAYER TO THE TABLE

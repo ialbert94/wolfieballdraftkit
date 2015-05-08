@@ -151,7 +151,7 @@ public class JsonDraftFileManager implements DraftFileManager {
         for (int i = 0; i < jsonTeamsArray.size(); i++) {
             JsonObject jso = jsonTeamsArray.getJsonObject(i);
             Team t1 = new Team();
-            t1.setTeamName(jso.getString(JSON_TEAM_NAME));
+            t1.setTeamName(jso.getString(JSON_FANTASY_TEAM));
             t1.setTeamOwner(jso.getString(JSON_TEAM_OWNER));
             draftToLoad.addToTeams(t1);
 
@@ -169,8 +169,8 @@ public class JsonDraftFileManager implements DraftFileManager {
                 player.setR_W(jso1.getInt(JSON_R_W));
                 player.setHR_SV(jso1.getInt(JSON_HR_SV));
                 player.setRBI_K(jso1.getInt(JSON_RBI_K));
-                player.setSB_ERA(Double.parseDouble(jso1.getString(JSON_SB_ERA)));
-                player.setBA_WHIP(Double.parseDouble(jso1.getString(JSON_BA_WHIP)));
+                player.setSB_ERA(Double.valueOf(jso1.getString(JSON_SB_ERA)));
+                player.setBA_WHIP(Double.valueOf(jso1.getString(JSON_BA_WHIP)));
                 player.setContract(jso1.getString(JSON_CONTRACT));
                 player.setSalary(jso1.getInt(JSON_SALARY));
                 draftToLoad.getTeams().get(i).addPlayerToStartingLineup(player);
@@ -301,7 +301,6 @@ public class JsonDraftFileManager implements DraftFileManager {
 
     // AND HERE ARE THE PRIVATE HELPER METHODS TO HELP THE PUBLIC ONES
     // LOADS A JSON FILE AS A SINGLE OBJECT AND RETURNS IT
-
     private JsonObject loadJSONFile(String jsonFilePath) throws IOException {
         InputStream is = new FileInputStream(jsonFilePath);
         JsonReader jsonReader = Json.createReader(is);
@@ -325,24 +324,41 @@ public class JsonDraftFileManager implements DraftFileManager {
 
     // MAKES AND RETURNS A JSON OBJECT FOR THE PROVIDED PLAYERS
     private JsonObject makePlayerJsonObject(Player player) {
-        
+
         String sb_era = Double.toString(player.getSB_ERA());
-        
+
         String ba_whip = Double.toString(player.getBA_WHIP());
-        
-        JsonObject jso = Json.createObjectBuilder().add(JSON_TEAM, player.getPreviousTeam())
-                .add(JSON_LAST_NAME, player.getLastName())
-                .add(JSON_FIRST_NAME, player.getFirstName())
-                .add(JSON_QP, player.getQP())
-                .add(JSON_YEAR_OF_BIRTH, player.getYearOfBirth())
-                .add(JSON_NATION_OF_BIRTH, player.getNationOfBirth())
-                .add(JSON_R_W, player.getR_W())
-                .add(JSON_HR_SV, player.getHR_SV())
-                .add(JSON_RBI_K, player.getRBI_K())
-                .add(JSON_SB_ERA, sb_era)
-                .add(JSON_BA_WHIP, ba_whip)
-                .add(JSON_NOTES, player.getNotes())
-                .build();
+        JsonObject jso;
+        try {
+            jso = Json.createObjectBuilder().add(JSON_TEAM, player.getPreviousTeam())
+                    .add(JSON_LAST_NAME, player.getLastName())
+                    .add(JSON_FIRST_NAME, player.getFirstName())
+                    .add(JSON_QP, player.getQP())
+                    .add(JSON_YEAR_OF_BIRTH, player.getYearOfBirth())
+                    .add(JSON_NATION_OF_BIRTH, player.getNationOfBirth())
+                    .add(JSON_R_W, player.getR_W())
+                    .add(JSON_HR_SV, player.getHR_SV())
+                    .add(JSON_RBI_K, player.getRBI_K())
+                    .add(JSON_SB_ERA, sb_era)
+                    .add(JSON_BA_WHIP, ba_whip)
+                    .add(JSON_NOTES, player.getNotes())
+                    .build();
+        } catch (Exception e) {
+            jso = Json.createObjectBuilder().add(JSON_TEAM, player.getPreviousTeam())
+                    .add(JSON_LAST_NAME, player.getLastName())
+                    .add(JSON_FIRST_NAME, player.getFirstName())
+                    .add(JSON_QP, player.getQP())
+                    .add(JSON_YEAR_OF_BIRTH, 0)
+                    .add(JSON_NATION_OF_BIRTH, "UN")
+                    .add(JSON_R_W, 0)
+                    .add(JSON_HR_SV, 0)
+                    .add(JSON_RBI_K, 0)
+                    .add(JSON_SB_ERA, 0)
+                    .add(JSON_BA_WHIP, 0)
+                    .add(JSON_NOTES, "added player")
+                    .build();
+        }
+
         return jso;
     }
 
@@ -361,7 +377,11 @@ public class JsonDraftFileManager implements DraftFileManager {
     }
 
     private JsonObject makePlayerOnTeamJsonObject(Player player) {
-        JsonObject jso = Json.createObjectBuilder()
+        String sb_era = Double.toString(player.getSB_ERA());
+        JsonObject jso;
+        String ba_whip = Double.toString(player.getBA_WHIP());
+        try{
+        jso = Json.createObjectBuilder()
                 .add(JSON_POSITION, player.getP())
                 .add(JSON_FIRST_NAME, player.getFirstName())
                 .add(JSON_LAST_NAME, player.getLastName())
@@ -370,12 +390,27 @@ public class JsonDraftFileManager implements DraftFileManager {
                 .add(JSON_R_W, player.getR_W())
                 .add(JSON_HR_SV, player.getHR_SV())
                 .add(JSON_RBI_K, player.getRBI_K())
-                .add(JSON_SB_ERA, player.getSB_ERA())
-                .add(JSON_BA_WHIP, player.getBA_WHIP())
+                .add(JSON_SB_ERA, sb_era)
+                .add(JSON_BA_WHIP, ba_whip)
                 .add(JSON_CONTRACT, player.getContract())
                 .add(JSON_SALARY, player.getSalary())
                 .build();
-
+        } catch(Exception e){
+            jso = Json.createObjectBuilder()
+                .add(JSON_POSITION, player.getP())
+                .add(JSON_FIRST_NAME, player.getFirstName())
+                .add(JSON_LAST_NAME, player.getLastName())
+                .add(JSON_PRO_TEAM, player.getPreviousTeam())
+                .add(JSON_QP, player.getQP())
+                .add(JSON_R_W, 0)
+                .add(JSON_HR_SV, 0)
+                .add(JSON_RBI_K, 0)
+                .add(JSON_SB_ERA, 0)
+                .add(JSON_BA_WHIP,0)
+                .add(JSON_CONTRACT, player.getContract())
+                .add(JSON_SALARY, player.getSalary())
+                .build();
+        }
         return jso;
     }
 
