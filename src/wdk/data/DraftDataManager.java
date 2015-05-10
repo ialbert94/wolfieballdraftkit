@@ -56,6 +56,8 @@ public class DraftDataManager {
         draft.resetHitters();
         draft.resetPitchers();
         draft.resetAllTeams();
+        draft.getDraftedPlayers().clear();
+        
 //        
 //        // AND THEN FORCE THE UI TO RELOAD THE UPDATED COURSE
         view.reloadDraft(draft);

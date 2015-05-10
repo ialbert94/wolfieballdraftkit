@@ -78,12 +78,32 @@ public class PlayerEditController {
             playerToEdit.setSalary(p.getSalary());
             playerToEdit.setFantasyTeamName(p.getFantasyTeamName());
             Team teamToEdit = draft.getTeamItem(p.getFantasyTeamName());
-            teamToEdit.addPlayerToStartingLineup(playerToEdit);
-            draft.sortTeam(draft.getTeamItem(p.getFantasyTeamName()));
-            draft.removePlayer(playerToEdit);
-            for (Team team : draft.getTeams()) {
-                gui.getDataManager().getDraft().calculateStats(team);
+            if (teamToEdit.getStartupLine().size() < 23) {
+                teamToEdit.addPlayerToStartingLineup(playerToEdit);
+                if (playerToEdit.getContract().equals("S2")) {
+                    ddm.getDraft().getDraftedPlayers().add(playerToEdit);
+                }
+                draft.sortTeam(draft.getTeamItem(p.getFantasyTeamName()));
+                draft.removePlayer(playerToEdit);
+                for (Team team : draft.getTeams()) {
+                    team.calculateStats();
+                }
+            } else if (teamToEdit.getTaxiSquad().size() < 8) {
+                playerToEdit.setContract("X");
+                playerToEdit.setSalary(1);
+                teamToEdit.addPlayerToTaxiSquad(playerToEdit);
+                ddm.getDraft().getDraftedPlayers().add(playerToEdit);
+                draft.sortTeam(draft.getTeamItem(p.getFantasyTeamName()));
+                draft.removePlayer(playerToEdit);
+                for (Team team : draft.getTeams()) {
+                    team.calculateStats();
+                }
+            } else {
+                messageDialog.show("Team is full");
             }
+            for (Team team : gui.getDataManager().getDraft().getTeams()) {    
+                   team.calculateStats();
+                }
             //course.editAssignments();
             gui.updateToolbarControls(false);
         } else {
@@ -102,6 +122,9 @@ public class PlayerEditController {
             // UPDATE THE SCHEDULE ITEM
             Player p = pd.getPlayerItem();
             if (p.getFantasyTeamName().equals("Free Agent")) {
+                if (playerToEdit.getContract().equals("S2")) {
+                    ddm.getDraft().getDraftedPlayers().remove(playerToEdit);
+                }
                 draft.addToAllPlayers(playerToEdit);
                 draft.getTeamItem(playerToEdit.getFantasyTeamName()).removePlayerFromStartingLineup(playerToEdit);
 
@@ -111,6 +134,11 @@ public class PlayerEditController {
                 playerToEdit.setP(p.getP());
                 playerToEdit.setContract(p.getContract());
                 playerToEdit.setSalary(p.getSalary());
+                if (playerToEdit.getContract().equals("S2")) {
+                    ddm.getDraft().getDraftedPlayers().add(playerToEdit);
+                } else {
+                    ddm.getDraft().getDraftedPlayers().remove(playerToEdit);
+                }
                 //.setFantasyTeamName(p.getFantasyTeamName());
                 //TeplayerToEditam teamToEdit = draft.getTeamItem(p.getFantasyTeamName());
                 //teamToEdit.addPlayerToStartingLineup(playerToEdit);
@@ -129,6 +157,12 @@ public class PlayerEditController {
 
                 Team teamToRemove = draft.getTeamItem(oldTeam);
                 teamToRemove.removePlayerFromStartingLineup(playerToEdit);
+                if (playerToEdit.getContract().equals("S2")) {
+                    draft.getDraftedPlayers().remove(playerToEdit);
+                    ddm.getDraft().getDraftedPlayers().add(playerToEdit);
+                } else {
+                    draft.getDraftedPlayers().remove(playerToEdit);
+                }
 //                draft.getTeamItem(playerToEdit.getFantasyTeamName()).refreshTeam();
 //                draft.sortTeam(draft.getTeamItem(p.getFantasyTeamName()));
                 //draft.getTeamItem(teamToRemoveFrom).removePlayerFromStartingLineup(playerToEdit);
@@ -137,8 +171,9 @@ public class PlayerEditController {
             draft.sortTeam(draft.getTeamItem(playerToEdit.getFantasyTeamName()));
 
             for (Team team : draft.getTeams()) {
-               gui.getDataManager().getDraft().calculateStats(team);
+                team.calculateStats();
             }
+            
             gui.updateToolbarControls(false);
         } else {
             // THE USER MUST HAVE PRESSED CANCEL, SO
@@ -158,7 +193,7 @@ public class PlayerEditController {
             gui.getDataManager().getDraft().removePlayer(playerToRemove);
             gui.updateToolbarControls(false);
             for (Team team : gui.getDataManager().getDraft().getTeams()) {
-                gui.getDataManager().getDraft().calculateStats(team);
+                team.calculateStats();
             }
         }
     }

@@ -180,7 +180,7 @@ public class Draft {
     public ObservableList<Team> getTeamsWithStats() {
         for (Team team : teams) {
 
-            calculateStats(team);
+          //  calculateStats(team);
         }
         return teams;
     }
@@ -194,35 +194,7 @@ public class Draft {
     }
     
 
-    public void calculateStats(Team teamToCalculate) {
-        clearStats(teamToCalculate);
-        teamToCalculate.setPlayersNeeded(23 - teamToCalculate.getStartupLine().size());
-        if (teamToCalculate.playersNeeded == 0) {
-            teamToCalculate.setPricePP(-1);
-        } else {
-            teamToCalculate.setPricePP(teamToCalculate.getMoneyLeft() / teamToCalculate.playersNeeded);
-        }
-        for (Player p : teamToCalculate.getStartupLine()) {
-            if (p.getQP().contains("P") || p.getP().contains("P")) {
-                //W SV K ERA WHIP
-                teamToCalculate.setMoneyLeft(teamToCalculate.getMoneyLeft() - p.getSalary());
-                teamToCalculate.setTeamW(teamToCalculate.getTeamW() + p.getR_W());
-                teamToCalculate.setTeamSV(teamToCalculate.getTeamSV() + p.getHR_SV());
-                teamToCalculate.setTeamK(teamToCalculate.getTeamK() + p.getRBI_K());
-
-                teamToCalculate.setTeamW(teamToCalculate.getTeamW() + p.getW());
-            } else {
-                //R HR RBI SB BA
-                teamToCalculate.setMoneyLeft(teamToCalculate.getMoneyLeft() - p.getSalary());
-                teamToCalculate.setTeamR(teamToCalculate.getTeamR() + p.getR_W());
-                teamToCalculate.setTeamHR(teamToCalculate.getTeamHR() + p.getHR_SV());
-                teamToCalculate.setTeamRBI(teamToCalculate.getTeamRBI() + p.getRBI_K());
-                teamToCalculate.setTeamSB((int) (teamToCalculate.getTeamSB() + p.getSB_ERA()));
-
-            }
-        }
-
-    }
+    
 
     public void sortTeam(Team teamToSort) {
         for (Player p : teamToSort.startupLine) {

@@ -26,6 +26,7 @@ public class DraftEditController extends Stage {
     // VALUES DON'T THEMSELVES TRIGGER EVENTS
     private boolean enabled;
     MessageDialog dialog;
+    DraftDataManager dataManager;
 
     /**
      * Constructor that gets this controller ready, not much to initialize as
@@ -109,18 +110,18 @@ public class DraftEditController extends Stage {
 
         //do this prior to managing the player to load the hashmap. this is because
         //we need to make sure we only add players that are neeed 
-//        int totalPlayers = 0;
+        int totalPlayers = 0;
 //        HashMap<String, Integer> positionTable;
-//        for (Team team : dataManager.getDraft().getTeams()) {
+        for (Team team : dataManager.getDraft().getTeams()) {
 //            team.resetPositionTable();
 //            positionTable = team.getPositionTable();
-//            for (Player p : team.getStartupLine()) {
+            for (Player p : team.getStartupLine()) {
 //                String position = p.getP();
 //                updateHashMap(positionTable, position);
-//                totalPlayers++;
-//            }
+                totalPlayers++;
+            }
 //            team.setPositionTable(positionTable);
-//        }
+        }
 //        int i = 0;
 //        HashMap<String, Integer> positionTable = new HashMap<>();
 //        positionTable.put("C", 2);
@@ -139,33 +140,27 @@ public class DraftEditController extends Stage {
         String position = "";
         HashMap<String, Integer> positionsTable = new HashMap<>();
         Team team = dataManager.getDraft().getTeams().get(num);
-        team.setPositionTable(positionsTable);
+        //team.setPositionTable(positionsTable);
         team.resetPositionTable();
         team.calculatePositionTable();
         positionsTable = team.getPositionTable();
         boolean playerAvailable = true;
         int numPos = 23;
         Random randNum = new Random();
-        in = randNum.nextInt(dataManager.getDraft().getAllPlayers().size() - 1) + 1;
-        playerToDraft = dataManager.getDraft().getAllPlayers().get(in);
-        position = playerToDraft.getQP();
-        //playerAvailable = setPlayerPosition(position, playerToDraft, positionsTable);
-        
-        //    while (!setPlayerPosition(position, playerToDraft, positionsTable) ) {
-//            if (team.getStartupLine().size() == 23) {
-//                playerAvailable = false;
-//            } else {
-                randNum = new Random();
-                in = randNum.nextInt(dataManager.getDraft().getAllPlayers().size() - 1) + 1;
-                playerToDraft = dataManager.getDraft().getAllPlayers().get(in);
-                position = playerToDraft.getQP();
-                setPlayerPosition(position, playerToDraft, positionsTable);
-            //}
-        //}
-        if (team.getStartupLine().size() < 23) {
 
-//            if (setPlayerPosition(position, playerToDraft, positionsTable)) {
-//                bool = false;
+        if (team.getStartupLine().size() < 23) {
+            while (!setPlayerPosition(position, playerToDraft, positionsTable) && totalPlayers < dataManager.getDraft().getTeams().size() * 23) {
+                if (team.getStartupLine().size() == 23) {
+                    playerAvailable = false;
+                } else {
+                    randNum = new Random();
+                    in = randNum.nextInt(dataManager.getDraft().getAllPlayers().size() - 1) + 1;
+                    playerToDraft = dataManager.getDraft().getAllPlayers().get(in);
+                    position = playerToDraft.getQP();
+                    setPlayerPosition(position, playerToDraft, positionsTable);
+                }
+
+            }
             playerToDraft.setFantasyTeamName(dataManager.getDraft().getTeams().get(num).getTeamName());
             playerToDraft.setContract("S2");
             playerToDraft.setSalary(1);
@@ -173,7 +168,10 @@ public class DraftEditController extends Stage {
             dataManager.getDraft().removePlayer(playerToDraft);
             dataManager.getDraft().getDraftedPlayers().add(playerToDraft);
             dataManager.getDraft().sortTeam(dataManager.getDraft().getTeams().get(num));
-         }else {
+
+//            if (setPlayerPosition(position, playerToDraft, positionsTable)) {
+//                bool = false;
+        } else {
             if (dataManager.getDraft().getTeams().get(num2).getTaxiSquad().size() < 8) {
                 randNum = new Random();
                 in = randNum.nextInt(dataManager.getDraft().getAllPlayers().size() - 1) + 1;
@@ -200,7 +198,14 @@ public class DraftEditController extends Stage {
             positionTable.replace("C", positionTable.get("C") - 1);
             return true;
         }
-
+        //CHECK TO SEE IF WE CAN ADD A "CI" TO THE COMBO BOX
+        if ((position.contains("1B") || position.contains("3B")) && (positionTable.get("CI") > 0)) {
+            if ((positionTable.get("1B") == 0) && (positionTable.get("3B") == 0)) {
+                playerToDraft.setP("CI");
+                positionTable.replace("CI", positionTable.get("CI") - 1);
+                return true;
+            }
+        }
         //CHECK TO SEE IF WE CAN ADD A "1B" TO THE COMBO BOX
         if (position.contains("1B") && (positionTable.get("1B") > 0)) {
             playerToDraft.setP("1B");
@@ -215,11 +220,11 @@ public class DraftEditController extends Stage {
             return true;
         }
 
-        //CHECK TO SEE IF WE CAN ADD A "CI" TO THE COMBO BOX
-        if ((positionTable.get("1B") == 0) && (positionTable.get("3B") == 0)) {
-            if ((position.contains("1B") || position.contains("3B")) && (positionTable.get("CI") > 0)) {
-                playerToDraft.setP("CI");
-                positionTable.replace("CI", positionTable.get("CI") - 1);
+        //CHECK TO SEE IF WE CAN ADD A "2B" TO THE COMBO BOX
+        if ((position.contains("2B") || position.contains("SS")) && (positionTable.get("MI") > 0)) {
+            if ((positionTable.get("2B") == 0) && (positionTable.get("SS") == 0)) {
+                playerToDraft.setP("MI");
+                positionTable.replace("MI", positionTable.get("MI") - 1);
                 return true;
             }
         }
@@ -235,15 +240,6 @@ public class DraftEditController extends Stage {
             playerToDraft.setP("SS");
             positionTable.replace("SS", positionTable.get("SS") - 1);
             return true;
-        }
-
-        //CHECK TO SEE IF WE CAN ADD A "2B" TO THE COMBO BOX
-        if ((positionTable.get("2B") == 0) && (positionTable.get("SS") == 0)) {
-            if ((position.contains("2B") || position.contains("SS")) && (positionTable.get("MI") > 0)) {
-                playerToDraft.setP("MI");
-                positionTable.replace("MI", positionTable.get("MI") - 1);
-                return true;
-            }
         }
 
         //CHECK TO SEE IF WE CAN ADD A "OF" TO THE COMBO BOX
@@ -293,5 +289,7 @@ public class DraftEditController extends Stage {
             }
         }
     }
+
+    
 
 }

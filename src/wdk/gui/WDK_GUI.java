@@ -4,9 +4,12 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.Random;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Predicate;
 import static javafx.application.ConditionalFeature.FXML;
+import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -14,6 +17,7 @@ import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.collections.transformation.SortedList;
+import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -515,7 +519,18 @@ public class WDK_GUI implements DraftDataView {
         teamComboBox.getItems().clear();
         for (Team team : draftToReload.getTeams()) {
             teamComboBox.getItems().add(team);
+            team.calculateStats();
+            for (Player p : team.getStartupLine()) {
+                if (p.getContract().contains("S2")) {
+                    draftToReload.getDraftedPlayers().add(p);
+                }
+            }
+            for (Player p : team.getTaxiSquad()) {
+                draftToReload.getDraftedPlayers().add(p);
+            }
         }
+        sortAndUpdatePickNum();
+
         teamComboBox.getSelectionModel().clearSelection();
         draftNameTextField.setText(draftToReload.getDraftName());
         draftController.enable(true);
@@ -1059,10 +1074,10 @@ public class WDK_GUI implements DraftDataView {
                 break;
             case 3:
                 //fantasyTeamsStatsTable.getItems().clear();
-//                for (Team team : dataManager.getDraft().getTeams()) {
-//                    dataManager.getDraft().calculateStats(team);
-//                }
-//                initStandingsScreen();
+                for (Team team : dataManager.getDraft().getTeams()) {
+                    team.calculateStats();
+                }
+                initStandingsScreen();
                 workspacePane.setCenter(fantasyStandingsScreenBorder);
 
                 break;
@@ -1400,6 +1415,7 @@ public class WDK_GUI implements DraftDataView {
                 Player p = playersTable.getSelectionModel().getSelectedItem();
                 playerController.handleEditPlayerScreenRequest(this, p);
                 teamComboBoxActionHandler();
+                sortAndUpdatePickNum();
                 for (Team item : teamComboBox.getItems()) {
                     item.refreshTeam();
                 }
@@ -1410,12 +1426,12 @@ public class WDK_GUI implements DraftDataView {
                 }
 
                 teamComboBoxActionHandler();
-
+                for (Team team : dataManager.getDraft().getTeams()) {
+                    team.calculateStats();
+                }
 //dataManager.getDraft().sortTeam(dataManager.getDraft().getTeamItem(p.getFantasyTeamName()));
             }
-            for (Team team : dataManager.getDraft().getTeams()) {
-                dataManager.getDraft().calculateStats(team);
-            }
+
         });
 
         //AND TEAM CONTROLLER FOR ADDING REMOVING AND EDITING TEAM CONTROLS
@@ -1426,6 +1442,7 @@ public class WDK_GUI implements DraftDataView {
                 // OPEN UP THE SCHEDULE ITEM EDITOR
                 Player p = startingTable.getSelectionModel().getSelectedItem();
                 playerController.handleEditTeamScreenRequest(this, p);
+                sortAndUpdatePickNum();
                 teamComboBoxActionHandler();
                 for (Team item : teamComboBox.getItems()) {
                     item.refreshTeam();
@@ -1437,7 +1454,9 @@ public class WDK_GUI implements DraftDataView {
                     startingTable.setItems(teamComboBox.getSelectionModel().getSelectedItem().getStartupLine());
                     taxiSquadTable.setItems(teamComboBox.getSelectionModel().getSelectedItem().getTaxiSquad());
                 }
-
+                for (Team team : dataManager.getDraft().getTeams()) {
+                    team.calculateStats();
+                }
 //dataManager.getDraft().sortTeam(dataManager.getDraft().getTeamItem(p.getFantasyTeamName()));
             }
 
@@ -1449,7 +1468,7 @@ public class WDK_GUI implements DraftDataView {
             teamComboBox.getItems().clear();
             for (Team team : dataManager.getDraft().getTeams()) {
                 teamComboBox.getItems().add(team);
-                //dataManager.getDraft().calculateStats(team);
+                team.calculateStats();
 
             }
         });
@@ -1459,13 +1478,19 @@ public class WDK_GUI implements DraftDataView {
                 messageDialog.show("No team has been selected");
             } else {
                 teamController.handleRemoveTeamRequest(this, teamComboBox.getSelectionModel().getSelectedItem());
+                sortAndUpdatePickNum();
+                //startingTable.getItems().clear();
+                teamComboBox.getSelectionModel().clearSelection();
 
                 teamComboBox.getItems().clear();
-                startingTable.getItems().clear();
-                teamComboBox.getSelectionModel().clearSelection();
+                startingTable.getColumns().get(0).setVisible(false);
+                startingTable.getColumns().get(0).setVisible(true);
+                taxiSquadTable.getColumns().get(0).setVisible(false);
+                taxiSquadTable.getColumns().get(0).setVisible(true);
+
                 for (Team team : dataManager.getDraft().getTeams()) {
                     teamComboBox.getItems().add(team);
-                    //dataManager.getDraft().calculateStats(team);
+                    team.calculateStats();
                 }
 
             }
@@ -1480,7 +1505,7 @@ public class WDK_GUI implements DraftDataView {
                 teamComboBox.getItems().clear();
                 for (Team team : dataManager.getDraft().getTeams()) {
                     teamComboBox.getItems().add(team);
-                    dataManager.getDraft().calculateStats(team);
+                    team.calculateStats();
                 }
             }
 
@@ -1533,38 +1558,161 @@ public class WDK_GUI implements DraftDataView {
         //the select player will have its own setOnAction, while the
         //autodraft will consist of the threading and the pausing
 
-        selectPlayerButton.setOnAction(e -> {
-            //pickNumber++;
-            int numTeams = dataManager.getDraft().getTeams().size();
-            int num1 = 0;
-            int num2 = 0;
-            boolean bool = true;
-            boolean bool2 = false;
-            while (bool) {
-                if (num1 == numTeams) {
-                    num1--;
-                    bool = false;
-                    bool2 = true;
+        autoDraftPlayerButton.setOnAction(e -> {
+            // startDraft = true;
 
-                } else if (dataManager.getDraft().getTeams().get(num1).getStartupLine().size() < 23) {
-                    bool = false;
-                } else {
-                    num1++;
+            Task<Void> task = new Task<Void>() {
+                ReentrantLock draftLock = new ReentrantLock();
+                private boolean startDraft;
+
+                @Override
+                protected Void call() throws Exception {
+                    draftLock.lock();
+                    try {
+                        startDraft = true;
+                        pauseAutomatedDraftButton.setOnAction(e -> {
+                            startDraft = false;
+                        });
+                        for (int k = 0; k < 500; k++) {
+
+                            if (startDraft) {
+                                Platform.runLater(() -> {
+
+                                    selectPlayer();
+                                    sortAndUpdatePickNum();
+                                });
+                                Thread.sleep(100);
+                            }
+                        }
+
+                    } finally {
+                        draftLock.unlock();
+
+                    }
+                    return null;
                 }
-            }
-            while (bool2) {
-                if (num2 == numTeams) {
-                    num2--;
-                    bool2 = false;
-                } else if (dataManager.getDraft().getTeams().get(num2).getTaxiSquad().size() < 8) {
-                    bool2 = false;
-                } else {
-                    num2++;
-                }
-            }
-            draftController.handleSelectPlayerRequest(num1, num2, dataManager);
-            
+
+            };
+
+            //THIS GETS THE THREAD STARTED
+            Thread thread = new Thread(task);
+            thread.start();
+
         });
+
+        selectPlayerButton.setOnAction(e -> {
+//            //pickNumber++;
+//            int numTeams = dataManager.getDraft().getTeams().size();
+//            int num1 = 0;
+//            int num2 = 0;
+//            boolean bool = true;
+//            boolean bool2 = false;
+//            while (bool) {
+//                if (num1 == numTeams) {
+//                    num1--;
+//                    bool = false;
+//                    bool2 = true;
+//
+//                } else if (dataManager.getDraft().getTeams().get(num1).getStartupLine().size() < 23) {
+//                    bool = false;
+//                } else {
+//                    num1++;
+//                }
+//            }
+//            while (bool2) {
+//                if (num2 == numTeams) {
+//                    num2--;
+//                    bool2 = false;
+//                } else if (dataManager.getDraft().getTeams().get(num2).getTaxiSquad().size() < 8) {
+//                    bool2 = false;
+//                } else {
+//                    num2++;
+//                }
+//            }
+//            draftController.handleSelectPlayerRequest(num1, num2, dataManager);
+//            
+            selectPlayer();
+            sortAndUpdatePickNum();
+        });
+    }
+
+    public void selectPlayer() {
+        boolean addedPlayer = false;
+        for (Team team : dataManager.getDraft().getTeams()) {
+            if (team.getStartupLine().size() < 23) {
+                HashMap<String, Integer> positionsTable = new HashMap<>();
+                team.setPositionTable(positionsTable);
+                team.resetPositionTable();
+                team.calculatePositionTable();
+                positionsTable = team.getPositionTable();
+                for (String pos : positionsTable.keySet()) {
+                    if (positionsTable.get(pos) > 0 && addedPlayer == false) {
+                        while (addedPlayer == false) {
+                            int randPlayer = (int) (Math.random() * dataManager.getDraft().getAllPlayers().size());
+                            Player player = dataManager.getDraft().getAllPlayers().get(randPlayer);
+                            player.setFantasyTeamName(team.getTeamName());
+                            player.setContract("S2");
+                            player.setSalary(1);
+                            if (pos.equals("CI")) {
+                                if ((player.getQP().contains("1B") || player.getQP().contains("3B")) && positionsTable.get("CI") > 0) {
+                                    player.setP("CI");
+                                    addedPlayer = true;
+                                    team.addPlayerToStartingLineup(player);
+                                    dataManager.getDraft().getAllPlayers().remove(player);
+                                    dataManager.getDraft().getDraftedPlayers().add(player);
+                                }
+                            } else if (pos.equals("MI")) {
+                                if ((player.getQP().contains("2B") || player.getQP().contains("SS")) && positionsTable.get("MI") > 0) {
+                                    player.setP("MI");
+                                    addedPlayer = true;
+                                    team.addPlayerToStartingLineup(player);
+                                    dataManager.getDraft().getAllPlayers().remove(player);
+                                    dataManager.getDraft().getDraftedPlayers().add(player);
+                                }
+                            } else {
+                                if (positionsTable.get(pos) > 0) {
+                                    if (player.getQP().contains(pos)) {
+
+                                        player.setP(pos);
+                                        addedPlayer = true;
+                                        team.addPlayerToStartingLineup(player);
+                                        dataManager.getDraft().getAllPlayers().remove(player);
+                                        dataManager.getDraft().getDraftedPlayers().add(player);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        if (addedPlayer == false) {
+            for (Team team : dataManager.getDraft().getTeams()) {
+                if (team.getTaxiSquad().size() < 8 && addedPlayer == false) {
+                    int randPlay = (int) (Math.random() * dataManager.getDraft().getAllPlayers().size() + 1);
+                    Player player = dataManager.getDraft().getAllPlayers().get(randPlay);
+                    player.setFantasyTeamName(team.getTeamName());
+                    player.setContract("X");
+                    player.setSalary(1);
+                    addedPlayer = true;
+                    player.setP(player.getQP());
+                    addedPlayer = true;
+                    team.getTaxiSquad().add(player);
+                    dataManager.getDraft().getAllPlayers().remove(player);
+                    dataManager.getDraft().getDraftedPlayers().add(player);
+                }
+            }
+        }
+
+    }
+
+    private void sortAndUpdatePickNum() {
+        for (int i = 0; i < dataManager.getDraft().getDraftedPlayers().size(); i++) {
+            dataManager.getDraft().getDraftedPlayers().get(i).setPickNum(i + 1);
+        }
+        for (Team team : dataManager.getDraft().getTeams()) {
+            dataManager.getDraft().sortTeam(team);
+        }
     }
 
     private void mlbComboBoxActionHandler() {

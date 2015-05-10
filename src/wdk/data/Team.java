@@ -113,12 +113,11 @@ public class Team {
             positionTable.replace("3B", positionTable.get("3B") - 1);
         }
 
-        //CHECK TO SEE IF WE CAN ADD A "CI" TO THE COMBO BOX
-        //if ((positionTable.get("1B") == 0) && (positionTable.get("3B") == 0)) {
-            if ((position.contains("1B") || position.contains("3B")) && (positionTable.get("CI") > 0)) {
-                positionTable.replace("CI", positionTable.get("CI") - 1);
-            }
-        //}
+       //CHECK TO SEE IF WE CAN ADD A "3B" TO THE COMBO BOX
+        if (position.contains("CI") && (positionTable.get("CI") > 0)) {
+
+            positionTable.replace("CI", positionTable.get("CI") - 1);
+        }
         //CHECK TO SEE IF WE CAN ADD A "2B" TO THE COMBO BOX
         if (position.contains("2B") && (positionTable.get("2B") > 0)) {
 
@@ -131,13 +130,11 @@ public class Team {
             positionTable.replace("SS", positionTable.get("SS") - 1);
         }
 
-        //CHECK TO SEE IF WE CAN ADD A "2B" TO THE COMBO BOX
-        //if ((positionTable.get("2B") == 0) && (positionTable.get("SS") == 0)) {
-            if ((position.contains("2B") || position.contains("SS")) && (positionTable.get("MI") > 0)) {
-                positionTable.replace("MI", positionTable.get("MI") - 1);
-            }
-        //}
+        //CHECK TO SEE IF WE CAN ADD A "3B" TO THE COMBO BOX
+        if (position.contains("MI") && (positionTable.get("MI") > 0)) {
 
+            positionTable.replace("MI", positionTable.get("MI") - 1);
+        }
         //CHECK TO SEE IF WE CAN ADD A "OF" TO THE COMBO BOX
         if (position.contains("OF") && (positionTable.get("OF") > 0)) {
             positionTable.replace("OF", positionTable.get("OF") - 1);
@@ -308,5 +305,50 @@ public class Team {
     public double getTeamWHIP() {
         return teamWHIP;
     }
+    
+    public void calculateStats() {
+        clearStats();
+        setPlayersNeeded(23 - startupLine.size());
+        if (playersNeeded == 0) {
+            setPricePP(-1);
+        } else {
+            setPricePP(getMoneyLeft() / playersNeeded);
+        }
+        for (Player p : getStartupLine()) {
+            if (p.getQP().contains("P") || p.getP().contains("P")) {
+                //W SV K ERA WHIP
+                setMoneyLeft(getMoneyLeft() - p.getSalary());
+                setTeamW(getTeamW() + p.getR_W());
+                setTeamSV(getTeamSV() + p.getHR_SV());
+                setTeamK(getTeamK() + p.getRBI_K());
 
+                setTeamW(getTeamW() + p.getW());
+            } else {
+                //R HR RBI SB BA
+                setMoneyLeft(getMoneyLeft() - p.getSalary());
+                setTeamR(getTeamR() + p.getR_W());
+                setTeamHR(getTeamHR() + p.getHR_SV());
+                setTeamRBI(getTeamRBI() + p.getRBI_K());
+                setTeamSB((int) (getTeamSB() + p.getSB_ERA()));
+
+            }
+        }
+
+    }
+    private void clearStats() {
+        setPlayersNeeded(23);
+        setMoneyLeft(Team.TOTAL_MONEY);
+        setPricePP(Team.getTOTAL_MONEY()/getPlayersNeeded());
+        setTeamR(0);
+        setTeamHR(0);
+        setTeamK(0);
+        setTeamRBI(0);
+        setTeamSB(0);
+        setTeamSV(0);
+        setTeamW(0);
+        setTeamBA(0);
+        setTeamERA(0);
+        setTeamWHIP(0);
+    }
+    
 }

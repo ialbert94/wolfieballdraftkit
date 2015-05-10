@@ -173,6 +173,7 @@ public class JsonDraftFileManager implements DraftFileManager {
                 player.setBA_WHIP(Double.valueOf(jso1.getString(JSON_BA_WHIP)));
                 player.setContract(jso1.getString(JSON_CONTRACT));
                 player.setSalary(jso1.getInt(JSON_SALARY));
+                player.setFantasyTeamName(jso.getString(JSON_FANTASY_TEAM));
                 draftToLoad.getTeams().get(i).addPlayerToStartingLineup(player);
             }
         }

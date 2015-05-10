@@ -443,130 +443,168 @@ public class PlayerDialog extends Stage {
         salaryLabel = new Label(SALARY_PROMPT);
 
         ArrayList<String> teamNameList = new ArrayList();
-        teamNameList.add("Free Agent");
+        //teamNameList.add("Free Agent");
         for (int i = 0; i < draft.getTeams().size(); i++) {
             teamNameList.add(draft.getTeams().get(i).getTeamName());
         }
         fantasyTeamComboBox = new ComboBox();
         positionComboBox = new ComboBox();
         fantasyTeamComboBox.getItems().addAll(teamNameList);
-        fantasyTeamComboBox.setValue(teamNameList.get(0));
         fantasyTeamComboBox.valueProperty().addListener((observable, oldValue, newValue) -> {
             playerToEdit.setFantasyTeamName(newValue.toString());
             positionComboBox.getSelectionModel().clearSelection();
             positionComboBox.getItems().clear();
-            ArrayList<String> position = new ArrayList();
-            HashMap<String, Integer> positionTable = new HashMap<>();
-            positionTable.put("C", 2);
-            positionTable.put("1B", 1);
-            positionTable.put("3B", 1);
-            positionTable.put("CI", 1);
-            positionTable.put("2B", 1);
-            positionTable.put("SS", 1);
-            positionTable.put("MI", 1);
-            positionTable.put("OF", 5);
-            positionTable.put("U", 1);
-            positionTable.put("P", 9);
-
             String positions = playerToEdit.getQP();
-            Team team = draft.getTeamItem(fantasyTeamComboBox.getSelectionModel().getSelectedItem().toString());
-            if (team != null) {
-                for (Player p : team.getStartupLine()) {
-                    String pos = p.getP();
-                    positionTable.replace(pos, positionTable.get(pos) - 1);
+            if (draft.getTeamItem(newValue.toString()).getStartupLine().size() < 23) {
+                ArrayList<String> position = new ArrayList();
+                HashMap<String, Integer> positionTable = new HashMap<>();
+                positionTable.put("C", 2);
+                positionTable.put("1B", 1);
+                positionTable.put("3B", 1);
+                positionTable.put("CI", 1);
+                positionTable.put("2B", 1);
+                positionTable.put("SS", 1);
+                positionTable.put("MI", 1);
+                positionTable.put("OF", 5);
+                positionTable.put("U", 1);
+                positionTable.put("P", 9);
+
+                Team team = draft.getTeamItem(fantasyTeamComboBox.getSelectionModel().getSelectedItem().toString());
+                if (team != null) {
+                    for (Player p : team.getStartupLine()) {
+                        String pos = p.getP();
+                        positionTable.replace(pos, positionTable.get(pos) - 1);
+                    }
                 }
-            }
 
-            //CHECK TO SEE IF WE CAN ADD A "C" TO THE COMBO BOX
-            if (positions.contains("C") && (positionTable.get("C") > 0)
-                    && !fantasyTeamComboBox.getSelectionModel().getSelectedItem().toString().equals("Free Agent")) {
-                position.add("C");
+                //CHECK TO SEE IF WE CAN ADD A "C" TO THE COMBO BOX
+                if (positions.contains("C") && (positionTable.get("C") > 0)
+                        && !fantasyTeamComboBox.getSelectionModel().getSelectedItem().toString().equals("Free Agent")) {
+                    position.add("C");
 
-                positionTable.replace("C", positionTable.get("C") - 1);
-            }
+                    positionTable.replace("C", positionTable.get("C") - 1);
+                }
 
-            //CHECK TO SEE IF WE CAN ADD A "1B" TO THE COMBO BOX
-            if (positions.contains("1B") && (positionTable.get("1B") > 0)
-                    && !fantasyTeamComboBox.getSelectionModel().getSelectedItem().toString().equals("Free Agent")) {
-                position.add("1B");
+                //CHECK TO SEE IF WE CAN ADD A "1B" TO THE COMBO BOX
+                if (positions.contains("1B") && (positionTable.get("1B") > 0)
+                        && !fantasyTeamComboBox.getSelectionModel().getSelectedItem().toString().equals("Free Agent")) {
+                    position.add("1B");
 
-                positionTable.replace("1B", positionTable.get("1B") - 1);
-            }
+                    positionTable.replace("1B", positionTable.get("1B") - 1);
+                }
 
-            //CHECK TO SEE IF WE CAN ADD A "3B" TO THE COMBO BOX
-            if (positions.contains("3B") && (positionTable.get("3B") > 0)
-                    && !fantasyTeamComboBox.getSelectionModel().getSelectedItem().toString().equals("Free Agent")) {
-                position.add("3B");
+                //CHECK TO SEE IF WE CAN ADD A "3B" TO THE COMBO BOX
+                if (positions.contains("3B") && (positionTable.get("3B") > 0)
+                        && !fantasyTeamComboBox.getSelectionModel().getSelectedItem().toString().equals("Free Agent")) {
+                    position.add("3B");
 
-                positionTable.replace("3B", positionTable.get("3B") - 1);
-            }
+                    positionTable.replace("3B", positionTable.get("3B") - 1);
+                }
 
-            //CHECK TO SEE IF WE CAN ADD A "CI" TO THE COMBO BOX
-            if ((positions.contains("1B") || position.contains("3B"))
-                    && (positionTable.get("CI") > 0) && !fantasyTeamComboBox.getSelectionModel().getSelectedItem().toString().equals("Free Agent")) {
-                position.add("CI");
+                //CHECK TO SEE IF WE CAN ADD A "CI" TO THE COMBO BOX
+                if ((positions.contains("1B") || position.contains("3B"))
+                        && (positionTable.get("CI") > 0) && !fantasyTeamComboBox.getSelectionModel().getSelectedItem().toString().equals("Free Agent")) {
+                    position.add("CI");
 
-                positionTable.replace("CI", positionTable.get("CI") - 1);
-            }
+                    positionTable.replace("CI", positionTable.get("CI") - 1);
+                }
 
-            //CHECK TO SEE IF WE CAN ADD A "2B" TO THE COMBO BOX
-            if (positions.contains("2B") && (positionTable.get("2B") > 0)
-                    && !fantasyTeamComboBox.getSelectionModel().getSelectedItem().toString().equals("Free Agent")) {
-                position.add("2B");
+                //CHECK TO SEE IF WE CAN ADD A "2B" TO THE COMBO BOX
+                if (positions.contains("2B") && (positionTable.get("2B") > 0)
+                        && !fantasyTeamComboBox.getSelectionModel().getSelectedItem().toString().equals("Free Agent")) {
+                    position.add("2B");
 
-                positionTable.replace("2B", positionTable.get("2B") - 1);
-            }
+                    positionTable.replace("2B", positionTable.get("2B") - 1);
+                }
 
-            //CHECK TO SEE IF WE CAN ADD A "SS" TO THE COMBO BOX
-            if (positions.contains("SS") && (positionTable.get("SS") > 0)
-                    && !fantasyTeamComboBox.getSelectionModel().getSelectedItem().toString().equals("Free Agent")) {
-                position.add("SS");
+                //CHECK TO SEE IF WE CAN ADD A "SS" TO THE COMBO BOX
+                if (positions.contains("SS") && (positionTable.get("SS") > 0)
+                        && !fantasyTeamComboBox.getSelectionModel().getSelectedItem().toString().equals("Free Agent")) {
+                    position.add("SS");
 
-                positionTable.replace("SS", positionTable.get("SS") - 1);
-            }
+                    positionTable.replace("SS", positionTable.get("SS") - 1);
+                }
 
-            //CHECK TO SEE IF WE CAN ADD A "2B" TO THE COMBO BOX
-            if ((positions.contains("2B") || position.contains("SS"))
-                    && (positionTable.get("MI") > 0) && !fantasyTeamComboBox.getSelectionModel().getSelectedItem().toString().equals("Free Agent")) {
-                position.add("MI");
+                //CHECK TO SEE IF WE CAN ADD A "2B" TO THE COMBO BOX
+                if ((positions.contains("2B") || position.contains("SS"))
+                        && (positionTable.get("MI") > 0) && !fantasyTeamComboBox.getSelectionModel().getSelectedItem().toString().equals("Free Agent")) {
+                    position.add("MI");
 
-                positionTable.replace("MI", positionTable.get("MI") - 1);
-            }
+                    positionTable.replace("MI", positionTable.get("MI") - 1);
+                }
 
-            //CHECK TO SEE IF WE CAN ADD A "OF" TO THE COMBO BOX
-            if (positions.contains("OF") && (positionTable.get("OF") > 0)
-                    && !fantasyTeamComboBox.getSelectionModel().getSelectedItem().toString().equals("Free Agent")) {
-                position.add("OF");
+                //CHECK TO SEE IF WE CAN ADD A "OF" TO THE COMBO BOX
+                if (positions.contains("OF") && (positionTable.get("OF") > 0)
+                        && !fantasyTeamComboBox.getSelectionModel().getSelectedItem().toString().equals("Free Agent")) {
+                    position.add("OF");
 
-                positionTable.replace("OF", positionTable.get("OF") - 1);
-            }
+                    positionTable.replace("OF", positionTable.get("OF") - 1);
+                }
 
-            //CHECK TO SEE IF WE CAN ADD A "U" TO THE COMBO BOX
-            if (positions.contains("U") && (positionTable.get("U") > 0)
-                    && !fantasyTeamComboBox.getSelectionModel().getSelectedItem().toString().equals("Free Agent")) {
-                position.add("U");
+                //CHECK TO SEE IF WE CAN ADD A "U" TO THE COMBO BOX
+                if (positions.contains("U") && (positionTable.get("U") > 0)
+                        && !fantasyTeamComboBox.getSelectionModel().getSelectedItem().toString().equals("Free Agent")) {
+                    position.add("U");
 
-                positionTable.replace("U", positionTable.get("U") - 1);
-            }
+                    positionTable.replace("U", positionTable.get("U") - 1);
+                }
 
-            //CHECK TO SEE IF WE CAN ADD A "P" TO THE COMBO BOX
-            if (positions.contains("P") && (positionTable.get("P") > 0)
-                    && !fantasyTeamComboBox.getSelectionModel().getSelectedItem().toString().equals("Free Agent")) {
-                position.add("P");
+                //CHECK TO SEE IF WE CAN ADD A "P" TO THE COMBO BOX
+                if (positions.contains("P") && (positionTable.get("P") > 0)
+                        && !fantasyTeamComboBox.getSelectionModel().getSelectedItem().toString().equals("Free Agent")) {
+                    position.add("P");
 
-                positionTable.replace("P", positionTable.get("P") - 1);
-            }
-            if (fantasyTeamComboBox.getSelectionModel().getSelectedItem().toString().equals("Free Agent")) {
+                    positionTable.replace("P", positionTable.get("P") - 1);
+                }
+                if (fantasyTeamComboBox.getSelectionModel().getSelectedItem().toString().equals("Free Agent")) {
+                    positionComboBox.getItems().clear();
+                }
+
+                //HERE WE WILL IMPLEMENT FOOL PROOF DESIGN. 
+                //FIGURE OUT A WAY TO CHECK ALL AVAILABLE POSITIONS OF THE PLAYER
+                //VS ALL AVAILPOSIITONS LEFT FOR THE TEAM AND ONLY ADD THOSE
+                positionComboBox.getSelectionModel().clearSelection();
                 positionComboBox.getItems().clear();
-            }
-            //HERE WE WILL IMPLEMENT FOOL PROOF DESIGN. 
-            //FIGURE OUT A WAY TO CHECK ALL AVAILABLE POSITIONS OF THE PLAYER
-            //VS ALL AVAILPOSIITONS LEFT FOR THE TEAM AND ONLY ADD THOSE
-            positionComboBox.getSelectionModel().clearSelection();
-            positionComboBox.getItems().clear();
-            positionComboBox.getSelectionModel().clearSelection();
-            positionComboBox.getItems().addAll(position);
+                positionComboBox.getSelectionModel().clearSelection();
+                positionComboBox.getItems().addAll(position);
+            } else {
+                ArrayList<String> position = new ArrayList();
+                if (positions.contains("C")) {
+                    position.add("C");
+                }
+                if (positions.contains("1B")) {
+                    position.add("1B");
+                }
+                if (positions.contains("3B")) {
+                    position.add("3B");
+                }
+                if (positions.contains("CI")) {
+                    position.add("CI");
+                }
+                if (positions.contains("2B")) {
+                    position.add("2B");
+                }
+                if (positions.contains("SS")) {
+                    position.add("SS");
+                }
+                if (positions.contains("MI")) {
+                    position.add("MI");
+                }
+                if (positions.contains("OF")) {
+                    position.add("OF");
+                }
+                if (positions.contains("U")) {
+                    position.add("U");
+                }
 
+                if (positions.contains("P")) {
+                    position.add("P");
+                }
+                positionComboBox.getSelectionModel().clearSelection();
+                positionComboBox.getItems().clear();
+                positionComboBox.getSelectionModel().clearSelection();
+                positionComboBox.getItems().addAll(position);
+            }
         });
 
         positionComboBox.valueProperty().addListener((observable, oldValue, newValue) -> {
@@ -616,7 +654,7 @@ public class PlayerDialog extends Stage {
                 String teamName = fantasyTeamComboBox.getSelectionModel().getSelectedItem().toString();
                 Team team = draft.getTeamItem(teamName);
                 int num = Integer.parseInt(salaryTextField.getText());
-                if (num > team.getPricePP()) {
+                if (num > team.getMoneyLeft()-(23-team.getStartupLine().size())+1) {
                     dialog = new MessageDialog(this, ("Close"));
                     dialog.show("Price per player is too high, please re-enter.");
                 } else {
@@ -874,7 +912,7 @@ public class PlayerDialog extends Stage {
                 String teamName = fantasyTeamComboBox.getSelectionModel().getSelectedItem().toString();
                 Team team = draft.getTeamItem(teamName);
                 int num = Integer.parseInt(salaryTextField.getText());
-                if (num > team.getPricePP()) {
+                if (num > team.getMoneyLeft()-(23-team.getStartupLine().size())+1) {
                     dialog = new MessageDialog(this, ("Close"));
                     dialog.show("Price per player is too high, please re-enter.");
                 } else {

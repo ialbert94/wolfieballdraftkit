@@ -23,7 +23,7 @@ public class Player {
     String contract;        //their contract as a string, how long they play for
     int salary;             //the cost of the player i believe?
     
-    ObservableList<String> pickNum;
+    int pickNum;
     
     //THESE WILL BE THE VARIABLES THAT WILL BELONG
     //TO THE PITCHERS
@@ -62,7 +62,7 @@ public class Player {
         QP = "";
         P = "";
         fantasyTeamName = "";
-        pickNum = FXCollections.observableArrayList();
+        
     }
 
     public double getERA() {
@@ -72,6 +72,15 @@ public class Player {
     public double getWHIP() {
         return WHIP;
     }
+
+    public int getPickNum() {
+        return pickNum;
+    }
+
+    public void setPickNum(int pickNum) {
+        this.pickNum = pickNum;
+    }
+    
 
     public void setERA(double ERA) {
         this.ERA = ERA;

@@ -316,6 +316,8 @@ public class FileController {
         if (selectedFile != null) {
             try {
                 Draft draftToLoad = gui.getDataManager().getDraft();
+                DraftDataManager dataManager = gui.getDataManager();
+                dataManager.reset();
                 draftIO.loadDraft(draftToLoad, selectedFile.getAbsolutePath());
                 gui.reloadDraft(draftToLoad);
                 saved = true;
