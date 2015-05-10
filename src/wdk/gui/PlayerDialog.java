@@ -359,7 +359,6 @@ public class PlayerDialog extends Stage {
         cancelButton.setOnAction(cancelHandlerAdd);
 
         // NOW LET'S ARRANGE THEM ALL AT ONCE
-        
         addGridPane.add(headingLabel, 0, 0, 19, 1);
         addGridPane.add(firstNameLabel, 0, 1, 19, 1);
         addGridPane.add(firstNameTextField, 1, 1, 19, 1);
@@ -614,10 +613,17 @@ public class PlayerDialog extends Stage {
                     && positionComboBox.getSelectionModel().getSelectedItem() != null
                     && positionComboBox.getSelectionModel().getSelectedItem() != null
                     && !salaryTextField.getText().isEmpty()) {
-
-                Button sourceButton = (Button) ae.getSource();
-                selection = sourceButton.getText();
-                hide();
+                String teamName = fantasyTeamComboBox.getSelectionModel().getSelectedItem().toString();
+                Team team = draft.getTeamItem(teamName);
+                int num = Integer.parseInt(salaryTextField.getText());
+                if (num > team.getPricePP()) {
+                    dialog = new MessageDialog(this, ("Close"));
+                    dialog.show("Price per player is too high, please re-enter.");
+                } else {
+                    Button sourceButton = (Button) ae.getSource();
+                    selection = sourceButton.getText();
+                    hide();
+                }
             } else {
 
             }
@@ -836,7 +842,7 @@ public class PlayerDialog extends Stage {
         contractComboBox.getItems().addAll(contract);
         contractComboBox.getSelectionModel().clearSelection();
         contractComboBox.valueProperty().addListener((observable, oldValue, newValue) -> {
-           // playerToEdit.setContract(newValue.toString());
+            // playerToEdit.setContract(newValue.toString());
             player.setContract(newValue.toString());
         });
 
@@ -862,18 +868,25 @@ public class PlayerDialog extends Stage {
         cancelButton = new Button(CANCEL);
 
         EventHandler completeHandlerEdit = (EventHandler<ActionEvent>) (ActionEvent ae) -> {
-             if (positionComboBox.getSelectionModel().getSelectedItem() != null
+            if (positionComboBox.getSelectionModel().getSelectedItem() != null
                     && positionComboBox.getSelectionModel().getSelectedItem() != null
                     && !salaryTextField.getText().isEmpty()) {
-
-                Button sourceButton = (Button) ae.getSource();
-                selection = sourceButton.getText();
-                hide();
+                String teamName = fantasyTeamComboBox.getSelectionModel().getSelectedItem().toString();
+                Team team = draft.getTeamItem(teamName);
+                int num = Integer.parseInt(salaryTextField.getText());
+                if (num > team.getPricePP()) {
+                    dialog = new MessageDialog(this, ("Close"));
+                    dialog.show("Price per player is too high, please re-enter.");
+                } else {
+                    Button sourceButton = (Button) ae.getSource();
+                    selection = sourceButton.getText();
+                    hide();
+                }
             } else if (fantasyTeamComboBox.getSelectionModel().getSelectedItem().equals("Free Agent")) {
                 Button sourceButton = (Button) ae.getSource();
                 selection = sourceButton.getText();
                 hide();
-            }else{
+            } else {
 
             }
         };

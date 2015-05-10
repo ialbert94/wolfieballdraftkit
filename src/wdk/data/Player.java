@@ -1,5 +1,8 @@
 package wdk.data;
 
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+
 /**
  *This is the player class, that will hold all the statistics
  * of the baseball players that will be added to the team.
@@ -20,6 +23,7 @@ public class Player {
     String contract;        //their contract as a string, how long they play for
     int salary;             //the cost of the player i believe?
     
+    ObservableList<String> pickNum;
     
     //THESE WILL BE THE VARIABLES THAT WILL BELONG
     //TO THE PITCHERS
@@ -58,6 +62,7 @@ public class Player {
         QP = "";
         P = "";
         fantasyTeamName = "";
+        pickNum = FXCollections.observableArrayList();
     }
 
     public double getERA() {

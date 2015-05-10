@@ -34,7 +34,7 @@ public class Draft {
     ObservableList<Player> filteredPlayers;
     ObservableList<Team> teams;
     ObservableList<Team> teamsWithTotalStats;
-
+    ObservableList<Player> draftedPlayers;
     public Draft() {
         hitters = FXCollections.observableArrayList();
         pitchers = FXCollections.observableArrayList();
@@ -42,6 +42,7 @@ public class Draft {
         filteredPlayers = FXCollections.observableArrayList();
         teams = FXCollections.observableArrayList();
         teamsWithTotalStats = FXCollections.observableArrayList();
+        draftedPlayers = FXCollections.observableArrayList();
         draftName = "";
     }
 
@@ -184,6 +185,15 @@ public class Draft {
         return teams;
     }
 
+    public ObservableList<Player> getDraftedPlayers() {
+        return draftedPlayers;
+    }
+
+    public void setDraftedPlayers(ObservableList<Player> draftedPlayers) {
+        this.draftedPlayers = draftedPlayers;
+    }
+    
+
     public void calculateStats(Team teamToCalculate) {
         clearStats(teamToCalculate);
         teamToCalculate.setPlayersNeeded(23 - teamToCalculate.getStartupLine().size());
@@ -258,7 +268,7 @@ public class Draft {
     private void clearStats(Team teamToCalculate) {
         teamToCalculate.setPlayersNeeded(23);
         teamToCalculate.setMoneyLeft(Team.TOTAL_MONEY);
-        teamToCalculate.setPricePP(0);
+        teamToCalculate.setPricePP(Team.getTOTAL_MONEY()/teamToCalculate.getPlayersNeeded());
         teamToCalculate.setTeamR(0);
         teamToCalculate.setTeamHR(0);
         teamToCalculate.setTeamK(0);
