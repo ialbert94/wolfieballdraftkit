@@ -5,6 +5,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.math.MathContext;
+import java.math.BigDecimal;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -129,6 +131,10 @@ public class JsonDraftFileManager implements DraftFileManager {
             p.setQP(jso.getString(JSON_QP));
             p.setYearOfBirth(jso.getString(JSON_YEAR_OF_BIRTH));
             p.setNationOfBirth(jso.getString(JSON_NATION_OF_BIRTH));
+            p.setIP(jso.getInt(JSON_IP));
+            p.setER(jso.getInt(JSON_ER));
+            p.setH(jso.getInt(JSON_H));
+            p.setAB(jso.getInt(JSON_AB));
             p.setR_W(jso.getInt(JSON_R_W));
             p.setHR_SV(jso.getInt(JSON_HR_SV));
             p.setRBI_K(jso.getInt(JSON_RBI_K));
@@ -165,6 +171,10 @@ public class JsonDraftFileManager implements DraftFileManager {
                 player.setFirstName(jso1.getString(JSON_FIRST_NAME));
                 player.setLastName(jso1.getString(JSON_LAST_NAME));
                 player.setPreviousTeam(jso1.getString(JSON_PRO_TEAM));
+                player.setIP(jso1.getInt(JSON_IP));
+                player.setER(jso1.getInt(JSON_ER));
+                player.setH(jso1.getInt(JSON_H));
+                player.setAB(jso1.getInt(JSON_AB));
                 player.setQP(jso1.getString(JSON_QP));
                 player.setR_W(jso1.getInt(JSON_R_W));
                 player.setHR_SV(jso1.getInt(JSON_HR_SV));
@@ -245,7 +255,12 @@ public class JsonDraftFileManager implements DraftFileManager {
             playerToLoad.setSB(Integer.valueOf(jsonHitter.getString(JSON_SB)));
             playerToLoad.setSB_ERA(playerToLoad.getSB());
             if (playerToLoad.getAB() != 0) {
-                playerToLoad.setBA((double) playerToLoad.getH() / (double) playerToLoad.getAB());
+                double d = (double) playerToLoad.getH() / (double) playerToLoad.getAB();
+                BigDecimal bd = new BigDecimal(d);
+                bd = bd.round(new MathContext(3));
+                double rounded = bd.doubleValue();
+
+                playerToLoad.setBA(rounded);
                 playerToLoad.setBA_WHIP(playerToLoad.getBA());
             }
             playerToLoad.setNotes(jsonHitter.getString(JSON_NOTES));
@@ -282,11 +297,21 @@ public class JsonDraftFileManager implements DraftFileManager {
             playerToLoad.setK(Integer.valueOf(jsonHitter.getString(JSON_K)));
             playerToLoad.setRBI_K(playerToLoad.getK());
             if (playerToLoad.getIP() != 0) {
-                playerToLoad.setWHIP((double) (playerToLoad.getH() + playerToLoad.getW()) / playerToLoad.getIP());
+                double d = (double) (playerToLoad.getH() + playerToLoad.getW()) / playerToLoad.getIP();
+                BigDecimal bd = new BigDecimal(d);
+                bd = bd.round(new MathContext(3));
+                double rounded = bd.doubleValue();
+
+                playerToLoad.setWHIP(rounded);
                 playerToLoad.setBA_WHIP(playerToLoad.getWHIP());
             }
             if (playerToLoad.getIP() != 0) {
-                playerToLoad.setERA((double) (playerToLoad.getER() * 9) / playerToLoad.getIP());
+                double b = (double) (playerToLoad.getER() * 9) / playerToLoad.getIP();
+                BigDecimal bd = new BigDecimal(b);
+                bd = bd.round(new MathContext(3));
+                double rounded = bd.doubleValue();
+
+                playerToLoad.setERA(rounded);
                 playerToLoad.setSB_ERA(playerToLoad.getERA());
             }
             playerToLoad.setNotes(jsonHitter.getString(JSON_NOTES));
@@ -337,6 +362,10 @@ public class JsonDraftFileManager implements DraftFileManager {
                     .add(JSON_QP, player.getQP())
                     .add(JSON_YEAR_OF_BIRTH, player.getYearOfBirth())
                     .add(JSON_NATION_OF_BIRTH, player.getNationOfBirth())
+                    .add(JSON_IP, player.getIP())
+                    .add(JSON_ER, player.getER())
+                    .add(JSON_H, player.getH())
+                    .add(JSON_AB, player.getAB())
                     .add(JSON_R_W, player.getR_W())
                     .add(JSON_HR_SV, player.getHR_SV())
                     .add(JSON_RBI_K, player.getRBI_K())
@@ -381,36 +410,40 @@ public class JsonDraftFileManager implements DraftFileManager {
         String sb_era = Double.toString(player.getSB_ERA());
         JsonObject jso;
         String ba_whip = Double.toString(player.getBA_WHIP());
-        try{
-        jso = Json.createObjectBuilder()
-                .add(JSON_POSITION, player.getP())
-                .add(JSON_FIRST_NAME, player.getFirstName())
-                .add(JSON_LAST_NAME, player.getLastName())
-                .add(JSON_PRO_TEAM, player.getPreviousTeam())
-                .add(JSON_QP, player.getQP())
-                .add(JSON_R_W, player.getR_W())
-                .add(JSON_HR_SV, player.getHR_SV())
-                .add(JSON_RBI_K, player.getRBI_K())
-                .add(JSON_SB_ERA, sb_era)
-                .add(JSON_BA_WHIP, ba_whip)
-                .add(JSON_CONTRACT, player.getContract())
-                .add(JSON_SALARY, player.getSalary())
-                .build();
-        } catch(Exception e){
+        try {
             jso = Json.createObjectBuilder()
-                .add(JSON_POSITION, player.getP())
-                .add(JSON_FIRST_NAME, player.getFirstName())
-                .add(JSON_LAST_NAME, player.getLastName())
-                .add(JSON_PRO_TEAM, player.getPreviousTeam())
-                .add(JSON_QP, player.getQP())
-                .add(JSON_R_W, 0)
-                .add(JSON_HR_SV, 0)
-                .add(JSON_RBI_K, 0)
-                .add(JSON_SB_ERA, 0)
-                .add(JSON_BA_WHIP,0)
-                .add(JSON_CONTRACT, player.getContract())
-                .add(JSON_SALARY, player.getSalary())
-                .build();
+                    .add(JSON_POSITION, player.getP())
+                    .add(JSON_FIRST_NAME, player.getFirstName())
+                    .add(JSON_LAST_NAME, player.getLastName())
+                    .add(JSON_PRO_TEAM, player.getPreviousTeam())
+                    .add(JSON_QP, player.getQP())
+                    .add(JSON_R_W, player.getR_W())
+                    .add(JSON_IP, player.getIP())
+                    .add(JSON_ER, player.getER())
+                    .add(JSON_H, player.getH())
+                    .add(JSON_AB, player.getAB())
+                    .add(JSON_HR_SV, player.getHR_SV())
+                    .add(JSON_RBI_K, player.getRBI_K())
+                    .add(JSON_SB_ERA, sb_era)
+                    .add(JSON_BA_WHIP, ba_whip)
+                    .add(JSON_CONTRACT, player.getContract())
+                    .add(JSON_SALARY, player.getSalary())
+                    .build();
+        } catch (Exception e) {
+            jso = Json.createObjectBuilder()
+                    .add(JSON_POSITION, player.getP())
+                    .add(JSON_FIRST_NAME, player.getFirstName())
+                    .add(JSON_LAST_NAME, player.getLastName())
+                    .add(JSON_PRO_TEAM, player.getPreviousTeam())
+                    .add(JSON_QP, player.getQP())
+                    .add(JSON_R_W, 0)
+                    .add(JSON_HR_SV, 0)
+                    .add(JSON_RBI_K, 0)
+                    .add(JSON_SB_ERA, 0)
+                    .add(JSON_BA_WHIP, 0)
+                    .add(JSON_CONTRACT, player.getContract())
+                    .add(JSON_SALARY, player.getSalary())
+                    .build();
         }
         return jso;
     }

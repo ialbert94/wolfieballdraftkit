@@ -1,5 +1,8 @@
 package wdk.data;
 
+import java.math.BigDecimal;
+import java.math.MathContext;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -23,8 +26,12 @@ public class Team {
     int teamHR;
     int teamRBI;
     int teamSB;
+    int teamH;
+    double teamER;
+    double teamIP;
+    int teamAB;
     double teamBA;
-    double teamW;
+    int teamW;
     int teamSV;
     int teamK;
     double teamERA;
@@ -113,7 +120,7 @@ public class Team {
             positionTable.replace("3B", positionTable.get("3B") - 1);
         }
 
-       //CHECK TO SEE IF WE CAN ADD A "3B" TO THE COMBO BOX
+        //CHECK TO SEE IF WE CAN ADD A "3B" TO THE COMBO BOX
         if (position.contains("CI") && (positionTable.get("CI") > 0)) {
 
             positionTable.replace("CI", positionTable.get("CI") - 1);
@@ -218,6 +225,10 @@ public class Team {
         return teamBA;
     }
 
+    public int getTeamW() {
+        return teamW;
+    }
+    
     public double getTeamERA() {
         return teamERA;
     }
@@ -248,10 +259,6 @@ public class Team {
 
     public double getTeamTotalPoints() {
         return teamTotalPoints;
-    }
-
-    public double getTeamW() {
-        return teamW;
     }
 
     public void setPricePP(int pricePP) {
@@ -294,7 +301,7 @@ public class Team {
         this.teamTotalPoints = teamTotalPoints;
     }
 
-    public void setTeamW(double teamW) {
+    public void setTeamW(int teamW) {
         this.teamW = teamW;
     }
 
@@ -305,7 +312,7 @@ public class Team {
     public double getTeamWHIP() {
         return teamWHIP;
     }
-    
+
     public void calculateStats() {
         clearStats();
         setPlayersNeeded(23 - startupLine.size());
@@ -318,11 +325,26 @@ public class Team {
             if (p.getQP().contains("P") || p.getP().contains("P")) {
                 //W SV K ERA WHIP
                 setMoneyLeft(getMoneyLeft() - p.getSalary());
-                setTeamW(getTeamW() + p.getR_W());
+                setTeamW((int) (getTeamW() + p.getR_W()));
                 setTeamSV(getTeamSV() + p.getHR_SV());
                 setTeamK(getTeamK() + p.getRBI_K());
-
-                setTeamW(getTeamW() + p.getW());
+                setTeamIP((getTeamIP() + p.getIP()));
+                setTeamER((getTeamER() + p.getER()));
+                setTeamH((getTeamH() + p.getH()));
+                if (getTeamIP() != 0) {
+                    double b = (double) (getTeamER() * 9) / getTeamIP();
+                    BigDecimal bd = new BigDecimal(b);
+                    bd = bd.round(new MathContext(3));
+                    double rounded = bd.doubleValue();
+                    setTeamERA(rounded);
+                }
+                if (getTeamIP() != 0) {
+                    double d = (double) (getTeamH() + getTeamW()) / getTeamIP();
+                    BigDecimal bd = new BigDecimal(d);
+                    bd = bd.round(new MathContext(3));
+                    double rounded = bd.doubleValue();
+                    setTeamWHIP(rounded);
+                }
             } else {
                 //R HR RBI SB BA
                 setMoneyLeft(getMoneyLeft() - p.getSalary());
@@ -330,15 +352,25 @@ public class Team {
                 setTeamHR(getTeamHR() + p.getHR_SV());
                 setTeamRBI(getTeamRBI() + p.getRBI_K());
                 setTeamSB((int) (getTeamSB() + p.getSB_ERA()));
-
+                setTeamH(getTeamH() + p.getH());
+                setTeamAB(getTeamAB() + p.getAB());
+                if (getTeamAB() != 0) {
+                    double d = (double) getTeamH() / (double) getTeamAB();
+                    BigDecimal bd = new BigDecimal(d);
+                    bd = bd.round(new MathContext(3));
+                    double rounded = bd.doubleValue();
+                    setTeamBA(rounded);
+                }
             }
         }
 
     }
+    
+    
     private void clearStats() {
         setPlayersNeeded(23);
         setMoneyLeft(Team.TOTAL_MONEY);
-        setPricePP(Team.getTOTAL_MONEY()/getPlayersNeeded());
+        setPricePP(Team.getTOTAL_MONEY() / getPlayersNeeded());
         setTeamR(0);
         setTeamHR(0);
         setTeamK(0);
@@ -349,6 +381,48 @@ public class Team {
         setTeamBA(0);
         setTeamERA(0);
         setTeamWHIP(0);
+        setTeamIP(0);
+        setTeamER(0);
+        setTeamAB(0);
+        setTeamH(0);
+        
     }
+
+    public double getTeamIP() {
+        return teamIP;
+    }
+
+    public void setTeamIP(double teamIP) {
+        this.teamIP = teamIP;
+    }
+
+    public double getTeamER() {
+        return teamER;
+    }
+
+    public void setTeamER(double teamER) {
+        this.teamER = teamER;
+    }
+
+    public int getTeamH() {
+        return teamH;
+    }
+
+    public void setTeamH(int teamH) {
+        this.teamH = teamH;
+    }
+
+    public int getTeamAB() {
+        return teamAB;
+    }
+
+    public void setTeamAB(int teamAB) {
+        this.teamAB = teamAB;
+    }
+
+    
+    
+    
+    
     
 }

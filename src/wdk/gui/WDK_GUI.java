@@ -683,7 +683,7 @@ public class WDK_GUI implements DraftDataView {
         playerRBIK_SL.setCellValueFactory(new PropertyValueFactory<>("RBI_K"));
         playerSBERA_SL.setCellValueFactory(new PropertyValueFactory<>("SB_ERA"));
         playerBAWHIP_SL.setCellValueFactory(new PropertyValueFactory<>("BA_WHIP"));
-        playerEstimatedValue_SL.setCellValueFactory(new PropertyValueFactory<>("Estimated Values"));
+        playerEstimatedValue_SL.setCellValueFactory(new PropertyValueFactory<>("estimatedValue"));
         playerContract_SL.setCellValueFactory(new PropertyValueFactory<>("contract"));
         playerSalary_SL.setCellValueFactory(new PropertyValueFactory<>("salary"));
 
@@ -712,7 +712,7 @@ public class WDK_GUI implements DraftDataView {
         playerRBIK_TS.setCellValueFactory(new PropertyValueFactory<>("RBI_K"));
         playerSBERA_TS.setCellValueFactory(new PropertyValueFactory<>("SB_ERA"));
         playerBAWHIP_TS.setCellValueFactory(new PropertyValueFactory<>("BA_WHIP"));
-        playerEstimatedValue_TS.setCellValueFactory(new PropertyValueFactory<>("Estimated Values"));
+        playerEstimatedValue_TS.setCellValueFactory(new PropertyValueFactory<>("estimatedValue"));
         playerContract_TS.setCellValueFactory(new PropertyValueFactory<>("contract"));
         playerSalary_TS.setCellValueFactory(new PropertyValueFactory<>("salary"));
 
@@ -860,7 +860,7 @@ public class WDK_GUI implements DraftDataView {
         playerK.setCellValueFactory(new PropertyValueFactory<>("K"));
         playerERA.setCellValueFactory(new PropertyValueFactory<>("ERA"));
         playerWHIP.setCellValueFactory(new PropertyValueFactory<>("WHIP"));
-        playerEstimatedValue.setCellValueFactory(new PropertyValueFactory<>("Estimated Values"));
+        playerEstimatedValue.setCellValueFactory(new PropertyValueFactory<>("estimatedValue"));
         playerNotes.setCellValueFactory(new PropertyValueFactory<>("Notes"));
         playerRW.setCellValueFactory(new PropertyValueFactory<>("R_W"));
         playerHRSV.setCellValueFactory(new PropertyValueFactory<>("HR_SV"));
@@ -882,7 +882,7 @@ public class WDK_GUI implements DraftDataView {
         playersTable.getColumns().add(playerEstimatedValue);
         playersTable.getColumns().add(playerNotes);
         playersTable.setEditable(true);
-
+        dataManager.getDraft().calculatePlayerRanks();
         filteredData = new FilteredList<>(dataManager.getDraft().getAllPlayers(), p -> true);
 
         playersTable.setItems(dataManager.getDraft().getFilteredPlayers());
@@ -1078,6 +1078,7 @@ public class WDK_GUI implements DraftDataView {
                     team.calculateStats();
                 }
                 initStandingsScreen();
+                dataManager.getDraft().setTeamPoints2();
                 workspacePane.setCenter(fantasyStandingsScreenBorder);
 
                 break;
@@ -1404,9 +1405,11 @@ public class WDK_GUI implements DraftDataView {
         playerController = new PlayerEditController(primaryStage, dataManager.getDraft(), messageDialog, yesNoCancelDialog);
         addPlayerButton.setOnAction(e -> {
             playerController.handleAddPlayerRequest(this);
+            dataManager.getDraft().calculatePlayerRanks();
         });
         removePlayerButton.setOnAction(e -> {
             playerController.handleRemovePlayerRequest(this, playersTable.getSelectionModel().getSelectedItem());
+            dataManager.getDraft().calculatePlayerRanks();
         });
         // AND NOW THE EDIT PLAYERS
         playersTable.setOnMouseClicked(e -> {
@@ -1429,6 +1432,7 @@ public class WDK_GUI implements DraftDataView {
                 for (Team team : dataManager.getDraft().getTeams()) {
                     team.calculateStats();
                 }
+                dataManager.getDraft().calculatePlayerRanks();
 //dataManager.getDraft().sortTeam(dataManager.getDraft().getTeamItem(p.getFantasyTeamName()));
             }
 
@@ -1457,6 +1461,7 @@ public class WDK_GUI implements DraftDataView {
                 for (Team team : dataManager.getDraft().getTeams()) {
                     team.calculateStats();
                 }
+                dataManager.getDraft().calculatePlayerRanks();
 //dataManager.getDraft().sortTeam(dataManager.getDraft().getTeamItem(p.getFantasyTeamName()));
             }
 
@@ -1469,7 +1474,7 @@ public class WDK_GUI implements DraftDataView {
             for (Team team : dataManager.getDraft().getTeams()) {
                 teamComboBox.getItems().add(team);
                 team.calculateStats();
-
+                dataManager.getDraft().calculatePlayerRanks();
             }
         });
         removeTeamButton.setOnAction(e -> {
@@ -1492,7 +1497,7 @@ public class WDK_GUI implements DraftDataView {
                     teamComboBox.getItems().add(team);
                     team.calculateStats();
                 }
-
+                dataManager.getDraft().calculatePlayerRanks();
             }
         });
 
@@ -1703,7 +1708,7 @@ public class WDK_GUI implements DraftDataView {
                 }
             }
         }
-
+        dataManager.getDraft().calculatePlayerRanks();
     }
 
     private void sortAndUpdatePickNum() {
@@ -1713,6 +1718,7 @@ public class WDK_GUI implements DraftDataView {
         for (Team team : dataManager.getDraft().getTeams()) {
             dataManager.getDraft().sortTeam(team);
         }
+        
     }
 
     private void mlbComboBoxActionHandler() {

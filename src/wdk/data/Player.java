@@ -22,7 +22,7 @@ public class Player {
     int H;                  //Hits, earned by hitters, given up by pitchers
     String contract;        //their contract as a string, how long they play for
     int salary;             //the cost of the player i believe?
-    
+    int estimatedValue;
     int pickNum;
     
     //THESE WILL BE THE VARIABLES THAT WILL BELONG
@@ -114,6 +114,15 @@ public class Player {
         this.salary = salary;
     }
 
+    public int getEstimatedValue() {
+        return estimatedValue;
+    }
+
+    public void setEstimatedValue(int estimatedValue) {
+        this.estimatedValue = estimatedValue;
+    }
+    
+    
     
     
     public int getAB() {
